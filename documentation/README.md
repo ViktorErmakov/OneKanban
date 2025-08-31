@@ -24,6 +24,8 @@ npm run build
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
+После сборки проекта, нужно изменить ветку на gh-pages, там скопировать содержимое build в корень ветки, сделать коммит.
+
 ### Deployment
 
 Using SSH:
@@ -39,3 +41,5 @@ $ GIT_USER=<Your GitHub username> yarn deploy
 ```
 
 If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+
+
