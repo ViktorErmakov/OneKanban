@@ -53,6 +53,7 @@ body {
 #kanban_header {
     display: flex;
     width: 100%;
+    min-height: 5.8rem;
 }
 
 #main-content-wrapper {
