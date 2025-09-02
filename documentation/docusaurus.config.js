@@ -4,7 +4,7 @@
 // There are various equivalent ways to declare your Docusaurus config.
 // See: https://docusaurus.io/docs/api/docusaurus-config
 
-import {themes as prismThemes} from 'prism-react-renderer';
+import { themes as prismThemes } from 'prism-react-renderer';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -35,18 +35,21 @@ const config = {
     defaultLocale: 'ru',
     locales: ['ru'],
   },
-
+  themes: ['@docusaurus/theme-mermaid'],
+  markdown: {
+    mermaid: true,
+  },
   presets: [
     [
       'classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
+        
         docs: {
           sidebarPath: './sidebars.js',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/ViktorErmakov/Kanban_for_1C/tree/main/documentation/',
+          editUrl: 'https://github.com/ViktorErmakov/Kanban_for_1C/tree/main/documentation/',
         },
         blog: {
           showReadingTime: true,
@@ -74,7 +77,7 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      
+
       navbar: {
         title: 'OneKanban',
         logo: {
@@ -88,7 +91,7 @@ const config = {
             position: 'left',
             label: 'Описание',
           },
-          {to: '/blog', label: 'Блог', position: 'left'},
+          { to: '/blog', label: 'Блог', position: 'left' },
         ],
       },
       colorMode: {
