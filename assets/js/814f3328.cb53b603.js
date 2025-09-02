@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocumentation=self.webpackChunkdocumentation||[]).push([[7472],{5513:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"\u041f\u0435\u0440\u0432\u043e\u0435 \u0437\u043d\u0430\u043a\u043e\u043c\u0441\u0442\u0432\u043e","permalink":"/OneKanban/blog/welcome","unlisted":false,"date":"2025-05-22T00:00:00.000Z"}]}')}}]);
