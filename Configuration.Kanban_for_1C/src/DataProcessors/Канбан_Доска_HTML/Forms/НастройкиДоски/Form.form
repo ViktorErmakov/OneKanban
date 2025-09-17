@@ -271,8 +271,8 @@
         <segments>СтатусыЗадач</segments>
       </dataPath>
       <titleLocation>None</titleLocation>
-      <excludedCommands>Copy</excludedCommands>
       <excludedCommands>Change</excludedCommands>
+      <excludedCommands>Copy</excludedCommands>
       <excludedCommands>EndEdit</excludedCommands>
       <toolTip>
         <key>ru</key>
@@ -1196,12 +1196,12 @@
     <autoFill>true</autoFill>
   </autoCommandBar>
   <handlers>
-    <event>OnCreateAtServer</event>
-    <name>ПриСозданииНаСервере</name>
-  </handlers>
-  <handlers>
     <event>BeforeClose</event>
     <name>ПередЗакрытием</name>
+  </handlers>
+  <handlers>
+    <event>OnCreateAtServer</event>
+    <name>ПриСозданииНаСервере</name>
   </handlers>
   <saveWindowSettings>true</saveWindowSettings>
   <autoUrl>true</autoUrl>

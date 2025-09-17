@@ -49,18 +49,20 @@
     <name>ОткрытьКанбанДоску</name>
     <synonym>
       <key>ru</key>
-      <value>Открыть канбан доску</value>
+      <value>Канбан доска</value>
     </synonym>
     <group>NavigationPanelImportant</group>
+    <commandParameterType/>
     <representation>Auto</representation>
   </commands>
   <commands uuid="f9af02f5-4cc0-46c8-acf8-4d52b0802287">
     <name>ОткрытьНастройкиКанбанДоски</name>
     <synonym>
       <key>ru</key>
-      <value>Настройки канбан доски HTML</value>
+      <value>Настройки доски</value>
     </synonym>
     <group>ActionsPanelTools</group>
+    <commandParameterType/>
     <representation>Auto</representation>
   </commands>
   <commands uuid="69e65a81-9053-45f1-8220-f95edb1b2628">
@@ -70,6 +72,7 @@
       <value>Страница разработки</value>
     </synonym>
     <group>ActionsPanelTools</group>
+    <commandParameterType/>
     <representation>Auto</representation>
   </commands>
 </mdclass:DataProcessor>
