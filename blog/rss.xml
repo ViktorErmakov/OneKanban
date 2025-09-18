@@ -4,10 +4,24 @@
         <title>OneKanban Blog</title>
         <link>https://viktorermakov.github.io/OneKanban/blog</link>
         <description>OneKanban Blog</description>
-        <lastBuildDate>Thu, 22 May 2025 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 18 Sep 2025 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>ru</language>
+        <item>
+            <title><![CDATA[Мой день рождения и обновочка]]></title>
+            <link>https://viktorermakov.github.io/OneKanban/blog/SPPR</link>
+            <guid>https://viktorermakov.github.io/OneKanban/blog/SPPR</guid>
+            <pubDate>Thu, 18 Sep 2025 00:00:00 GMT</pubDate>
+            <description><![CDATA[Привет, друзья!]]></description>
+            <content:encoded><![CDATA[<p>Привет, друзья!
+Сегодня у меня день рождения, но это мне не помешало выпустить новый релиз доски с возможностью запуска в конфигурации СППР! 😎
+Встречайте - Версия 2.3</p>
+<p>На текущий момент отображаться на доске могут только задачи, ошибки отображать в планах.</p>
+<p><img decoding="async" loading="lazy" alt="доска в СППР" src="https://viktorermakov.github.io/OneKanban/assets/images/image-8d3f5539814c3aeb15be01bfe948294c.png" width="2544" height="730" class="img_ev3q"></p>
+<p><a href="https://infostart.ru/1c/tools/2398094/" target="_blank" rel="noopener noreferrer">Статья на Инфостарт</a></p>
+<p><a href="https://github.com/ViktorErmakov/OneKanban" target="_blank" rel="noopener noreferrer">Проект на github</a></p>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Первое знакомство]]></title>
             <link>https://viktorermakov.github.io/OneKanban/blog/welcome</link>
