@@ -1,5 +1,5 @@
 ---
-slug: СППР
+slug: SPPR
 title: Мой день рождения и обновочка
 authors: [Ermakov]
 # tags: [facebook, hello, docusaurus]
