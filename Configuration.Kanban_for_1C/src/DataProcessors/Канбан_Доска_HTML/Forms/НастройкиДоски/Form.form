@@ -844,10 +844,6 @@
             <headerHorizontalAlign>Left</headerHorizontalAlign>
             <showInFooter>true</showInFooter>
             <extInfo xsi:type="form:InputFieldExtInfo">
-              <handlers>
-                <event>StartChoice</event>
-                <name>ИспользуемыеПроектыДоскиЦветНачалоВыбора</name>
-              </handlers>
               <width>5</width>
               <autoMaxHeight>true</autoMaxHeight>
               <wrap>true</wrap>
