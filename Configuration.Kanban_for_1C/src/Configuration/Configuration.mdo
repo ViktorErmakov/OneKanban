@@ -55,24 +55,33 @@
   <commonModules>CommonModule.канбан_КанбанДоскаПереопределяемый</commonModules>
   <commonModules>CommonModule.РаботаСФайламиКлиентСервер</commonModules>
   <eventSubscriptions>EventSubscription.ОпределитьФормуПрисоединенногоФайлаКанбан</eventSubscriptions>
+  <functionalOptions>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</functionalOptions>
   <definedTypes>DefinedType.ВладелецПрисоединенныхФайлов</definedTypes>
   <definedTypes>DefinedType.ВладелецПрисоединенныхФайловОбъект</definedTypes>
   <definedTypes>DefinedType.ВладелецФайлов</definedTypes>
   <definedTypes>DefinedType.канбан_Задачи</definedTypes>
+  <definedTypes>DefinedType.канбан_Ошибки</definedTypes>
   <definedTypes>DefinedType.канбан_Пользователь</definedTypes>
   <definedTypes>DefinedType.канбан_Проекты</definedTypes>
   <definedTypes>DefinedType.канбан_СтатусыЗадач</definedTypes>
+  <definedTypes>DefinedType.канбан_СтатусыОшибок</definedTypes>
   <commonCommands>CommonCommand.канбан_Задачи</commonCommands>
+  <commonCommands>CommonCommand.канбан_Ошибки</commonCommands>
   <commonCommands>CommonCommand.канбан_Проекты</commonCommands>
   <commonCommands>CommonCommand.канбан_СтатусыЗадач</commonCommands>
+  <commonCommands>CommonCommand.канбан_СтатусыОшибок</commonCommands>
   <commandGroups>CommandGroup.канбан_Информация</commandGroups>
+  <constants>Constant.канбан_ИспользоватьСопоставлениеСтатусов</constants>
   <catalogs>Catalog.канбан_Задачи</catalogs>
+  <catalogs>Catalog.канбан_Ошибки</catalogs>
   <catalogs>Catalog.канбан_Проекты</catalogs>
   <catalogs>Catalog.канбан_СтатусыЗадач</catalogs>
+  <catalogs>Catalog.канбан_СтатусыОшибок</catalogs>
   <catalogs>Catalog.Пользователи</catalogs>
   <catalogs>Catalog.Файлы</catalogs>
   <dataProcessors>DataProcessor.Канбан_Доска_HTML</dataProcessors>
   <dataProcessors>DataProcessor.канбан_ТехПоддержка</dataProcessors>
   <informationRegisters>InformationRegister.канбан_ИспользуемыеПроектыДоски</informationRegisters>
   <informationRegisters>InformationRegister.канбан_ИспользуемыеСтатусыДоски</informationRegisters>
+  <informationRegisters>InformationRegister.канбан_СопоставлениеСтатусов</informationRegisters>
 </mdclass:Configuration>

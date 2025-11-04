@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:Catalog xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="a41e7490-7b7e-4d11-8824-792d6c8a644b">
+  <producedTypes>
+    <objectType typeId="bd6b6351-6982-47ae-885b-f06ffb32c5aa" valueTypeId="c5cd89c6-cac8-4193-9bf8-8bc55a38c20a"/>
+    <refType typeId="040b6680-0b59-4c9f-8c60-5d9c8ab1e89e" valueTypeId="bfe692a2-ef42-4da5-861b-91cfc4f486cb"/>
+    <selectionType typeId="cfd0b632-224d-4e58-aea2-684218e88696" valueTypeId="194c5b1f-0b27-452a-99e5-29686e6446e4"/>
+    <listType typeId="a6f0e759-f91f-40f4-9b85-3bf0b5dc137e" valueTypeId="80e52c1e-9078-4d87-8b3e-877dc6c838a1"/>
+    <managerType typeId="e2014f66-7284-4f9e-8995-1ee91f99e836" valueTypeId="19574b19-f03c-46dd-81a9-50af45ea2999"/>
+  </producedTypes>
+  <name>канбан_СтатусыОшибок</name>
+  <synonym>
+    <key>ru</key>
+    <value>Статусы ошибок</value>
+  </synonym>
+  <useStandardCommands>true</useStandardCommands>
+  <inputByString>Catalog.канбан_СтатусыОшибок.StandardAttribute.Code</inputByString>
+  <inputByString>Catalog.канбан_СтатусыОшибок.StandardAttribute.Description</inputByString>
+  <fullTextSearchOnInputByString>DontUse</fullTextSearchOnInputByString>
+  <createOnInput>Use</createOnInput>
+  <fullTextSearch>Use</fullTextSearch>
+  <levelCount>2</levelCount>
+  <foldersOnTop>true</foldersOnTop>
+  <codeLength>11</codeLength>
+  <descriptionLength>150</descriptionLength>
+  <codeType>String</codeType>
+  <codeAllowedLength>Variable</codeAllowedLength>
+  <checkUnique>true</checkUnique>
+  <autonumbering>true</autonumbering>
+  <defaultPresentation>AsDescription</defaultPresentation>
+  <editType>InDialog</editType>
+  <choiceMode>BothWays</choiceMode>
+</mdclass:Catalog>

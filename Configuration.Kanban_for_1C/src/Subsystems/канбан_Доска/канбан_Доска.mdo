@@ -6,28 +6,36 @@
     <value>Канбан доска</value>
   </synonym>
   <includeHelpInContents>true</includeHelpInContents>
-  <content>CommonModule.канбан_КанбанДоска</content>
-  <content>CommonModule.канбан_КанбанДоскаПереопределяемый</content>
-  <content>CommonModule.канбан_КанбанДоскаКлиент</content>
-  <content>CommonPicture.канбан_ФотоПоУмолчанию</content>
-  <content>DefinedType.канбан_Задачи</content>
-  <content>DefinedType.канбан_СтатусыЗадач</content>
-  <content>CommonModule.канбан_КанбанДоскаКлиентПереопределяемый</content>
-  <content>DefinedType.канбан_Проекты</content>
   <content>InformationRegister.канбан_ИспользуемыеПроектыДоски</content>
-  <content>DefinedType.канбан_Пользователь</content>
-  <content>CommonModule.канбан_КанбанДоскаВызовСервера</content>
-  <content>Role.канбан_ОбщиеПрава</content>
-  <content>CommonPicture.канбан_Доска</content>
-  <content>DataProcessor.Канбан_Доска_HTML</content>
-  <content>InformationRegister.канбан_ИспользуемыеСтатусыДоски</content>
-  <content>DataProcessor.канбан_ТехПоддержка</content>
-  <content>CommandGroup.канбан_Информация</content>
+  <content>CommonModule.канбан_КанбанДоска</content>
+  <content>DefinedType.канбан_Задачи</content>
+  <content>CommonModule.канбан_КанбанДоскаПереопределяемый</content>
+  <content>DefinedType.канбан_Проекты</content>
   <content>Catalog.канбан_Задачи</content>
+  <content>CommonModule.канбан_КанбанДоскаКлиент</content>
+  <content>CommonModule.канбан_КанбанДоскаВызовСервера</content>
+  <content>DefinedType.канбан_СтатусыЗадач</content>
+  <content>CommonPicture.канбан_ФотоПоУмолчанию</content>
+  <content>DataProcessor.канбан_ТехПоддержка</content>
+  <content>CommonModule.канбан_КанбанДоскаКлиентПереопределяемый</content>
+  <content>DefinedType.канбан_Пользователь</content>
   <content>Catalog.канбан_Проекты</content>
-  <content>Catalog.канбан_СтатусыЗадач</content>
-  <content>CommonCommand.канбан_Задачи</content>
+  <content>Role.канбан_ОбщиеПрава</content>
+  <content>DataProcessor.Канбан_Доска_HTML</content>
+  <content>CommonPicture.канбан_Доска</content>
+  <content>InformationRegister.канбан_ИспользуемыеСтатусыДоски</content>
   <content>CommonCommand.канбан_Проекты</content>
+  <content>CommandGroup.канбан_Информация</content>
+  <content>Catalog.канбан_СтатусыЗадач</content>
+  <content>InformationRegister.канбан_СопоставлениеСтатусов</content>
+  <content>CommonCommand.канбан_Задачи</content>
   <content>CommonCommand.канбан_СтатусыЗадач</content>
   <content>EventSubscription.ОпределитьФормуПрисоединенногоФайлаКанбан</content>
+  <content>DefinedType.канбан_СтатусыОшибок</content>
+  <content>Constant.канбан_ИспользоватьСопоставлениеСтатусов</content>
+  <content>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</content>
+  <content>CommonCommand.канбан_СтатусыОшибок</content>
+  <content>CommonCommand.канбан_Ошибки</content>
+  <content>DefinedType.канбан_Ошибки</content>
+  <content>Catalog.канбан_Ошибки</content>
 </mdclass:Subsystem>

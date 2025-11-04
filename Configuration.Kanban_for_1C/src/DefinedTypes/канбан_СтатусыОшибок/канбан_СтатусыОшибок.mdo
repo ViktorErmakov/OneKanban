@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:DefinedType xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="bf463355-cc6e-4ab8-bab0-051e0fb3007b">
+  <producedTypes>
+    <containerType typeId="a8b145e3-16ef-4cce-9ad7-2a2cc49984be" valueTypeId="1a6df43b-f946-4b14-932a-b98a6ccf95d7"/>
+  </producedTypes>
+  <name>канбан_СтатусыОшибок</name>
+  <synonym>
+    <key>ru</key>
+    <value>Статусы ошибок</value>
+  </synonym>
+  <comment>Для СППР: сопоставление статусов задач и ошибок</comment>
+  <type>
+    <types>CatalogRef.канбан_СтатусыОшибок</types>
+  </type>
+</mdclass:DefinedType>

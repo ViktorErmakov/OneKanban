@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:InformationRegister xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:core="http://g5.1c.ru/v8/dt/mcore" xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="67c8035e-947b-4bd5-abb3-1d069a8738ab">
+  <producedTypes>
+    <selectionType typeId="a998819b-178d-45ab-954d-c63bb9d4ac42" valueTypeId="3f4c9b1d-2e75-45e1-8c6c-5ddec9912a6f"/>
+    <listType typeId="aac5b946-424f-4045-a18e-35fa9be70bda" valueTypeId="fbd2aee4-653e-4e2e-bbc1-aaab6d1f52a9"/>
+    <managerType typeId="253e51a0-d0c4-4c46-b702-edb04991e5d2" valueTypeId="fb70047a-3383-4207-867f-c5a18a28ae1e"/>
+    <recordSetType typeId="3600f30a-b419-43ca-8a05-577666b638ec" valueTypeId="247ad9fc-d217-49f6-9670-03b71d66184d"/>
+    <recordKeyType typeId="d6a49de1-7442-4092-b4fb-1e0a6325fff7" valueTypeId="e9955768-15ec-4a6b-8b9d-80db1b9616ab"/>
+    <recordType typeId="1b77549d-5227-42fe-8d01-fd06639808ee" valueTypeId="395776eb-5351-40d9-8974-51b5e62f6037"/>
+    <recordManagerType typeId="d0a52a0d-5f75-4426-82b4-f709f81fe596" valueTypeId="e22361b4-8ad5-43e2-b3d3-d6d9948f0c61"/>
+  </producedTypes>
+  <name>канбан_СопоставлениеСтатусов</name>
+  <synonym>
+    <key>ru</key>
+    <value>Сопоставление статусов</value>
+  </synonym>
+  <comment>Для СППР: сопоставление статусов задач и ошибок</comment>
+  <useStandardCommands>true</useStandardCommands>
+  <editType>InDialog</editType>
+  <defaultRecordForm>InformationRegister.канбан_СопоставлениеСтатусов.Form.ФормаЗаписи</defaultRecordForm>
+  <dataLockControlMode>Managed</dataLockControlMode>
+  <recordPresentation>
+    <key>ru</key>
+    <value>Соответствие статусов</value>
+  </recordPresentation>
+  <listPresentation>
+    <key>ru</key>
+    <value>Соответствие статусов</value>
+  </listPresentation>
+  <attributes uuid="1a726345-57fd-405d-b201-8b1bb145e5d1">
+    <name>СтатусОшибки</name>
+    <synonym>
+      <key>ru</key>
+      <value>Статус ошибки</value>
+    </synonym>
+    <type>
+      <types>DefinedType.канбан_СтатусыОшибок</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fillChecking>ShowError</fillChecking>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+    <fillFromFillingValue>true</fillFromFillingValue>
+    <fillValue xsi:type="core:UndefinedValue"/>
+  </attributes>
+  <dimensions uuid="5f9401c7-746b-4c2d-b902-d9973c373dd9">
+    <name>СтатусЗадачи</name>
+    <synonym>
+      <key>ru</key>
+      <value>Статус задачи</value>
+    </synonym>
+    <type>
+      <types>DefinedType.канбан_СтатусыЗадач</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <denyIncompleteValues>true</denyIncompleteValues>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+    <fillFromFillingValue>true</fillFromFillingValue>
+    <fillValue xsi:type="core:UndefinedValue"/>
+    <master>true</master>
+    <mainFilter>true</mainFilter>
+  </dimensions>
+  <forms uuid="1599e9fd-f26d-4b9f-a4ad-929fce0e3f6d">
+    <name>ФормаЗаписи</name>
+    <synonym>
+      <key>ru</key>
+      <value>Форма записи</value>
+    </synonym>
+    <usePurposes>PersonalComputer</usePurposes>
+    <usePurposes>MobileDevice</usePurposes>
+  </forms>
+</mdclass:InformationRegister>

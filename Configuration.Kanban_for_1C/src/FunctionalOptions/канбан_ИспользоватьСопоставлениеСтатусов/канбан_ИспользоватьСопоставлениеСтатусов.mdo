@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:FunctionalOption xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="42b034cd-b4ea-4268-bedf-aac5bdec2747">
+  <name>канбан_ИспользоватьСопоставлениеСтатусов</name>
+  <synonym>
+    <key>ru</key>
+    <value>Использовать сопоставление статусов</value>
+  </synonym>
+  <comment>для СППР</comment>
+  <location>Constant.канбан_ИспользоватьСопоставлениеСтатусов</location>
+  <privilegedGetMode>true</privilegedGetMode>
+  <content>InformationRegister.канбан_СопоставлениеСтатусов</content>
+  <content>CommonCommand.канбан_СтатусыОшибок</content>
+  <content>CommonCommand.канбан_Ошибки</content>
+</mdclass:FunctionalOption>

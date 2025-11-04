@@ -12,7 +12,6 @@
   <extension xsi:type="mdclassExtension:CatalogExtension">
     <extendedConfigurationObject>Checked</extendedConfigurationObject>
   </extension>
-  <useStandardCommands>true</useStandardCommands>
   <attributes uuid="ab1e254a-9a53-4bd2-a5a4-1b5e39edf7ac" extendedConfigurationObject="622d6de2-7404-41cc-961b-131d078d7ab4">
     <name>Фотография</name>
     <objectBelonging>Adopted</objectBelonging>

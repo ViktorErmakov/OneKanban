@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:Constant xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:core="http://g5.1c.ru/v8/dt/mcore" xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="2a3cd43e-8c9b-4a78-a97d-7af464cfdd49">
+  <producedTypes>
+    <managerType typeId="3552b8aa-818c-4468-a9cc-f31a141dc8c4" valueTypeId="58acd07b-352f-4a09-9b29-2a32cdbf3836"/>
+    <valueManagerType typeId="e1390c5f-448a-41a4-9f69-54b6b5cdad6b" valueTypeId="0d9a4b33-b8ff-4ef0-8617-431b172cf5d2"/>
+    <valueKeyType typeId="ad1d9d67-77a0-4fc6-b99b-c5fd02e5101c" valueTypeId="628a17b5-ae46-48b9-9280-53ad8e10bdd5"/>
+  </producedTypes>
+  <name>канбан_ИспользоватьСопоставлениеСтатусов</name>
+  <synonym>
+    <key>ru</key>
+    <value>Канбан использовать сопоставление статусов</value>
+  </synonym>
+  <type>
+    <types>Boolean</types>
+  </type>
+  <useStandardCommands>true</useStandardCommands>
+  <minValue xsi:type="core:UndefinedValue"/>
+  <maxValue xsi:type="core:UndefinedValue"/>
+  <dataLockControlMode>Managed</dataLockControlMode>
+</mdclass:Constant>

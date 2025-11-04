@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mdclass:CommonCommand xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="ec1d0a06-02ea-4902-9097-acafc4a684ba">
-  <name>канбан_Проекты</name>
+<mdclass:CommonCommand xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="9c530a30-c0e3-411d-856d-92268da8d295">
+  <name>канбан_Ошибки</name>
   <synonym>
     <key>ru</key>
-    <value>Проекты</value>
+    <value>Ошибки</value>
   </synonym>
   <group>NavigationPanelOrdinary</group>
   <commandParameterType/>

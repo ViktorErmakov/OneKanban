@@ -4,13 +4,17 @@ import './style.css';
 window['V8Proxy'] = {
 
     // Для запроса из JS в 1С
-    fetch: (eventName, idTask, idNewStatus) => {
+    fetch: (eventName, idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus) => {
 
-        // const taskButton = document.querySelector(`.${value}`);
+         // const taskButton = document.querySelector(`.${value}`);
         const V8_request = document.querySelector(`#V8_request`);
         V8_request.value = eventName;
         V8_request.setAttribute('idTask', idTask);
+        V8_request.setAttribute('fullNameObjectTask', fullNameObjectTask);
+
         V8_request.setAttribute('idNewStatus', idNewStatus);
+        V8_request.setAttribute('fullNameObjectStatus', fullNameObjectStatus);
+
         V8_request.click();
     },
     // Для отправки из 1С в JS
@@ -92,6 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const idTask = event.dataTransfer.getData("text");
             const draggedElement = document.getElementById(idTask);
+            const fullNameObjectTask = draggedElement.attributes.fullNameObjectTask.nodeValue;
+
             const lastStatus = draggedElement.parentElement;
             if (block === lastStatus) { // Используйте === для строгого сравнения
                 return;
@@ -101,7 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
             RecalculateKanbanBlock();
 
             const idNewStatus = event.currentTarget.id; // Correctly get the ID of the drop target
-            window.V8Proxy.fetch('changeStatus', idTask, idNewStatus); // Убедитесь, что V8Proxy доступен
+            const fullNameObjectStatus = block.attributes.fullNameObjectStatus.nodeValue;
+
+            window.V8Proxy.fetch('changeStatus', idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus);
         });
     });
 

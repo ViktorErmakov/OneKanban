@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:Catalog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:core="http://g5.1c.ru/v8/dt/mcore" xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="eb6b3430-930d-49d3-b624-91bbaaa38f45">
+  <producedTypes>
+    <objectType typeId="4c012539-e51c-4959-9486-e4a03ad2d328" valueTypeId="963221ef-a653-4c18-98d1-2dd9438de982"/>
+    <refType typeId="9e242100-20ed-4600-8709-9e43b722dfa5" valueTypeId="8fe529ff-bbac-48ea-98bc-8b1366f75376"/>
+    <selectionType typeId="a6fc3803-aeff-47bb-91ec-cf04373e30f0" valueTypeId="782de9b3-d93d-4902-bb3b-e601ec37268b"/>
+    <listType typeId="1b8f5078-69a8-4407-89a1-5c4a354e5d78" valueTypeId="c5d860a6-952a-45d5-98b5-ee5123d2912a"/>
+    <managerType typeId="3feb77bf-b641-4c4f-af70-3cacd450481f" valueTypeId="149ec1e6-7c24-4f3d-adc0-cadc058bde3a"/>
+  </producedTypes>
+  <name>канбан_Ошибки</name>
+  <synonym>
+    <key>ru</key>
+    <value>Ошибки</value>
+  </synonym>
+  <useStandardCommands>true</useStandardCommands>
+  <inputByString>Catalog.канбан_Ошибки.StandardAttribute.Code</inputByString>
+  <inputByString>Catalog.канбан_Ошибки.StandardAttribute.Description</inputByString>
+  <fullTextSearchOnInputByString>DontUse</fullTextSearchOnInputByString>
+  <createOnInput>Use</createOnInput>
+  <fullTextSearch>Use</fullTextSearch>
+  <levelCount>2</levelCount>
+  <foldersOnTop>true</foldersOnTop>
+  <owners>Catalog.канбан_Проекты</owners>
+  <codeLength>11</codeLength>
+  <descriptionLength>150</descriptionLength>
+  <codeType>String</codeType>
+  <codeAllowedLength>Variable</codeAllowedLength>
+  <checkUnique>true</checkUnique>
+  <autonumbering>true</autonumbering>
+  <defaultPresentation>AsDescription</defaultPresentation>
+  <editType>InDialog</editType>
+  <choiceMode>BothWays</choiceMode>
+  <attributes uuid="183b8ef9-6ebe-48a1-999f-27b83f660be6">
+    <name>Статус</name>
+    <synonym>
+      <key>ru</key>
+      <value>Статус</value>
+    </synonym>
+    <type>
+      <types>DefinedType.канбан_СтатусыОшибок</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fillValue xsi:type="core:UndefinedValue"/>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+  </attributes>
+  <attributes uuid="b0708c64-eb5f-4177-b41e-6eb35b5c9a2a">
+    <name>Исполнитель</name>
+    <synonym>
+      <key>ru</key>
+      <value>Исполнитель</value>
+    </synonym>
+    <type>
+      <types>DefinedType.канбан_Пользователь</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fillValue xsi:type="core:UndefinedValue"/>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+  </attributes>
+</mdclass:Catalog>

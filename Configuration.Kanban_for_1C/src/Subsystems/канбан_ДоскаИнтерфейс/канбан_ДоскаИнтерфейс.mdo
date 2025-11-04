@@ -27,4 +27,9 @@
   <content>CommonCommand.канбан_Задачи</content>
   <content>CommonCommand.канбан_Проекты</content>
   <content>CommonCommand.канбан_СтатусыЗадач</content>
+  <content>InformationRegister.канбан_СопоставлениеСтатусов</content>
+  <content>CommonCommand.канбан_СтатусыОшибок</content>
+  <content>CommonCommand.канбан_Ошибки</content>
+  <content>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</content>
+  <content>Catalog.канбан_Ошибки</content>
 </mdclass:Subsystem>

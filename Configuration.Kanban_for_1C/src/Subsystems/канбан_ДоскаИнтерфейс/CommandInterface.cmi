@@ -2,14 +2,6 @@
 <cmi:CommandInterface xmlns:cmi="http://g5.1c.ru/v8/dt/cmi">
   <commandsVisibility>
     <visibilityFragments>
-      <command>DataProcessor.Канбан_Доска_HTML.StandardCommand.Open</command>
-      <visible/>
-    </visibilityFragments>
-    <visibilityFragments>
-      <command>DataProcessor.Канбан_Доска_HTML.Command.ОткрытьСтраницуРазработки</command>
-      <visible/>
-    </visibilityFragments>
-    <visibilityFragments>
       <command>Catalog.канбан_Задачи.StandardCommand.OpenList</command>
       <visible/>
     </visibilityFragments>
@@ -19,6 +11,24 @@
     </visibilityFragments>
     <visibilityFragments>
       <command>Catalog.канбан_СтатусыЗадач.StandardCommand.OpenList</command>
+      <visible/>
+    </visibilityFragments>
+    <visibilityFragments>
+      <command>InformationRegister.канбан_СопоставлениеСтатусов.StandardCommand.Create</command>
+      <visible>
+        <common>true</common>
+      </visible>
+    </visibilityFragments>
+    <visibilityFragments>
+      <command>DataProcessor.Канбан_Доска_HTML.StandardCommand.Open</command>
+      <visible/>
+    </visibilityFragments>
+    <visibilityFragments>
+      <command>DataProcessor.Канбан_Доска_HTML.Command.ОткрытьСтраницуРазработки</command>
+      <visible/>
+    </visibilityFragments>
+    <visibilityFragments>
+      <command>Catalog.канбан_Ошибки.StandardCommand.OpenList</command>
       <visible/>
     </visibilityFragments>
   </commandsVisibility>

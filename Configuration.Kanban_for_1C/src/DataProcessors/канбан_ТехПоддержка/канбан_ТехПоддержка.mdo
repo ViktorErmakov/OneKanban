@@ -16,6 +16,7 @@
       <value>Страница разработки</value>
     </synonym>
     <group>CommandGroup.канбан_Информация</group>
+    <commandParameterType/>
     <representation>Auto</representation>
   </commands>
 </mdclass:DataProcessor>
