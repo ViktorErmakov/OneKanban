@@ -47,12 +47,14 @@
   <subsystems>Subsystem.канбан_ДоскаИнтерфейс</subsystems>
   <commonPictures>CommonPicture.канбан_Доска</commonPictures>
   <commonPictures>CommonPicture.канбан_ФотоПоУмолчанию</commonPictures>
+  <sessionParameters>SessionParameter.канбан_ИмяКонфигурации</sessionParameters>
   <roles>Role.канбан_ОбщиеПрава</roles>
   <commonModules>CommonModule.канбан_КанбанДоска</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаВызовСервера</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаКлиент</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаКлиентПереопределяемый</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаПереопределяемый</commonModules>
+  <commonModules>CommonModule.ОбщегоНазначенияПереопределяемый</commonModules>
   <commonModules>CommonModule.РаботаСФайламиКлиентСервер</commonModules>
   <eventSubscriptions>EventSubscription.ОпределитьФормуПрисоединенногоФайлаКанбан</eventSubscriptions>
   <functionalOptions>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</functionalOptions>

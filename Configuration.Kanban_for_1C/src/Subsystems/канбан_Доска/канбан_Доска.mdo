@@ -38,4 +38,5 @@
   <content>CommonCommand.канбан_Ошибки</content>
   <content>DefinedType.канбан_Ошибки</content>
   <content>Catalog.канбан_Ошибки</content>
+  <content>SessionParameter.канбан_ИмяКонфигурации</content>
 </mdclass:Subsystem>

@@ -30,6 +30,7 @@
   <defaultPresentation>AsDescription</defaultPresentation>
   <editType>InDialog</editType>
   <choiceMode>BothWays</choiceMode>
+  <defaultObjectForm>Catalog.канбан_Ошибки.Form.ФормаЭлемента</defaultObjectForm>
   <attributes uuid="183b8ef9-6ebe-48a1-999f-27b83f660be6">
     <name>Статус</name>
     <synonym>
@@ -60,4 +61,13 @@
     <fullTextSearch>Use</fullTextSearch>
     <dataHistory>Use</dataHistory>
   </attributes>
+  <forms uuid="d267bb9a-7a2e-4b2a-bec5-01d3bb80b7df">
+    <name>ФормаЭлемента</name>
+    <synonym>
+      <key>ru</key>
+      <value>Форма элемента</value>
+    </synonym>
+    <usePurposes>PersonalComputer</usePurposes>
+    <usePurposes>MobileDevice</usePurposes>
+  </forms>
 </mdclass:Catalog>
