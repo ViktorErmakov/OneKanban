@@ -47,7 +47,6 @@
   <subsystems>Subsystem.канбан_ДоскаИнтерфейс</subsystems>
   <commonPictures>CommonPicture.канбан_Доска</commonPictures>
   <commonPictures>CommonPicture.канбан_ФотоПоУмолчанию</commonPictures>
-  <sessionParameters>SessionParameter.канбан_ИмяКонфигурации</sessionParameters>
   <roles>Role.канбан_ОбщиеПрава</roles>
   <commonModules>CommonModule.канбан_КанбанДоска</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаВызовСервера</commonModules>

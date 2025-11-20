@@ -31,7 +31,7 @@ module.exports = {
         ],
     },
     optimization: {
-        minimize: false // Отключает минификацию JS
+        // minimize: false // Отключает минификацию JS
     },
 };
 

@@ -421,7 +421,7 @@
             <id>24</id>
             <items xsi:type="form:Button">
               <name>СтатусыЗадачДобавить</name>
-              <id>25</id>
+              <id>187</id>
               <visible>true</visible>
               <enabled>true</enabled>
               <userVisible>
@@ -429,7 +429,7 @@
               </userVisible>
               <extendedTooltip>
                 <name>СтатусыЗадачДобавитьРасширеннаяПодсказка</name>
-                <id>26</id>
+                <id>188</id>
                 <type>Label</type>
                 <autoMaxWidth>true</autoMaxWidth>
                 <autoMaxHeight>true</autoMaxHeight>
@@ -444,11 +444,10 @@
               <placementArea>UserCmds</placementArea>
               <representationInContextMenu>Auto</representationInContextMenu>
               <shapeRepresentation>WhenActive</shapeRepresentation>
-              <locationInCommandBar>InCommandBar</locationInCommandBar>
             </items>
             <items xsi:type="form:Button">
               <name>СтатусыЗадачУдалить</name>
-              <id>27</id>
+              <id>189</id>
               <visible>true</visible>
               <enabled>true</enabled>
               <userVisible>
@@ -456,7 +455,7 @@
               </userVisible>
               <extendedTooltip>
                 <name>СтатусыЗадачУдалитьРасширеннаяПодсказка</name>
-                <id>28</id>
+                <id>190</id>
                 <type>Label</type>
                 <autoMaxWidth>true</autoMaxWidth>
                 <autoMaxHeight>true</autoMaxHeight>
@@ -475,7 +474,7 @@
             </items>
             <items xsi:type="form:Button">
               <name>СтатусыЗадачПереместитьВверх</name>
-              <id>85</id>
+              <id>191</id>
               <visible>true</visible>
               <enabled>true</enabled>
               <userVisible>
@@ -483,7 +482,7 @@
               </userVisible>
               <extendedTooltip>
                 <name>СтатусыЗадачПереместитьВверхРасширеннаяПодсказка</name>
-                <id>86</id>
+                <id>192</id>
                 <type>Label</type>
                 <autoMaxWidth>true</autoMaxWidth>
                 <autoMaxHeight>true</autoMaxHeight>
@@ -492,7 +491,7 @@
                 </extInfo>
               </extendedTooltip>
               <commandName>Form.Item.СтатусыЗадач.StandardCommand.MoveUp</commandName>
-              <representation>Auto</representation>
+              <representation>Picture</representation>
               <autoMaxWidth>true</autoMaxWidth>
               <autoMaxHeight>true</autoMaxHeight>
               <placementArea>UserCmds</placementArea>
@@ -501,7 +500,7 @@
             </items>
             <items xsi:type="form:Button">
               <name>СтатусыЗадачПереместитьВниз</name>
-              <id>87</id>
+              <id>193</id>
               <visible>true</visible>
               <enabled>true</enabled>
               <userVisible>
@@ -509,7 +508,7 @@
               </userVisible>
               <extendedTooltip>
                 <name>СтатусыЗадачПереместитьВнизРасширеннаяПодсказка</name>
-                <id>88</id>
+                <id>194</id>
                 <type>Label</type>
                 <autoMaxWidth>true</autoMaxWidth>
                 <autoMaxHeight>true</autoMaxHeight>
@@ -518,7 +517,7 @@
                 </extInfo>
               </extendedTooltip>
               <commandName>Form.Item.СтатусыЗадач.StandardCommand.MoveDown</commandName>
-              <representation>Auto</representation>
+              <representation>Picture</representation>
               <autoMaxWidth>true</autoMaxWidth>
               <autoMaxHeight>true</autoMaxHeight>
               <placementArea>UserCmds</placementArea>
@@ -760,6 +759,11 @@
           <excludedCommands>EndEdit</excludedCommands>
           <excludedCommands>MoveDown</excludedCommands>
           <excludedCommands>MoveUp</excludedCommands>
+          <excludedCommands>MoveDown</excludedCommands>
+          <excludedCommands>MoveUp</excludedCommands>
+          <excludedCommands>SortListAsc</excludedCommands>
+          <excludedCommands>SortListDesc</excludedCommands>
+          <excludedCommands>ShowRowRearrangement</excludedCommands>
           <toolTip>
             <key>ru</key>
             <value>На доске отображаются задачи из выбранных проектов. Если проекты не выбраны, отображаются задачи из всех доступных пользователю проектов.
@@ -858,7 +862,7 @@
             <id>58</id>
             <items xsi:type="form:Button">
               <name>ИспользуемыеПроектыДоскиДобавить</name>
-              <id>81</id>
+              <id>179</id>
               <visible>true</visible>
               <enabled>true</enabled>
               <userVisible>
@@ -866,7 +870,7 @@
               </userVisible>
               <extendedTooltip>
                 <name>ИспользуемыеПроектыДоскиДобавитьРасширеннаяПодсказка</name>
-                <id>82</id>
+                <id>180</id>
                 <type>Label</type>
                 <autoMaxWidth>true</autoMaxWidth>
                 <autoMaxHeight>true</autoMaxHeight>
@@ -881,11 +885,10 @@
               <placementArea>UserCmds</placementArea>
               <representationInContextMenu>Auto</representationInContextMenu>
               <shapeRepresentation>WhenActive</shapeRepresentation>
-              <locationInCommandBar>InCommandBar</locationInCommandBar>
             </items>
             <items xsi:type="form:Button">
               <name>ИспользуемыеПроектыДоскиУдалить</name>
-              <id>83</id>
+              <id>181</id>
               <visible>true</visible>
               <enabled>true</enabled>
               <userVisible>
@@ -893,7 +896,7 @@
               </userVisible>
               <extendedTooltip>
                 <name>ИспользуемыеПроектыДоскиУдалитьРасширеннаяПодсказка</name>
-                <id>84</id>
+                <id>182</id>
                 <type>Label</type>
                 <autoMaxWidth>true</autoMaxWidth>
                 <autoMaxHeight>true</autoMaxHeight>

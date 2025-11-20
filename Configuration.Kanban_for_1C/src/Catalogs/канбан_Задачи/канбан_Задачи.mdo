@@ -95,6 +95,10 @@
   </standardAttributes>
   <createOnInput>Use</createOnInput>
   <fullTextSearch>Use</fullTextSearch>
+  <objectPresentation>
+    <key>ru</key>
+    <value>Задача</value>
+  </objectPresentation>
   <dataHistory>Use</dataHistory>
   <hierarchical>true</hierarchical>
   <hierarchyType>HierarchyOfItems</hierarchyType>
