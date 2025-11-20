@@ -54,8 +54,6 @@
   <commonModules>CommonModule.канбан_КанбанДоскаКлиентПереопределяемый</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаПереопределяемый</commonModules>
   <commonModules>CommonModule.ОбщегоНазначенияПереопределяемый</commonModules>
-  <commonModules>CommonModule.РаботаСФайламиКлиентСервер</commonModules>
-  <eventSubscriptions>EventSubscription.ОпределитьФормуПрисоединенногоФайлаКанбан</eventSubscriptions>
   <functionalOptions>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</functionalOptions>
   <definedTypes>DefinedType.ВладелецПрисоединенныхФайлов</definedTypes>
   <definedTypes>DefinedType.ВладелецПрисоединенныхФайловОбъект</definedTypes>
@@ -79,7 +77,6 @@
   <catalogs>Catalog.канбан_СтатусыЗадач</catalogs>
   <catalogs>Catalog.канбан_СтатусыОшибок</catalogs>
   <catalogs>Catalog.Пользователи</catalogs>
-  <catalogs>Catalog.Файлы</catalogs>
   <dataProcessors>DataProcessor.Канбан_Доска_HTML</dataProcessors>
   <dataProcessors>DataProcessor.канбан_ТехПоддержка</dataProcessors>
   <informationRegisters>InformationRegister.канбан_ИспользуемыеПроектыДоски</informationRegisters>

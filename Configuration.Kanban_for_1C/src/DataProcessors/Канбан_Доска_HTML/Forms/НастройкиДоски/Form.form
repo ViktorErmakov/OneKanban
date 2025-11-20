@@ -1748,7 +1748,6 @@
     <edit>
       <common>true</common>
     </edit>
-    <savedData>true</savedData>
   </attributes>
   <attributes>
     <name>СопоставлениеСтатусов</name>

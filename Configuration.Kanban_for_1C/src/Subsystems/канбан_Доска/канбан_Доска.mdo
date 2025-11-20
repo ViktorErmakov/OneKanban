@@ -30,7 +30,6 @@
   <content>InformationRegister.канбан_СопоставлениеСтатусов</content>
   <content>CommonCommand.канбан_Задачи</content>
   <content>CommonCommand.канбан_СтатусыЗадач</content>
-  <content>EventSubscription.ОпределитьФормуПрисоединенногоФайлаКанбан</content>
   <content>DefinedType.канбан_СтатусыОшибок</content>
   <content>Constant.канбан_ИспользоватьСопоставлениеСтатусов</content>
   <content>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</content>
