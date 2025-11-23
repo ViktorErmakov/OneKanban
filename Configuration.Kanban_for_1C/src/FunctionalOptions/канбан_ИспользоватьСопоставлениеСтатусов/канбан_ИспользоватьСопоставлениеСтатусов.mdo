@@ -10,5 +10,4 @@
   <privilegedGetMode>true</privilegedGetMode>
   <content>InformationRegister.канбан_СопоставлениеСтатусов</content>
   <content>CommonCommand.канбан_СтатусыОшибок</content>
-  <content>CommonCommand.канбан_Ошибки</content>
 </mdclass:FunctionalOption>
