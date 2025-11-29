@@ -1306,6 +1306,10 @@
             <horizontalAlign>Left</horizontalAlign>
             <autoFill>true</autoFill>
           </autoCommandBar>
+          <handlers>
+            <event>OnChange</event>
+            <name>СопоставлениеСтатусовПриИзменении</name>
+          </handlers>
           <searchStringAddition>
             <name>СопоставлениеСтатусовСтрокаПоиска</name>
             <id>154</id>
