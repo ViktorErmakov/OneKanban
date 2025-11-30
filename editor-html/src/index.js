@@ -166,25 +166,25 @@ document.addEventListener('DOMContentLoaded', function () {
   //     {
   //       "created": "Создано: 19.08.2025 21:26 Администратор",
   //       "updated": "Обновлено: 19.08.2025 22:26 Администратор",
-  //       "taskId": "task-1755631841882",
+  //       "commentId": "task-1755631841882",
   //       "content": "<pre class=\"ql-syntax\" spellcheck=\"false\">// Сохранение отредактированной задачи\nfunction saveTask(taskId) {\n&nbsp;const taskCard = document.getElementById(taskId);\n&nbsp;editMode(taskId, false);\n&nbsp;exportTasks();\n}\n</pre>"
   //     },
   //     {
   //       "created": "Создано: 19.08.2025 21:27 Администратор",
   //       "updated": "Обновлено: 19.08.2025 22:27 Администратор",
-  //       "taskId": "task-1755631841958",
+  //       "commentId": "task-1755631841958",
   //       "content": "<p class=\"ql-indent-4\"><strong class=\"ql-size-large\" style=\"background-color: rgb(204, 224, 245); color: rgb(153, 51, 255);\"><em>Обычный текст </em></strong><sup class=\"ql-size-large\" style=\"background-color: rgb(204, 224, 245); color: rgb(153, 51, 255);\"><strong><em>степень</em></strong></sup><sub class=\"ql-size-large\" style=\"background-color: rgb(204, 224, 245); color: rgb(153, 51, 255);\"><strong><em> корень</em></strong></sub></p>"
   //     },
   //     {
   //       "created": "Создано: 19.08.2025 21:27 Администратор",
   //       "updated": "Обновлено: 19.08.2025 22:27 Администратор",
-  //       "taskId": "task-1755631842035",
+  //       "commentId": "task-1755631842035",
   //       "content": "<ol><li class=\"ql-direction-rtl ql-align-center\"><span class=\"ql-font-serif ql-size-huge\" style=\"color: rgb(230, 0, 0);\">Первый пункт</span></li><li class=\"ql-direction-rtl ql-align-center\"><span class=\"ql-font-serif ql-size-huge\" style=\"color: rgb(230, 0, 0);\">Второй пункт</span></li><li class=\"ql-direction-rtl ql-align-center\"><span class=\"ql-font-serif ql-size-huge\" style=\"color: rgb(230, 0, 0);\">Третий пункт</span></li></ol>"
   //     },
   //     {
   //       "created": "Создано: 19.08.2025 21:27 Администратор",
   //       "updated": "Обновлено: 19.08.2025 22:27 Администратор",
-  //       "taskId": "task-1755631842106",
+  //       "commentId": "task-1755631842106",
   //       "content": "<p><span class=\"ql-font-monospace ql-size-huge\" style=\"background-color: rgb(102, 185, 102);\">Четвертый </span><span class=\"ql-font-monospace ql-size-huge\" style=\"background-color: rgb(102, 185, 102); color: rgb(161, 0, 0);\">комментарий</span></p>"
   //     }
   //   ]
@@ -214,14 +214,18 @@ function clearSearch() {
 
 // Поиск задач
 function searchTasks() {
-  const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
-  const tasks = document.querySelectorAll('.task-card');
-  let foundCount = 0;
+  
+  const searchInputEl = document.getElementById('searchInput');
+  const searchText = (searchInputEl && searchInputEl.value) ? searchInputEl.value.trim().toLowerCase() : '';
 
+  // Если в поисковой строке ничего не введено — прерываем выполнение
   if (!searchText) {
-    clearSearch();
+    // clearSearch();
     return;
   }
+
+  const tasks = document.querySelectorAll('.task-card');
+  let foundCount = 0;
 
   tasks.forEach(task => {
     const quill = quillEditors[task.id];
@@ -307,7 +311,7 @@ function importTasks(value) {
   tasks.forEach(task => {
     
     const taskSettings = createTaskSettings();
-    taskSettings.commentId = task.taskId;
+    taskSettings.commentId = task.commentId;
     taskSettings.content = task.content;
     taskSettings.created = task.created;
     taskSettings.updated = task.updated;
