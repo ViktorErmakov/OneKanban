@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.7.0">
 <title data-rh="true">Конфигурация &quot;СППР&quot; | OneKanban</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://viktorermakov.github.io/OneKanban/docs/Внедрение/SPPR"><meta data-rh="true" property="og:locale" content="ru"><meta data-rh="true" name="docusaurus_locale" content="ru"><meta data-rh="true" name="docsearch:language" content="ru"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Конфигурация &quot;СППР&quot; | OneKanban"><meta data-rh="true" name="description" content="Заимствование объектов основной конфигурации"><meta data-rh="true" property="og:description" content="Заимствование объектов основной конфигурации"><link data-rh="true" rel="icon" href="/OneKanban/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://viktorermakov.github.io/OneKanban/docs/Внедрение/SPPR"><link data-rh="true" rel="alternate" href="https://viktorermakov.github.io/OneKanban/docs/Внедрение/SPPR" hreflang="ru"><link data-rh="true" rel="alternate" href="https://viktorermakov.github.io/OneKanban/docs/Внедрение/SPPR" hreflang="x-default"><link rel="alternate" type="application/rss+xml" href="/OneKanban/blog/rss.xml" title="OneKanban RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/OneKanban/blog/atom.xml" title="OneKanban Atom Feed"><link rel="stylesheet" href="/OneKanban/assets/css/styles.73c36ef2.css">
-<script src="/OneKanban/assets/js/runtime~main.5da13749.js" defer="defer"></script>
+<script src="/OneKanban/assets/js/runtime~main.9a88433e.js" defer="defer"></script>
 <script src="/OneKanban/assets/js/main.1d445200.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -29,7 +29,6 @@
 </li>
 <li>Перечисление <code>СтатусыЗадачПроцессов</code></li>
 <li>Перечисление <code>СтатусыОшибок</code></li>
-<li>Определяемый тип <code>ПредметПроцесса</code></li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="определяемые-типы">Определяемые типы<a href="#определяемые-типы" class="hash-link" aria-label="Прямая ссылка на Определяемые типы" title="Прямая ссылка на Определяемые типы">​</a></h2>
 <p>Необходимо установить типы для:</p>
@@ -38,6 +37,8 @@
 <li><code>канбан_Пользователь</code> - справочник Пользователи (БСП) <strong>СправочникСсылка.Пользователи</strong></li>
 <li><code>канбан_Проекты</code> - справочник проектов <strong>СправочникСсылка.Проекты</strong></li>
 <li><code>канбан_СтатусыЗадач</code> - справочник статусов задач <strong>ПеречислениеСсылка.СтатусыЗадачПроцессов</strong></li>
+<li><code>канбан_Ошибки</code> - справочник с задачами <strong>СправочникСсылка.Ошибки</strong></li>
+<li><code>канбан_СтатусыОшибок</code> - справочник статусов задач <strong>ПеречислениеСсылка.СтатусыОшибок</strong></li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="переопределяемые-модули">Переопределяемые модули<a href="#переопределяемые-модули" class="hash-link" aria-label="Прямая ссылка на Переопределяемые модули" title="Прямая ссылка на Переопределяемые модули">​</a></h2>
 <div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>к сведению</div><div class="admonitionContent_BuS1"><p>Расширение содержит готовый код переопределяемых методов для текущей конфигурации</p></div></div>
