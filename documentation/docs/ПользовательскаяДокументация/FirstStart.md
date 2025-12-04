@@ -14,6 +14,6 @@ sidebar_position: 1
 
 Необходимо перейти в настройки доски, и выбрать статусы которые Вы хотели бы видеть.
 
-![status settings](/img/Status_settings.png)
+![status settings](/img/status.png)
 
 Этого достаточно что бы канбан доска заработала!
