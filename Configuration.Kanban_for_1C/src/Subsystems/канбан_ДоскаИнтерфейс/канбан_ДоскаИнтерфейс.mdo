@@ -3,7 +3,7 @@
   <name>канбан_ДоскаИнтерфейс</name>
   <synonym>
     <key>ru</key>
-    <value>Канбан доска HTML</value>
+    <value>OneKanban</value>
   </synonym>
   <extension xsi:type="mdclassExtension:SubsystemExtension">
     <commandInterface>Extended</commandInterface>
