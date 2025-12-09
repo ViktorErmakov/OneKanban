@@ -1,6 +1,64 @@
-/* :root {
-            
-        } */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: rgb(247, 246, 246);
+    --bg-tertiary: aliceblue;
+    --text-primary: #333333;
+    --text-secondary: rgb(121, 121, 121);
+    --text-tertiary: rgb(80, 80, 80);
+    --border-color: #ebebeb;
+    --card-bg: #ffffff;
+    --card-border: #ebebeb;
+    --card-shadow: rgba(0, 0, 0, 0.05);
+    --card-hover: lightgrey;
+    --tag-bg: lightgrey;
+    --tag-inactive-bg: rgb(233, 233, 233);
+    --tag-text: #333333;
+    --link-color: rgb(17, 138, 236);
+    --link-hover: rgb(17, 138, 236);
+    --command-bg: white;
+    --icon-color: #8c8c8c;
+    --icon-hover: #8c8c8c;
+    --button-bg: #f0f0f0;
+    --button-active-bg: #8c8c8c;
+    --button-text: rgb(17, 138, 236);
+    --dragover-bg: #e6f7ff;
+    --dragover-border: #91d5ff;
+    --header-hover: aliceblue;
+    --header-shadow: rgba(0, 0, 0, 0.1);
+    --add-task-bg: transparent;
+    --add-task-hover: #8c8c8c;
+}
+
+html.dark-theme {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #242424;
+    --bg-tertiary: #333333;
+    --text-primary: #e0e0e0;
+    --text-secondary: #9a9a9a;
+    --text-tertiary: #a0a0a0;
+    --border-color: #3a3a3a;
+    --card-bg: #2a2a2a;
+    --card-border: #3a3a3a;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --card-hover: #353535;
+    --tag-bg: #4a4a4a;
+    --tag-inactive-bg: #383838;
+    --tag-text: #b0b0b0;
+    --link-color: #6fa8d8;
+    --link-hover: #8ab8e8;
+    --command-bg: #242424;
+    --icon-color: #8a8a8a;
+    --icon-hover: #b0b0b0;
+    --button-bg: #2a2a2a;
+    --button-active-bg: #5a6a7a;
+    --button-text: #6fa8d8;
+    --dragover-bg: #2f3d4d;
+    --dragover-border: #4a6a8a;
+    --header-hover: #333333;
+    --header-shadow: rgba(0, 0, 0, 0.3);
+    --add-task-bg: #3a3a3a;
+    --add-task-hover: #5a6a7a;
+}
 
 /* подключаем внешний шрифт */
 /*@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");*/
@@ -18,6 +76,9 @@ body {
     font-size: 1.7rem;
     overflow: auto;
     height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Скрываем полосу прокрутки */
@@ -29,10 +90,76 @@ body {
 }
 
 .wrapper {
-    color: #333333;
+    color: var(--text-primary);
     font-family: "Inter", sans-serif;
     display: flex;
     flex-direction: column;
+    background-color: var(--bg-primary);
+}
+
+.wrapper.dark-theme {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #242424;
+    --bg-tertiary: #333333;
+    --text-primary: #e0e0e0;
+    --text-secondary: #9a9a9a;
+    --text-tertiary: #a0a0a0;
+    --border-color: #3a3a3a;
+    --card-bg: #2a2a2a;
+    --card-border: #3a3a3a;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --card-hover: #353535;
+    --tag-bg: #4a4a4a;
+    --tag-inactive-bg: #383838;
+    --tag-text: #b0b0b0;
+    --link-color: #6fa8d8;
+    --link-hover: #8ab8e8;
+    --command-bg: #242424;
+    --icon-color: #8a8a8a;
+    --icon-hover: #b0b0b0;
+    --button-bg: #2a2a2a;
+    --button-active-bg: #5a6a7a;
+    --button-text: #6fa8d8;
+    --dragover-bg: #2f3d4d;
+    --dragover-border: #4a6a8a;
+    --header-hover: #333333;
+    --header-shadow: rgba(0, 0, 0, 0.3);
+    --add-task-bg: #3a3a3a;
+    --add-task-hover: #5a6a7a;
+}
+
+/* общие настройки для всего */
+html {
+    /* font-size: 10px; */
+    font-size: 62.5%;
+    /* Это делает 1rem = 10px по умолчанию (16px * 0.625 = 10px) */
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-size: 1.7rem;
+    overflow: auto;
+    height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Скрываем полосу прокрутки */
+.scrollable-container::-webkit-scrollbar {
+    width: 0;
+    /* Для вертикальной полосы */
+    /*height: 0;*/
+    /* Для горизонтальной полосы */
+}
+
+.wrapper {
+    color: var(--text-primary);
+    font-family: "Inter", sans-serif;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-primary);
 }
 
 .sticky_blok {
@@ -42,6 +169,8 @@ body {
     flex-direction: column;
     z-index: 100;
     width: 100%;
+    background-color: var(--bg-secondary);
+    transition: background-color 0.3s ease;
 }
 
 #kanban-board {
@@ -68,6 +197,8 @@ body {
     align-items: center;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
+    background-color: var(--bg-secondary);
+    transition: background-color 0.3s ease;
 }
 
 .block_header:first-child {
@@ -83,6 +214,8 @@ body {
 
 .kanban-block {
     margin-top: 17.1rem;
+    background-color: var(--bg-secondary);
+    transition: background-color 0.3s ease;
 }
 
 .block_header,
@@ -94,7 +227,6 @@ body {
     /* Важно для flex: 1, чтобы избежать переполнения */
 
     padding: 0.6rem;
-    background-color: rgb(247, 246, 246);
     margin-right: .5rem;
     /* box-sizing: border-box; */
 }
@@ -104,14 +236,14 @@ body {
 }
 
 .kanban-block:hover {
-    background-color: aliceblue;
+    background-color: var(--bg-tertiary);
 }
 
 /* Пример стилей для подсветки */
 .block_header--hovered {
-    background-color: aliceblue;
+    background-color: var(--header-hover);
     /* Более светлый фон */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px var(--header-shadow);
     /* Небольшая тень */
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     /* Плавный переход */
@@ -129,13 +261,44 @@ input[type="checkbox"] {
     max-width: 250rem;
     overflow-x: auto;
     /* Показывает прокрутку только при необходимости */
-    border: 2px solid #ebebeb;
+    border: 2px solid var(--border-color);
     border-radius: .4rem;
+    background-color: var(--bg-secondary);
+    transition: border-color 0.3s ease, background-color 0.3s ease;
     /* min-height: 10rem; */
+    margin-right: 2rem;
+}
+
+.checkboxes::-webkit-scrollbar {
+    height: 8px;
+}
+
+.checkboxes::-webkit-scrollbar-track {
+    background-color: var(--bg-secondary);
+    transition: background-color 0.3s ease;
+}
+
+.checkboxes::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.checkboxes::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
 }
 
 .checkbox {
     padding: .5rem;
+}
+
+.checkbox label {
+    color: var(--text-primary);
+}
+
+.wrapper.dark-theme .checkbox,
+.wrapper.dark-theme .checkbox label {
+    color: #ffffff;
 }
 
 /* общие настройки для тегов */
@@ -154,7 +317,14 @@ input[type="checkbox"] {
     -moz-user-select: none;
     -ms-user-select: none;
     /* user-select: none; */
-    background-color: lightgrey;
+    background-color: var(--tag-bg);
+    color: var(--card-bg);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.wrapper.dark-theme .tag {
+    /* color: var(--card-bg); */
+    color: var(--text-primary);
 }
 
 /* добавляем хештег перед тегом */
@@ -167,8 +337,9 @@ input[type="checkbox"] {
 
 /* оставляем тег чуть бледнее при нажатии */
 .tag__inactive {
-    opacity: 0.5;
-    background-color: rgb(233, 233, 233);
+    opacity: 0.4;
+    background-color: var(--tag-inactive-bg);
+    color: var(--tag-text);
 }
 
 .tag_task {
@@ -182,16 +353,16 @@ input[type="checkbox"] {
 /* настройки карточки */
 .card {
     /* цвет фона */
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     /* граница */
-    border: 1px solid #ebebeb;
+    border: 1px solid var(--card-border);
     /* рисуем границу по периметру карточки */
     /* межстрочное расстояние */
     line-height: 1.5;
     /* радиус скругления */
     border-radius: .8rem;
     /* рисуем тень */
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 4px;
+    box-shadow: var(--card-shadow) 0px 1px 4px;
     /* скрываем всё, что не помещается в блок */
     /* overflow: hidden; */
     /* включаем гибкую вёрстку */
@@ -203,9 +374,10 @@ input[type="checkbox"] {
     align-items: center;
     margin-top: 1rem;
     padding: .5rem;
+    color: var(--text-primary);
 
     /* Обеспечиваем плавный переход для opacity и height */
-    transition: opacity 0.5s ease-out, height 0.5s ease-out;
+    transition: opacity 0.5s ease-out, height 0.5s ease-out, background-color 0.3s ease, border-color 0.3s ease;
     /* Время и тип анимации */
     overflow: hidden;
     /* Важно! Скрывает контент, когда высота уменьшается */
@@ -215,7 +387,8 @@ input[type="checkbox"] {
 /* меняем цвет рамки карточки при наведении */
 .card:hover {
     /*border: .12rem solid #2E9AFF;*/
-    background-color: lightgrey;
+    background-color: var(--card-hover);
+    border-color: var(--border-color);
 }
 
 /* если тег не отмечен */
@@ -234,21 +407,24 @@ input[type="checkbox"] {
 /* КАРТОЧКИ */
 label {
     cursor: pointer;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 /* делаем тег чуть бледнее при наведении */
 label:hover {
-    opacity: 0.5;
+    opacity: 0.7;
+    color: var(--text-primary);
 }
 
 .kanban-block__name {
     margin-left: 1rem;
-    color: rgb(121, 121, 121);
+    color: var(--text-secondary);
 }
 
 .kanban-block__number {
     margin-left: 1rem;
-    color: rgb(80, 80, 80);
+    color: var(--text-tertiary);
 }
 
 .card__header {
@@ -259,22 +435,26 @@ label:hover {
 }
 
 .card__link {
-    color: rgb(17, 138, 236);
+    color: var(--link-color);
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 .card__link:hover {
     text-decoration: underline;
+    color: var(--link-hover);
 }
 
 .card__photo {
     width: 3.5rem;
     height: 4rem;
-    border: 1px solid rgb(184, 194, 196);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    transition: background-color 0.3s ease;
 }
 
 .card__photo:hover {
-    background-color: lightgrey;
+    background-color: var(--bg-tertiary);
     transform: scale(1.4);
     position: relative;
     right: 1rem;
@@ -284,6 +464,7 @@ label:hover {
 .card__text {
     display: flex;
     width: 100%;
+    color: var(--text-primary);
 }
 
 .command_panel {
@@ -291,27 +472,27 @@ label:hover {
     flex-direction: row;
     align-items: center;
     padding: .5rem;
-    background-color: white;
+    background-color: var(--command-bg);
     justify-content: space-between;
     height: 10.3rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .command_panel_buttons {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-    margin-left: 2rem;
+    justify-content: flex-end;
+    margin-left: auto;
 }
 
 .command_panel_buttons>* {
-    margin-right: 2rem;
-    /* Отступ между элементами */
+    margin-right: 1rem;
 }
 
 .command_panel_buttons>*:last-child {
     margin-right: 0;
-    /* Убираем отступ у последнего элемента */
 }
 
 #update_svg,
@@ -325,10 +506,23 @@ label:hover {
     cursor: pointer;
 }
 
+#update_svg svg,
+#setup_svg svg {
+    fill: var(--icon-color);
+    stroke: var(--icon-color);
+    transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
 /*Вращаем кнопку обновления на 180 градусов*/
 #update_svg:hover,
 #setup_svg:hover {
     transform: rotate(180deg);
+}
+
+#update_svg:hover svg,
+#setup_svg:hover svg {
+    fill: var(--icon-hover);
+    stroke: var(--icon-hover);
 }
 
 /*Убираем вращение и увеличиваем кнопку*/
@@ -338,27 +532,78 @@ label:hover {
 }
 
 .my_tasks {
-    color: rgb(17, 138, 236);
+    color: var(--button-text);
     text-decoration: none;
     font-family: 'Arial', sans-serif;
     padding: 8px 12px;
     border-radius: 4px;
     transition: all 0.3s ease;
     display: inline-block;
-    border: 2px solid #ebebeb;
+    border: 2px solid var(--border-color);
     cursor: pointer;
     -webkit-user-select: none;
+    background-color: var(--button-bg);
 }
 
 .my_tasks:hover {
-    background-color: #f0f0f0;
-    color: rgb(17, 138, 236);
+    background-color: var(--bg-tertiary);
+    color: var(--button-text);
+    border-color: var(--border-color);
 }
 
 .my_tasks_active {
     transform: scale(0.98);
-    background-color: #8c8c8c;
-    color: white;
+    background-color: var(--button-active-bg);
+    color: #e0e0e0;
+    border-color: var(--border-color);
+}
+
+/* Переключатель темы */
+.theme_toggle_container {
+    display: flex;
+    align-items: center;
+    margin-right: 2rem;
+}
+
+.theme_toggle {
+    position: relative;
+    display: flex;
+    width: 5.4rem;
+    height: 2.8rem;
+    background-color: var(--border-color);
+    border-radius: 2.8rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme_toggle.active {
+    background-color: var(--link-color);
+    justify-content: flex-end;
+}
+
+.theme_toggle::before {
+    content: '';
+    position: absolute;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    margin: 0.06rem;
+    left: 0.2rem;
+    background-color: white;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FDB813" stroke="%23FDB813" width="16" height="16"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+}
+
+.theme_toggle.active::before {
+    transform: translateX(2.6rem);
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234A7BA7" stroke="%234A7BA7" width="16" height="16"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>');
 }
 
 @media only screen and (max-width: 1450px) {
@@ -383,96 +628,86 @@ label:hover {
     }
 }
 
-@media only screen and (max-width: 1150px) {
+@media only screen and (max-width: 1024px) {
+    .command_panel {
+        flex-direction: column;
+        align-items: flex-start;
+        height: auto;
+    }
+
+    .command_panel_buttons {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+    }
+
+    .command_panel_buttons>* {
+        margin-right: 0;
+    }
+
+    .command_panel_buttons>*:last-child {
+        margin-right: 0;
+    }
+}
+
+@media only screen and (max-width: 768px) {
     body {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+    }
+
+    .card__photo {
+        width: 2rem;
+        height: 2.5rem;
+    }
+
+    .command_panel {
+        flex-direction: column;
+        align-items: flex-start;
+        height: auto;
+    }
+
+    .command_panel_buttons {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+    }
+
+    .command_panel_buttons>* {
+        margin-right: 0;
+    }
+
+    .command_panel_buttons>*:last-child {
+        margin-right: 0;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    body {
+        font-size: 1rem;
     }
 
     .card__photo {
         width: 1.5rem;
         height: 2rem;
     }
-}
 
-@media only screen and (max-width: 1010px) {
-    body {
-        font-size: .9rem;
+    .command_panel {
+        flex-direction: column;
+        align-items: flex-start;
+        height: auto;
     }
 
-    .card__photo {
-        width: 1rem;
-        height: 1.5rem;
+    .command_panel_buttons {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 0.5rem;
     }
 
-    .tag_task {
-        width: 1.5rem;
-        height: 1.5rem;
-    }
-}
-
-@media only screen and (max-width: 900px) {
-    body {
-        font-size: .7rem;
+    .command_panel_buttons>* {
+        margin-right: 0;
     }
 
-    .card__photo {
-        min-width: 0.5rem;
-        min-height: 1rem;
+    .command_panel_buttons>*:last-child {
+        margin-right: 0;
     }
-
-    .tag_task {
-        width: 1rem;
-        height: 1rem;
-    }
-}
-
-/* кнопка добавления задач +++ */
-.add_task {
-    min-width: 26px;
-    min-height: 26px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    border: none;
-    margin: 1rem;
-    cursor: pointer;
-}
-
-.add_task * {
-    pointer-events: none;
-}
-
-.add_task:hover {
-    background-color: #8c8c8c;
-    transform: rotate(90deg);
-}
-
-.add_task:hover svg path {
-    stroke: white;
-}
-
-.add_task:active {
-    transform: scale(0.9) rotate(90deg);
-}
-
-.add_task svg {
-    width: 16px;
-    height: 16px;
-}
-
-/* кнопка добавления задач --- */
-
-/* Стили для Drag & Drop подсветки */
-.kanban-block--dragover {
-    background-color: #e6f7ff;
-    /* Например, светло-голубой фон */
-    /* border: 2px dashed #91d5ff; Пунктирная граница */
-    outline: 2px dashed #91d5ff;
-    /* Используем outline вместо border */
-    outline-offset: -2px;
-    /* Опционально: сдвигает контур внутрь, чтобы он был внутри padding */
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    /* Плавный переход */
 }

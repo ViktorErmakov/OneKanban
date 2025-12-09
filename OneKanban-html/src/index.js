@@ -1,4 +1,3 @@
-
 import './style.css';
 
 window['V8Proxy'] = {
@@ -14,6 +13,7 @@ window['V8Proxy'] = {
 
         V8_request.setAttribute('idNewStatus', idNewStatus);
         V8_request.setAttribute('fullNameObjectStatus', fullNameObjectStatus);
+        // V8_request.setAttribute('darkTheme', document.querySelector('.wrapper').classList.contains('dark-theme') ? 'true' : 'false');
 
         V8_request.click();
     },
@@ -28,6 +28,19 @@ window['V8Proxy'] = {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Инициализация темы
+    const initTheme = () => {
+        const themeToggle = document.getElementById('theme_toggle');
+        const wrapper = document.querySelector('.wrapper');
+        
+        themeToggle.addEventListener('click', () => {
+            wrapper.classList.toggle('dark-theme');
+            themeToggle.classList.toggle('active');
+        });
+    };
+
+    initTheme();
 
     // Кнопка мои задачи отрабатывает без вызова 1С
     let my_tasks = document.getElementById('my_tasks');
