@@ -13,8 +13,6 @@ window['V8Proxy'] = {
 
         V8_request.setAttribute('idNewStatus', idNewStatus);
         V8_request.setAttribute('fullNameObjectStatus', fullNameObjectStatus);
-        // V8_request.setAttribute('darkTheme', document.querySelector('.wrapper').classList.contains('dark-theme') ? 'true' : 'false');
-
         V8_request.click();
     },
     // Для отправки из 1С в JS
@@ -32,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Инициализация темы
     const initTheme = () => {
         const themeToggle = document.getElementById('theme_toggle');
-        const wrapper = document.querySelector('.wrapper');
+        const wrapper = document.getElementById('wrapper');
         
         themeToggle.addEventListener('click', () => {
             wrapper.classList.toggle('dark-theme');

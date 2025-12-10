@@ -153,12 +153,13 @@ var ___CSS_LOADER_URL_REPLACEMENT_1___ = _node_modules_css_loader_dist_runtime_g
 ___CSS_LOADER_EXPORT___.push([module.id, `:root {
     --bg-primary: #ffffff;
     --bg-secondary: rgb(247, 246, 246);
+    --br-block: rgb(247, 246, 246);
     --bg-tertiary: aliceblue;
     --text-primary: #333333;
     --text-secondary: rgb(121, 121, 121);
     --text-tertiary: rgb(80, 80, 80);
     --border-color: #ebebeb;
-    --card-bg: #ffffff;
+    --card-bg: #2a2a2a;
     --card-border: #ebebeb;
     --card-shadow: rgba(0, 0, 0, 0.05);
     --card-hover: lightgrey;
@@ -179,37 +180,6 @@ ___CSS_LOADER_EXPORT___.push([module.id, `:root {
     --header-shadow: rgba(0, 0, 0, 0.1);
     --add-task-bg: transparent;
     --add-task-hover: #8c8c8c;
-}
-
-html.dark-theme {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #242424;
-    --bg-tertiary: #333333;
-    --text-primary: #e0e0e0;
-    --text-secondary: #9a9a9a;
-    --text-tertiary: #a0a0a0;
-    --border-color: #3a3a3a;
-    --card-bg: #2a2a2a;
-    --card-border: #3a3a3a;
-    --card-shadow: rgba(0, 0, 0, 0.3);
-    --card-hover: #353535;
-    --tag-bg: #4a4a4a;
-    --tag-inactive-bg: #383838;
-    --tag-text: #b0b0b0;
-    --link-color: #6fa8d8;
-    --link-hover: #8ab8e8;
-    --command-bg: #242424;
-    --icon-color: #8a8a8a;
-    --icon-hover: #b0b0b0;
-    --button-bg: #2a2a2a;
-    --button-active-bg: #5a6a7a;
-    --button-text: #6fa8d8;
-    --dragover-bg: #2f3d4d;
-    --dragover-border: #4a6a8a;
-    --header-hover: #333333;
-    --header-shadow: rgba(0, 0, 0, 0.3);
-    --add-task-bg: #3a3a3a;
-    --add-task-hover: #5a6a7a;
 }
 
 /* подключаем внешний шрифт */
@@ -252,12 +222,13 @@ body {
 .wrapper.dark-theme {
     --bg-primary: #1a1a1a;
     --bg-secondary: #242424;
+    --br-block: #1a1a1a;
     --bg-tertiary: #333333;
     --text-primary: #e0e0e0;
     --text-secondary: #9a9a9a;
     --text-tertiary: #a0a0a0;
     --border-color: #3a3a3a;
-    --card-bg: #2a2a2a;
+    --card-bg: #ffffff;
     --card-border: #3a3a3a;
     --card-shadow: rgba(0, 0, 0, 0.3);
     --card-hover: #353535;
@@ -321,7 +292,6 @@ body {
     flex-direction: column;
     z-index: 100;
     width: 100%;
-    background-color: var(--bg-secondary);
     transition: background-color 0.3s ease;
 }
 
@@ -349,6 +319,7 @@ body {
     align-items: center;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
+    border-top: var(--br-block) 1px solid;
     background-color: var(--bg-secondary);
     transition: background-color 0.3s ease;
 }
@@ -474,11 +445,6 @@ input[type="checkbox"] {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.wrapper.dark-theme .tag {
-    /* color: var(--card-bg); */
-    color: var(--text-primary);
-}
-
 /* добавляем хештег перед тегом */
 .tag::before {
     /* добавляем текст, отступ и прозрачность */
@@ -495,8 +461,9 @@ input[type="checkbox"] {
 }
 
 .tag_task {
-    width: 2rem;
-    height: 2rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
 }
 
 /* чекбоксы */
@@ -505,7 +472,7 @@ input[type="checkbox"] {
 /* настройки карточки */
 .card {
     /* цвет фона */
-    background-color: var(--card-bg);
+    /* background-color: var(--card-bg); */
     /* граница */
     border: 1px solid var(--card-border);
     /* рисуем границу по периметру карточки */
@@ -627,7 +594,7 @@ label:hover {
     background-color: var(--command-bg);
     justify-content: space-between;
     height: 10.3rem;
-    border-bottom: 1px solid var(--border-color);
+    /* border-bottom: 1px solid var(--border-color); */
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -756,6 +723,57 @@ label:hover {
 .theme_toggle.active::before {
     transform: translateX(2.6rem);
     background-image: url(${___CSS_LOADER_URL_REPLACEMENT_1___});
+}
+
+/* кнопка добавления задач +++ */
+.add_task {
+    min-width: 26px;
+    min-height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: none;
+    margin: 1rem;
+    cursor: pointer;
+}
+
+.add_task * {
+    pointer-events: none;
+}
+
+.add_task:hover {
+    background-color: #8c8c8c;
+    transform: rotate(90deg);
+}
+
+.add_task:hover svg path {
+    stroke: white;
+}
+
+.add_task:active {
+    transform: scale(0.9) rotate(90deg);
+}
+
+.add_task svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* кнопка добавления задач --- */
+
+/* Стили для Drag & Drop подсветки */
+.kanban-block--dragover {
+    background-color: #e6f7ff;
+    /* Например, светло-голубой фон */
+    /* border: 2px dashed #91d5ff; Пунктирная граница */
+    outline: 2px dashed #91d5ff;
+    /* Используем outline вместо border */
+    outline-offset: -2px;
+    /* Опционально: сдвигает контур внутрь, чтобы он был внутри padding */
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    /* Плавный переход */
 }
 
 @media only screen and (max-width: 1450px) {
@@ -1296,8 +1314,6 @@ window['V8Proxy'] = {
 
         V8_request.setAttribute('idNewStatus', idNewStatus);
         V8_request.setAttribute('fullNameObjectStatus', fullNameObjectStatus);
-        // V8_request.setAttribute('darkTheme', document.querySelector('.wrapper').classList.contains('dark-theme') ? 'true' : 'false');
-
         V8_request.click();
     },
     // Для отправки из 1С в JS
@@ -1315,7 +1331,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Инициализация темы
     const initTheme = () => {
         const themeToggle = document.getElementById('theme_toggle');
-        const wrapper = document.querySelector('.wrapper');
+        const wrapper = document.getElementById('wrapper');
         
         themeToggle.addEventListener('click', () => {
             wrapper.classList.toggle('dark-theme');
@@ -1464,4 +1480,4 @@ function RecalculateKanbanBlock() {
 
 RecalculateKanbanBlock();
 /******/ })()
-;</script></head><body><div class="wrapper"><div id="main-content-wrapper"><div id="sticky_blok" class="sticky_blok"><div class="command_panel"><div id="checkboxes" class="checkboxes"></div><div class="command_panel_buttons"><div id="my_tasks" class="my_tasks">Мои задачи</div><div id="update_svg"><svg fill="#8c8c8c" stroke="#8c8c8c" width="32" height="32" style="pointer-events: none;" version="1.1" viewbox="144 144 512 512" xmlns="http://www.w3.org/2000/svg"><path xmlns="http://www.w3.org/2000/svg" d="m387.4 203.36c-96.539 0.89453-179.1 42.605-214.12 101.71 36.559-24.383 86.039-39.359 140.44-39.359 82.738 0 153.97 34.656 185.94 84.387l-30.547 23.457 157.6 48.492-6.4531-164.84-30.699 23.617c-62.805-50.465-113.38-78.281-202.16-77.461zm-214.12 174.6 6.4531 164.84 30.703-23.617c62.801 50.465 113.38 78.281 202.15 77.461 96.539-0.89453 179.1-42.605 214.12-101.71-36.559 24.383-86.039 39.359-140.44 39.359-82.738 0-153.97-34.656-185.94-84.387l30.547-23.457z" fill-rule="evenodd"></path></svg></div><div id="setup_svg"><svg fill="#7f7a7a" stroke="#7f7a7a" width="32" height="32" style="pointer-events: none;" version="1.1" viewBox="144 144 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m431.49 636.16h-62.977c-3.4219 0-6.75-1.1172-9.4805-3.1797-2.7344-2.0586-4.7188-4.9531-5.6562-8.2461l-18.973-66.375-60.348 33.516v0.003906c-2.9922 1.668-6.4414 2.3125-9.832 1.8359-3.3906-0.47266-6.5312-2.043-8.9492-4.4648l-44.52-44.527c-2.418-2.4141-3.9883-5.5547-4.4609-8.9453-0.47656-3.3867 0.16406-6.8359 1.8242-9.8281l33.523-60.363-66.387-18.957c-3.2891-0.94141-6.1836-2.9297-8.2422-5.6602-2.0586-2.7344-3.1719-6.0625-3.1758-9.4805v-62.977c0.003906-3.4219 1.1172-6.75 3.1758-9.4844 2.0586-2.7305 4.9531-4.7188 8.2422-5.6602l66.391-18.957-33.527-60.363c-1.6602-2.9922-2.3008-6.4414-1.8242-9.8281 0.47266-3.3867 2.043-6.5273 4.4609-8.9453l44.52-44.52c2.4141-2.4258 5.5586-3.9961 8.9492-4.4688 3.3906-0.47656 6.8438 0.17188 9.832 1.8398l60.348 33.516 18.973-66.375v0.003906c0.9375-3.293 2.9219-6.1875 5.6523-8.25 2.7305-2.0625 6.0586-3.1797 9.4844-3.1836h62.977c3.4219 0.003906 6.75 1.1172 9.4844 3.1797 2.7305 2.0625 4.7188 4.957 5.6562 8.2461l18.961 66.375 60.359-33.52c2.9922-1.6641 6.4414-2.3086 9.8281-1.832 3.3906 0.47266 6.5312 2.0391 8.9453 4.4609l44.527 44.527c2.418 2.418 3.9805 5.5586 4.457 8.9453 0.47266 3.3867-0.16797 6.8359-1.8281 9.8281l-33.516 60.363 66.375 18.957h-0.003906c3.293 0.94141 6.1875 2.9258 8.2461 5.6602 2.0625 2.7305 3.1797 6.0586 3.1797 9.4844v62.977c0 3.4219-1.1172 6.75-3.1797 9.4844-2.0586 2.7305-4.9531 4.7188-8.2461 5.6562l-66.371 18.961 33.516 60.359c1.6602 2.9922 2.3008 6.4414 1.8281 9.8281-0.47656 3.3867-2.0391 6.5273-4.457 8.9453l-44.527 44.527c-2.4141 2.4258-5.5547 3.9922-8.9453 4.4688-3.3867 0.47656-6.8398-0.17188-9.8281-1.8398l-60.363-33.516-18.957 66.375v-0.003906c-0.9375 3.293-2.9258 6.1875-5.6562 8.2461-2.7344 2.0625-6.0625 3.1797-9.4844 3.1797zm-51.098-31.488h39.23l21.141-74.031h-0.003907c1.3164-4.6211 4.6719-8.3867 9.1094-10.227 4.4414-1.8398 9.4766-1.5508 13.676 0.78125l67.312 37.391 27.734-27.734-37.391-67.312c-2.332-4.1992-2.6211-9.2383-0.78125-13.676 1.8398-4.4375 5.6094-7.793 10.227-9.1094l74.027-21.137v-39.238l-74.031-21.141c-4.6211-1.3164-8.3867-4.6719-10.227-9.1094-1.8398-4.4375-1.5508-9.4766 0.78125-13.676l37.391-67.312-27.73-27.734-67.312 37.391c-4.1992 2.332-9.2344 2.6211-13.676 0.78125-4.4375-1.8398-7.793-5.6055-9.1094-10.227l-21.141-74.027h-39.23l-21.156 74.031c-1.3164 4.6211-4.6719 8.3867-9.1094 10.227-4.4375 1.8398-9.4766 1.5547-13.676-0.78125l-67.305-37.395-27.734 27.734 37.391 67.312c2.332 4.1992 2.6211 9.2344 0.78516 13.672-1.8359 4.4375-5.6016 7.793-10.219 9.1133l-74.039 21.141v39.238l74.039 21.141c4.6172 1.3203 8.3828 4.6758 10.219 9.1133 1.8359 4.4414 1.5469 9.4727-0.78516 13.672l-37.391 67.312 27.734 27.734 67.305-37.391c4.1992-2.332 9.2383-2.6211 13.676-0.78125 4.4375 1.8398 7.793 5.6094 9.1094 10.227z"></path><path d="m400 478.72c-20.879 0-40.902-8.293-55.664-23.055-14.766-14.766-23.059-34.789-23.059-55.664 0-20.879 8.293-40.902 23.059-55.664 14.762-14.766 34.785-23.059 55.664-23.059 20.875 0 40.898 8.293 55.664 23.059 14.762 14.762 23.055 34.785 23.055 55.664-0.023438 20.867-8.3281 40.879-23.082 55.637-14.758 14.754-34.77 23.059-55.637 23.082zm0-125.95c-12.527 0-24.543 4.9766-33.398 13.836-8.8594 8.8555-13.836 20.871-13.836 33.398 0 12.523 4.9766 24.539 13.836 33.398 8.8555 8.8555 20.871 13.832 33.398 13.832 12.523 0 24.539-4.9766 33.398-13.832 8.8555-8.8594 13.832-20.875 13.832-33.398-0.011719-12.523-4.9961-24.531-13.848-33.383-8.8555-8.8555-20.863-13.836-33.383-13.852z"></path></svg></div><div class="theme_toggle_container"><button id="theme_toggle" class="theme_toggle"></button></div></div></div><div id="kanban_header"></div></div><div id="kanban-board"></div></div><button id="V8_request" style="display: none;"></button> <button id="V8_response" style="display: none;"></button></div></body></html>
+;</script></head><body><div id="wrapper" class="wrapper"><div id="main-content-wrapper"><div id="sticky_blok" class="sticky_blok"><div class="command_panel"><div id="checkboxes" class="checkboxes"></div><div class="command_panel_buttons"><div id="my_tasks" class="my_tasks">Мои задачи</div><div id="update_svg"><svg fill="#8c8c8c" stroke="#8c8c8c" width="32" height="32" style="pointer-events: none;" version="1.1" viewbox="144 144 512 512" xmlns="http://www.w3.org/2000/svg"><path xmlns="http://www.w3.org/2000/svg" d="m387.4 203.36c-96.539 0.89453-179.1 42.605-214.12 101.71 36.559-24.383 86.039-39.359 140.44-39.359 82.738 0 153.97 34.656 185.94 84.387l-30.547 23.457 157.6 48.492-6.4531-164.84-30.699 23.617c-62.805-50.465-113.38-78.281-202.16-77.461zm-214.12 174.6 6.4531 164.84 30.703-23.617c62.801 50.465 113.38 78.281 202.15 77.461 96.539-0.89453 179.1-42.605 214.12-101.71-36.559 24.383-86.039 39.359-140.44 39.359-82.738 0-153.97-34.656-185.94-84.387l30.547-23.457z" fill-rule="evenodd"></path></svg></div><div id="setup_svg"><svg fill="#7f7a7a" stroke="#7f7a7a" width="32" height="32" style="pointer-events: none;" version="1.1" viewBox="144 144 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m431.49 636.16h-62.977c-3.4219 0-6.75-1.1172-9.4805-3.1797-2.7344-2.0586-4.7188-4.9531-5.6562-8.2461l-18.973-66.375-60.348 33.516v0.003906c-2.9922 1.668-6.4414 2.3125-9.832 1.8359-3.3906-0.47266-6.5312-2.043-8.9492-4.4648l-44.52-44.527c-2.418-2.4141-3.9883-5.5547-4.4609-8.9453-0.47656-3.3867 0.16406-6.8359 1.8242-9.8281l33.523-60.363-66.387-18.957c-3.2891-0.94141-6.1836-2.9297-8.2422-5.6602-2.0586-2.7344-3.1719-6.0625-3.1758-9.4805v-62.977c0.003906-3.4219 1.1172-6.75 3.1758-9.4844 2.0586-2.7305 4.9531-4.7188 8.2422-5.6602l66.391-18.957-33.527-60.363c-1.6602-2.9922-2.3008-6.4414-1.8242-9.8281 0.47266-3.3867 2.043-6.5273 4.4609-8.9453l44.52-44.52c2.4141-2.4258 5.5586-3.9961 8.9492-4.4688 3.3906-0.47656 6.8438 0.17188 9.832 1.8398l60.348 33.516 18.973-66.375v0.003906c0.9375-3.293 2.9219-6.1875 5.6523-8.25 2.7305-2.0625 6.0586-3.1797 9.4844-3.1836h62.977c3.4219 0.003906 6.75 1.1172 9.4844 3.1797 2.7305 2.0625 4.7188 4.957 5.6562 8.2461l18.961 66.375 60.359-33.52c2.9922-1.6641 6.4414-2.3086 9.8281-1.832 3.3906 0.47266 6.5312 2.0391 8.9453 4.4609l44.527 44.527c2.418 2.418 3.9805 5.5586 4.457 8.9453 0.47266 3.3867-0.16797 6.8359-1.8281 9.8281l-33.516 60.363 66.375 18.957h-0.003906c3.293 0.94141 6.1875 2.9258 8.2461 5.6602 2.0625 2.7305 3.1797 6.0586 3.1797 9.4844v62.977c0 3.4219-1.1172 6.75-3.1797 9.4844-2.0586 2.7305-4.9531 4.7188-8.2461 5.6562l-66.371 18.961 33.516 60.359c1.6602 2.9922 2.3008 6.4414 1.8281 9.8281-0.47656 3.3867-2.0391 6.5273-4.457 8.9453l-44.527 44.527c-2.4141 2.4258-5.5547 3.9922-8.9453 4.4688-3.3867 0.47656-6.8398-0.17188-9.8281-1.8398l-60.363-33.516-18.957 66.375v-0.003906c-0.9375 3.293-2.9258 6.1875-5.6562 8.2461-2.7344 2.0625-6.0625 3.1797-9.4844 3.1797zm-51.098-31.488h39.23l21.141-74.031h-0.003907c1.3164-4.6211 4.6719-8.3867 9.1094-10.227 4.4414-1.8398 9.4766-1.5508 13.676 0.78125l67.312 37.391 27.734-27.734-37.391-67.312c-2.332-4.1992-2.6211-9.2383-0.78125-13.676 1.8398-4.4375 5.6094-7.793 10.227-9.1094l74.027-21.137v-39.238l-74.031-21.141c-4.6211-1.3164-8.3867-4.6719-10.227-9.1094-1.8398-4.4375-1.5508-9.4766 0.78125-13.676l37.391-67.312-27.73-27.734-67.312 37.391c-4.1992 2.332-9.2344 2.6211-13.676 0.78125-4.4375-1.8398-7.793-5.6055-9.1094-10.227l-21.141-74.027h-39.23l-21.156 74.031c-1.3164 4.6211-4.6719 8.3867-9.1094 10.227-4.4375 1.8398-9.4766 1.5547-13.676-0.78125l-67.305-37.395-27.734 27.734 37.391 67.312c2.332 4.1992 2.6211 9.2344 0.78516 13.672-1.8359 4.4375-5.6016 7.793-10.219 9.1133l-74.039 21.141v39.238l74.039 21.141c4.6172 1.3203 8.3828 4.6758 10.219 9.1133 1.8359 4.4414 1.5469 9.4727-0.78516 13.672l-37.391 67.312 27.734 27.734 67.305-37.391c4.1992-2.332 9.2383-2.6211 13.676-0.78125 4.4375 1.8398 7.793 5.6094 9.1094 10.227z"></path><path d="m400 478.72c-20.879 0-40.902-8.293-55.664-23.055-14.766-14.766-23.059-34.789-23.059-55.664 0-20.879 8.293-40.902 23.059-55.664 14.762-14.766 34.785-23.059 55.664-23.059 20.875 0 40.898 8.293 55.664 23.059 14.762 14.762 23.055 34.785 23.055 55.664-0.023438 20.867-8.3281 40.879-23.082 55.637-14.758 14.754-34.77 23.059-55.637 23.082zm0-125.95c-12.527 0-24.543 4.9766-33.398 13.836-8.8594 8.8555-13.836 20.871-13.836 33.398 0 12.523 4.9766 24.539 13.836 33.398 8.8555 8.8555 20.871 13.832 33.398 13.832 12.523 0 24.539-4.9766 33.398-13.832 8.8555-8.8594 13.832-20.875 13.832-33.398-0.011719-12.523-4.9961-24.531-13.848-33.383-8.8555-8.8555-20.863-13.836-33.383-13.852z"></path></svg></div><div class="theme_toggle_container"><button id="theme_toggle" class="theme_toggle"></button></div></div></div><div id="kanban_header"></div></div><div id="kanban-board"></div></div><button id="V8_request" style="display: none;"></button> <button id="V8_response" style="display: none;"></button></div></body></html>
