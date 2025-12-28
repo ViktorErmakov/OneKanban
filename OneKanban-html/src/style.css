@@ -9,8 +9,9 @@
     --border-color: #ebebeb;
     --card-bg: #2a2a2a;
     --card-border: #ebebeb;
-    --card-shadow: rgba(0, 0, 0, 0.05);
+    --card-shadow: rgba(0, 0, 0.05);
     --card-hover: lightgrey;
+    --card-hover-shadow: 0 0 8px rgba(100, 100, 100, 0.5);
     --tag-bg: lightgrey;
     --tag-inactive-bg: rgb(233, 233, 233);
     --tag-text: #333333;
@@ -45,7 +46,7 @@ body {
     margin: 0;
     font-size: 1.7rem;
     overflow: auto;
-    height: 100vh;
+    min-height: 100vh;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -65,6 +66,7 @@ body {
     display: flex;
     flex-direction: column;
     background-color: var(--bg-primary);
+    min-height: 100vh;
 }
 
 .wrapper.dark-theme {
@@ -79,7 +81,8 @@ body {
     --card-bg: #ffffff;
     --card-border: #3a3a3a;
     --card-shadow: rgba(0, 0, 0, 0.3);
-    --card-hover: #353535;
+    --card-hover: #494949;
+    --card-hover-shadow: 0 0 12px rgba(90, 10, 180, 0.4), 0 0 20px rgba(70, 80, 160, 0.3);
     --tag-bg: #4a4a4a;
     --tag-inactive-bg: #383838;
     --tag-text: #b0b0b0;
@@ -125,14 +128,6 @@ body {
     /* Для горизонтальной полосы */
 }
 
-.wrapper {
-    color: var(--text-primary);
-    font-family: "Inter", sans-serif;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--bg-primary);
-}
-
 .sticky_blok {
     display: flex;
     position: fixed;
@@ -147,6 +142,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
+    flex: 1;
 }
 
 #kanban_header {
@@ -179,20 +175,24 @@ body {
 .kanban_body {
     display: flex;
     width: 100%;
-    top: 4rem;
-    /* min-height: 91vh; */
+    min-height: calc(100vh - 5.8rem - 4rem);
+    /* Account for header height */
+    margin-top: 5.8rem;
 }
 
 .kanban-block {
-    margin-top: 17.1rem;
+    margin-top: 11.4rem;
     background-color: var(--bg-secondary);
     transition: background-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 85vh;
 }
 
 .block_header,
 .kanban-block {
     /* Для равномерного распределения колонок: */
-    flex: 1;
+    flex: 1 1 0;
     /* Позволяет элементам расти и занимать доступное пространство */
     min-width: 0;
     /* Важно для flex: 1, чтобы избежать переполнения */
@@ -289,7 +289,7 @@ input[type="checkbox"] {
     -ms-user-select: none;
     /* user-select: none; */
     background-color: var(--tag-bg);
-    color: var(--card-bg);
+    color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -353,9 +353,8 @@ input[type="checkbox"] {
 
 /* меняем цвет рамки карточки при наведении */
 .card:hover {
-    /*border: .12rem solid #2E9AFF;*/
     background-color: var(--card-hover);
-    border-color: var(--border-color);
+    box-shadow: var(--card-shadow) 0px 1px 4px, var(--card-hover-shadow);
 }
 
 /* если тег не отмечен */
@@ -613,10 +612,10 @@ label:hover {
 
 /* Стили для Drag & Drop подсветки */
 .kanban-block--dragover {
-    background-color: #e6f7ff;
+    background-color: var(--dragover-bg);
     /* Например, светло-голубой фон */
     /* border: 2px dashed #91d5ff; Пунктирная граница */
-    outline: 2px dashed #91d5ff;
+    outline: 2px dashed var(--dragover-border);
     /* Используем outline вместо border */
     outline-offset: -2px;
     /* Опционально: сдвигает контур внутрь, чтобы он был внутри padding */
