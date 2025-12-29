@@ -329,7 +329,7 @@ input[type="checkbox"] {
     /* радиус скругления */
     border-radius: .8rem;
     /* рисуем тень */
-    box-shadow: var(--card-shadow) 0px 1px 4px;
+    /* box-shadow: var(--card-shadow) 0px 1px 4px; */
     /* скрываем всё, что не помещается в блок */
     /* overflow: hidden; */
     /* включаем гибкую вёрстку */
