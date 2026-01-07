@@ -140,7 +140,6 @@ body {
 
 #kanban-board {
     display: flex;
-    flex-direction: column;
     width: 100%;
     flex: 1;
 }
@@ -621,6 +620,211 @@ label:hover {
     /* Опционально: сдвигает контур внутрь, чтобы он был внутри padding */
     transition: background-color 0.2s ease, border-color 0.2s ease;
     /* Плавный переход */
+}
+
+/* ========== DROPDOWN ГРУППИРОВКИ ========== */
+.grouping_dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.grouping_toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.2rem;
+    background-color: var(--button-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 0.4rem;
+    cursor: pointer;
+    color: var(--button-text);
+    font-size: 1.4rem;
+    font-family: 'Arial', sans-serif;
+    transition: all 0.3s ease;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.grouping_toggle:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+.grouping_toggle svg {
+    stroke: var(--button-text);
+    transition: stroke 0.3s ease;
+}
+
+.grouping_toggle .dropdown_arrow {
+    transition: transform 0.2s ease;
+}
+
+.grouping_dropdown.open .dropdown_arrow {
+    transform: rotate(180deg);
+}
+
+.grouping_menu {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    min-width: 100%;
+    background-color: var(--command-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.4rem;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    transition: all 0.2s ease;
+    z-index: 200;
+}
+
+.grouping_dropdown.open .grouping_menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.grouping_option {
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text-primary);
+    font-size: 1.4rem;
+    transition: background-color 0.2s ease;
+}
+
+.grouping_option:first-child {
+    border-radius: 0.4rem 0.4rem 0 0;
+}
+
+.grouping_option:last-child {
+    border-radius: 0 0 0.4rem 0.4rem;
+}
+
+.grouping_option:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.grouping_option.active {
+    background-color: var(--button-active-bg);
+    color: #e0e0e0;
+}
+
+/* ========== ГРУППЫ (SWIMLANES) ========== */
+.group {
+    width: 100%;
+}
+
+/* Первая группа - отступ сверху для sticky заголовка */
+.group:first-child {
+    margin-top: 17.1rem;
+}
+
+.group-header {
+    display: flex;
+    align-items: center;
+    
+    padding: 1rem 1.2rem;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    margin-top: 0.5rem;
+}
+
+.group-header > * {
+    margin-right: 2rem;
+}
+
+.group-header:hover {
+    background-color: var(--header-hover);
+}
+
+.group-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    transition: transform 0.2s ease;
+}
+
+.group-toggle svg {
+    stroke: var(--text-secondary);
+    transition: stroke 0.2s ease;
+}
+
+.group.collapsed .group-toggle {
+    transform: rotate(-90deg);
+}
+
+/* Фото исполнителя в заголовке группы */
+.group-photo {
+    width: 3.5rem;
+    height: 4rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    border-radius: 0.3rem;
+    object-fit: cover;
+    transition: background-color 0.3s ease;
+}
+
+.group-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+}
+
+.group-count {
+    color: var(--text-tertiary);
+    font-weight: bold;
+}
+
+/* Фото в карточках НЕ скрываем при группировке */
+
+.group-content {
+    display: flex;
+    width: 100%;
+}
+
+.group.collapsed .group-content {
+    display: none;
+}
+
+/* Блоки внутри группы */
+.group-content .kanban-block {
+    margin-top: 0;
+    min-height: 8rem;
+    border-radius: 0;
+    border-left: 1px solid var(--border-color);
+}
+
+.group-content .kanban-block:first-child {
+    border-left: none;
+}
+
+/* Когда группировка активна, убираем отступ сверху у обычных блоков */
+#kanban-board.grouped .kanban-block {
+    margin-top: 0;
+}
+
+/* Режим без группировки */
+#kanban-board:not(.grouped) {
+    display: flex;
+    flex-direction: row;
+}
+
+#kanban-board:not(.grouped) .kanban-block {
+    margin-top: 11.4rem;
+    min-height: 85vh;
+}
+
+/* Режим с группировкой */
+#kanban-board.grouped {
+    display: flex;
+    flex-direction: column;
 }
 
 @media only screen and (max-width: 1450px) {

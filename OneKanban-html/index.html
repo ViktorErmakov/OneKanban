@@ -17,11 +17,29 @@
                 <div class="command_panel">
 
                     <div id="checkboxes" class="checkboxes">
+                        <!-- ===== ТЕСТОВЫЕ ДАННЫЕ - НАЧАЛО (УДАЛИТЬ ДЛЯ ПРОДАКШЕНА) ===== -->
+                        <div class="checkbox"><input type="checkbox" id="projectb49a3cc6-3026-11f0-952c-107b4419808b" checked="true"></input><label for="projectb49a3cc6-3026-11f0-952c-107b4419808b"><div class="tag projectb49a3cc6-3026-11f0-952c-107b4419808b">Первый проект</div></label></div>
+                        <div class="checkbox"><input type="checkbox" id="projectb49a3cc7-3026-11f0-952c-107b4419808b" checked="true"></input><label for="projectb49a3cc7-3026-11f0-952c-107b4419808b"><div class="tag projectb49a3cc7-3026-11f0-952c-107b4419808b">Второй проект</div></label></div>
+                        <div class="checkbox"><input type="checkbox" id="projectb49a3cc8-3026-11f0-952c-107b4419808b" checked="true"></input><label for="projectb49a3cc8-3026-11f0-952c-107b4419808b"><div class="tag projectb49a3cc8-3026-11f0-952c-107b4419808b">Третий проект</div></label></div>
+                        <!-- ===== ТЕСТОВЫЕ ДАННЫЕ - КОНЕЦ ===== -->
                     </div>
 
                     <div class="command_panel_buttons">
 
                         <div id="my_tasks" class="my_tasks">Мои задачи</div>
+
+                        <div class="grouping_dropdown">
+                            <button id="grouping_toggle" class="grouping_toggle">
+                                <span id="grouping_label">Группировка</span>
+                                <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div id="grouping_menu" class="grouping_menu">
+                                <div class="grouping_option active" data-value="none">Без группировки</div>
+                                <div class="grouping_option" data-value="executor">По исполнителю</div>
+                            </div>
+                        </div>
 
                         <div id="update_svg">
                             <svg fill="#8c8c8c" stroke="#8c8c8c" width="32" height="32" style="pointer-events: none;"
@@ -50,11 +68,76 @@
                 </div>
 
                 <div id="kanban_header">
+                    <!-- ===== ТЕСТОВЫЕ ДАННЫЕ - НАЧАЛО (УДАЛИТЬ ДЛЯ ПРОДАКШЕНА) ===== -->
+                    <!-- <div class="block_header"><strong class="kanban-block__name">Зарегистрирована</strong><strong class="kanban-block__number">3</strong></div>
+                    <div class="block_header"><strong class="kanban-block__name">В работе</strong><strong class="kanban-block__number">2</strong></div>
+                    <div class="block_header"><strong class="kanban-block__name">Готово</strong><strong class="kanban-block__number">1</strong></div> -->
+                    <!-- ===== ТЕСТОВЫЕ ДАННЫЕ - КОНЕЦ ===== -->
                 </div>
 
             </div>
 
             <div id="kanban-board">
+                <!-- ===== ТЕСТОВЫЕ ДАННЫЕ - НАЧАЛО (УДАЛИТЬ ДЛЯ ПРОДАКШЕНА) ===== -->
+                <!-- Статус: Зарегистрирована -->
+                <!-- <div class="kanban-block" id="status-registered" fullNameObjectStatus="Справочник.канбан_СтатусыЗадач">
+                    <div class="card projectb49a3cc6-3026-11f0-952c-107b4419808b user074f17ec-ce19-11f0-9551-107b4419808b user_nameЕрмаков Виктор" draggable="true" id="task001" fullNameObjectTask="Справочник.канбан_Задачи">
+                        <div class="card__header">
+                            <div class="tag_task"></div>
+                            <a class="card__link" href="#">Задача №1</a>
+                            <img class="card__photo" alt="Ермаков Виктор" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%234a90d9' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EЕВ%3C/text%3E%3C/svg%3E">
+                        </div>
+                        <div class="card__text"><span>Первый эпик</span></div>
+                    </div>
+                    <div class="card projectb49a3cc7-3026-11f0-952c-107b4419808b userb1edc216-ea23-11de-8634-001d600d9ad2 user_nameПетрищев Олег" draggable="true" id="task002" fullNameObjectTask="Справочник.канбан_Задачи">
+                        <div class="card__header">
+                            <div class="tag_task"></div>
+                            <a class="card__link" href="#">Задача №2</a>
+                            <img class="card__photo" alt="Петрищев Олег" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%2390d94a' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EПО%3C/text%3E%3C/svg%3E">
+                        </div>
+                        <div class="card__text"><span>Задача второго проекта</span></div>
+                    </div>
+                    
+                    <div class="card projectb49a3cc8-3026-11f0-952c-107b4419808b usere7e28f5a-8d7e-11de-a1ba-005056c00008 user_nameАдминистратор" draggable="true" id="task003" fullNameObjectTask="Справочник.канбан_Задачи">
+                        <div class="card__header">
+                            <div class="tag_task"></div>
+                            <a class="card__link" href="#">Задача №3</a>
+                            <img class="card__photo" alt="Администратор" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%23d94a90' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EАД%3C/text%3E%3C/svg%3E">
+                        </div>
+                        <div class="card__text"><span>Задача третьего проекта</span></div>
+                    </div>
+                </div> -->
+                <!-- Статус: В работе -->
+                <!-- <div class="kanban-block" id="status-in-progress" fullNameObjectStatus="Справочник.канбан_СтатусыЗадач">
+                    <div class="card projectb49a3cc7-3026-11f0-952c-107b4419808b user074f17ec-ce19-11f0-9551-107b4419808b user_nameЕрмаков Виктор" draggable="true" id="task004" fullNameObjectTask="Справочник.канбан_Задачи">
+                        <div class="card__header">
+                            <div class="tag_task"></div>
+                            <a class="card__link" href="#">Задача №4</a>
+                            <img class="card__photo" alt="Ермаков Виктор" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%234a90d9' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EЕВ%3C/text%3E%3C/svg%3E">
+                        </div>
+                        <div class="card__text"><span>В работе - Ермаков</span></div>
+                    </div>
+                    <div class="card projectb49a3cc6-3026-11f0-952c-107b4419808b usere7e28f5a-8d7e-11de-a1ba-005056c00008 user_nameАдминистратор" draggable="true" id="task005" fullNameObjectTask="Справочник.канбан_Задачи">
+                        <div class="card__header">
+                            <div class="tag_task"></div>
+                            <a class="card__link" href="#">Задача №5</a>
+                            <img class="card__photo" alt="Администратор" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%23d94a90' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EАД%3C/text%3E%3C/svg%3E">
+                        </div>
+                        <div class="card__text"><span>В работе - Админ</span></div>
+                    </div>
+                </div> -->
+                <!-- Статус: Готово -->
+                <!-- <div class="kanban-block" id="status-done" fullNameObjectStatus="Справочник.канбан_СтатусыЗадач">
+                    <div class="card projectb49a3cc8-3026-11f0-952c-107b4419808b userb1edc216-ea23-11de-8634-001d600d9ad2 user_nameПетрищев Олег" draggable="true" id="task006" fullNameObjectTask="Справочник.канбан_Задачи">
+                        <div class="card__header">
+                            <div class="tag_task"></div>
+                            <a class="card__link" href="#">Задача №6</a>
+                            <img class="card__photo" alt="Петрищев Олег" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%2390d94a' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EПО%3C/text%3E%3C/svg%3E">
+                        </div>
+                        <div class="card__text"><span>Готово - Петрищев</span></div>
+                    </div>
+                </div> -->
+                <!-- ===== ТЕСТОВЫЕ ДАННЫЕ - КОНЕЦ ===== -->
             </div>
 
         </div>
