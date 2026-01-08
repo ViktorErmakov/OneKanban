@@ -40,6 +40,185 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initTheme();
 
+    // ========== PROJECT PICKER (Tag-picker с dropdown) ==========
+    const MAX_VISIBLE_PROJECTS = 3; // Максимум видимых pills
+    
+    // Хранилище проектов (глобальное для функций)
+    let projects = [];
+    
+    const initProjectPicker = () => {
+        const picker = document.querySelector('.project_picker');
+        const toggle = document.getElementById('project_picker_toggle');
+        const dropdown = document.getElementById('project_picker_dropdown');
+        const selectedContainer = document.getElementById('project_picker_selected');
+        const grid = document.getElementById('project_picker_grid');
+        const moreCounter = document.getElementById('project_picker_more');
+        const checkboxes = document.querySelectorAll('.checkboxes .checkbox');
+        
+        if (!picker || !toggle || checkboxes.length === 0) return;
+        
+        // Собираем проекты из чекбоксов (приходят из 1С)
+        const collectProjectsFromCheckboxes = () => {
+            projects = [];
+            checkboxes.forEach(checkbox => {
+                const input = checkbox.querySelector('input[type="checkbox"]');
+                const tag = checkbox.querySelector('.tag');
+                if (input && tag) {
+                    // Получаем цвет из background-color тега
+                    const computedStyle = getComputedStyle(tag);
+                    const bgColor = computedStyle.backgroundColor;
+                    const color = (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') ? bgColor : null;
+                    
+                    projects.push({
+                        id: input.id,
+                        name: tag.textContent,
+                        color: color,
+                        checked: input.checked
+                    });
+                }
+            });
+        };
+        
+        // Инициализируем проекты из чекбоксов
+        collectProjectsFromCheckboxes();
+        
+        // Функция обновления отображения
+        const updateDisplay = () => {
+            // Очищаем контейнеры
+            selectedContainer.innerHTML = '';
+            grid.innerHTML = '';
+            
+            const selectedProjects = projects.filter(p => p.checked);
+            const visibleProjects = selectedProjects.slice(0, MAX_VISIBLE_PROJECTS);
+            const hiddenCount = selectedProjects.length - MAX_VISIBLE_PROJECTS;
+            
+            // Отображаем видимые pills
+            visibleProjects.forEach(project => {
+                const pill = document.createElement('div');
+                pill.className = 'project_pill';
+                pill.setAttribute('data-project-id', project.id);
+                if (project.color) {
+                    pill.style.setProperty('--project-color', project.color);
+                }
+                pill.innerHTML = `
+                    <span class="project_pill_name">${project.name}</span>
+                    <span class="project_pill_close">×</span>
+                `;
+                
+                // Клик на × - снимает выбор
+                pill.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleProject(project.id);
+                });
+                
+                selectedContainer.appendChild(pill);
+            });
+            
+            // Счётчик "+N"
+            if (hiddenCount > 0) {
+                moreCounter.textContent = '+' + hiddenCount;
+            } else {
+                moreCounter.textContent = '';
+            }
+            
+            // Заполняем сетку в dropdown
+            projects.forEach(project => {
+                const item = document.createElement('div');
+                item.className = 'project_grid_item' + (project.checked ? ' selected' : '');
+                item.setAttribute('data-project-id', project.id);
+                if (project.color) {
+                    item.style.setProperty('--project-color', project.color);
+                }
+                item.textContent = project.name;
+                
+                // Клик - toggle проекта
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleProject(project.id);
+                });
+                
+                grid.appendChild(item);
+            });
+        };
+        
+        // Функция toggle проекта
+        const toggleProject = (projectId) => {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            
+            project.checked = !project.checked;
+            
+            // Синхронизируем с оригинальным чекбоксом
+            const checkbox = document.getElementById(projectId);
+            if (checkbox) {
+                checkbox.checked = project.checked;
+                // Триггерим change event для существующей логики фильтрации
+                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            
+            updateDisplay();
+        };
+        
+        // Открытие/закрытие dropdown
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            picker.classList.toggle('open');
+        });
+        
+        // Закрытие при клике вне
+        document.addEventListener('click', (e) => {
+            if (!picker.contains(e.target)) {
+                picker.classList.remove('open');
+            }
+        });
+        
+        // Добавляем обработчики для чекбоксов (фильтрация карточек)
+        checkboxes.forEach(checkbox => {
+            const input = checkbox.querySelector('input[type="checkbox"]');
+            if (input) {
+                input.addEventListener('change', (event) => {
+                    const id = event.target.id;
+                    const project = projects.find(p => p.id === id);
+                    if (project) {
+                        project.checked = event.target.checked;
+                    }
+                    
+                    // Логика фильтрации карточек
+                    const tag = document.querySelector(`.tag.${id}`);
+                    if (tag) {
+                        tag.classList.toggle('tag__inactive');
+                    }
+
+                    const cards = document.querySelectorAll(`.card.${id}`);
+                    const my_tasks = document.getElementById('my_tasks');
+                    const actualUserId = my_tasks ? my_tasks.classList[1] : null;
+                    
+                    cards.forEach(card => {
+                        if (my_tasks && my_tasks.classList.contains('my_tasks_active')) {
+                            if (card.classList.contains(actualUserId)) {
+                                card.classList.toggle('card__inactive');
+                            }
+                        } else {
+                            card.classList.toggle('card__inactive');
+                        }
+                    });
+
+                    RecalculateKanbanBlock();
+                    updateDisplay();
+                });
+            }
+        });
+        
+        // Инициализация
+        updateDisplay();
+        
+        // Экспортируем функции для reinitKanban
+        window.updateProjectPicker = updateDisplay;
+        window.collectProjectsFromCheckboxes = collectProjectsFromCheckboxes;
+    };
+    
+    initProjectPicker();
+
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     // Извлечение имени пользователя из классов карточки
     const getUserNameFromCard = (card) => {
@@ -347,29 +526,6 @@ document.addEventListener('DOMContentLoaded', () => {
         RecalculateKanbanBlock();
     });
 
-    // Обработчики для чекбоксов
-    document.querySelectorAll('.checkbox input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', (event) => {
-            const id = event.target.id;
-            // Быстрый фильтр по проектам без вызова 1С
-            const driveCheckbox = document.querySelector(`.${id}`);
-            driveCheckbox.classList.toggle('tag__inactive');
-
-            const driveCards = document.querySelectorAll(`.card.${id}`);
-            driveCards.forEach(my_tasks_card => {
-                if (my_tasks.classList.contains('my_tasks_active')) {
-                    if (my_tasks_card.classList.contains(actualUserId)) {
-                        my_tasks_card.classList.toggle('card__inactive');
-                    }
-                } else {
-                    my_tasks_card.classList.toggle('card__inactive');
-                }
-            });
-
-            RecalculateKanbanBlock();
-        });
-    });
-
     // Перетаскивание задач по статусам
     initDragDrop();
     initCardDrag();
@@ -407,6 +563,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Функция для повторной инициализации (вызывается из 1С после перерисовки)
     window.reinitKanban = () => {
+        // Пересобираем проекты из чекбоксов (от 1С)
+        if (window.collectProjectsFromCheckboxes) {
+            window.collectProjectsFromCheckboxes();
+        }
+        if (window.updateProjectPicker) {
+            window.updateProjectPicker();
+        }
         initGroupCollapse();
         RecalculateKanbanBlock();
     };

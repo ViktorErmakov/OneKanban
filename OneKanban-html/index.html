@@ -16,12 +16,29 @@
 
                 <div class="command_panel">
 
-                    <div id="checkboxes" class="checkboxes">
-                        <!-- ===== ТЕСТОВЫЕ ДАННЫЕ - НАЧАЛО (УДАЛИТЬ ДЛЯ ПРОДАКШЕНА) ===== -->
-                        <div class="checkbox"><input type="checkbox" id="projectb49a3cc6-3026-11f0-952c-107b4419808b" checked="true"></input><label for="projectb49a3cc6-3026-11f0-952c-107b4419808b"><div class="tag projectb49a3cc6-3026-11f0-952c-107b4419808b">Первый проект</div></label></div>
-                        <div class="checkbox"><input type="checkbox" id="projectb49a3cc7-3026-11f0-952c-107b4419808b" checked="true"></input><label for="projectb49a3cc7-3026-11f0-952c-107b4419808b"><div class="tag projectb49a3cc7-3026-11f0-952c-107b4419808b">Второй проект</div></label></div>
-                        <div class="checkbox"><input type="checkbox" id="projectb49a3cc8-3026-11f0-952c-107b4419808b" checked="true"></input><label for="projectb49a3cc8-3026-11f0-952c-107b4419808b"><div class="tag projectb49a3cc8-3026-11f0-952c-107b4419808b">Третий проект</div></label></div>
-                        <!-- ===== ТЕСТОВЫЕ ДАННЫЕ - КОНЕЦ ===== -->
+                    <!-- ========== PROJECT PICKER ========== -->
+                    <div class="project_picker">
+                        <!-- Выбранные проекты (pills) -->
+                        <div class="project_picker_selected" id="project_picker_selected">
+                            <!-- Динамически заполняется из JS -->
+                        </div>
+                        <!-- Кнопка открытия dropdown -->
+                        <button class="project_picker_toggle" id="project_picker_toggle">
+                            <span class="project_picker_more" id="project_picker_more"></span>
+                            <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                        <!-- Dropdown с сеткой проектов -->
+                        <div class="project_picker_dropdown" id="project_picker_dropdown">
+                            <div class="project_picker_grid" id="project_picker_grid">
+                                <!-- Динамически заполняется из JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Скрытые чекбоксы (приходят из 1С) -->
+                    <div id="checkboxes" class="checkboxes" style="display: none;">       
                     </div>
 
                     <div class="command_panel_buttons">
@@ -30,7 +47,7 @@
 
                         <div class="grouping_dropdown">
                             <button id="grouping_toggle" class="grouping_toggle">
-                                <span id="grouping_label">Группировка</span>
+                                <span id="grouping_label">Без группировки</span>
                                 <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
                                     <polyline points="6 9 12 15 18 9"/>
                                 </svg>

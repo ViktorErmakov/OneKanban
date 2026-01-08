@@ -228,29 +228,30 @@ input[type="checkbox"] {
 .checkboxes {
     display: flex;
     flex-direction: row;
-    max-width: 250rem;
+    flex-wrap: wrap;
+    max-width: 60rem;
     overflow-x: auto;
-    /* Показывает прокрутку только при необходимости */
-    border: 2px solid var(--border-color);
-    border-radius: .4rem;
-    background-color: var(--bg-secondary);
-    transition: border-color 0.3s ease, background-color 0.3s ease;
-    /* min-height: 10rem; */
-    margin-right: 2rem;
+    padding: 0.4rem;
+    margin-right: 1rem;
+    align-items: center;
+}
+
+/* замена gap на margin для совместимости с 1С */
+.checkboxes .checkbox {
+    margin: 0.25rem;
 }
 
 .checkboxes::-webkit-scrollbar {
-    height: 8px;
+    height: 6px;
 }
 
 .checkboxes::-webkit-scrollbar-track {
-    background-color: var(--bg-secondary);
-    transition: background-color 0.3s ease;
+    background-color: transparent;
 }
 
 .checkboxes::-webkit-scrollbar-thumb {
     background-color: var(--border-color);
-    border-radius: 4px;
+    border-radius: 3px;
     transition: background-color 0.3s ease;
 }
 
@@ -259,11 +260,15 @@ input[type="checkbox"] {
 }
 
 .checkbox {
-    padding: .5rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
 }
 
 .checkbox label {
     color: var(--text-primary);
+    display: flex;
+    align-items: center;
 }
 
 .wrapper.dark-theme .checkbox,
@@ -271,46 +276,256 @@ input[type="checkbox"] {
     color: #ffffff;
 }
 
-/* общие настройки для тегов */
+/* Тёмная тема — плашки проектов как у кнопки "Мои задачи" */
+/* Тёмная тема — project_pill как у кнопок "Мои задачи" и "Без группировки" */
+.wrapper.dark-theme .project_pill,
+.wrapper.dark-theme .project_grid_item {
+    background-color: var(--button-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Тёмная тема — выбранный проект как активная кнопка */
+.wrapper.dark-theme .project_grid_item.selected {
+    background-color: var(--button-active-bg);
+    color: #e0e0e0;
+    border-color: var(--button-active-bg);
+    filter: none;
+}
+
+/* общие настройки для тегов проектов (pill-стиль) */
 .tag {
     /* внешние отступы */
-    padding: .6rem 1.2rem;
-    /*min-height: 2.5rem;*/
+    padding: 0.4rem 1rem;
+    padding-left: 2.2rem; /* место для цветной точки */
     /* подгоняем размер блока под содержимое */
     width: -webkit-fit-content;
     width: -moz-fit-content;
     width: fit-content;
-    /* радиус скругления */
-    border-radius: .4rem;
+    /* pill-форма */
+    border-radius: 1.6rem;
+    /* граница */
+    border: 1px solid var(--border-color);
     /* запрещаем выделять мышкой этот элемент */
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    /* user-select: none; */
-    background-color: var(--tag-bg);
+    user-select: none;
+    background-color: var(--button-bg);
     color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 1.3rem;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
 }
 
-/* добавляем хештег перед тегом */
+/* цветная точка проекта слева */
 .tag::before {
-    /* добавляем текст, отступ и прозрачность */
-    content: "#";
-    margin-right: .2rem;
-    opacity: 0.3;
+    content: "";
+    position: absolute;
+    left: 0.8rem;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    background-color: var(--project-color, var(--tag-bg));
+    flex-shrink: 0;
 }
 
-/* оставляем тег чуть бледнее при нажатии */
+/* кнопка закрытия × справа */
+.tag::after {
+    content: "×";
+    margin-left: 0.4rem;
+    font-size: 1.4rem;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+    font-weight: normal;
+}
+
+.tag:hover::after {
+    opacity: 1;
+}
+
+.tag:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+/* оставляем тег чуть бледнее когда не выбран */
 .tag__inactive {
-    opacity: 0.4;
+    opacity: 0.5;
     background-color: var(--tag-inactive-bg);
     color: var(--tag-text);
+}
+
+/* точка остаётся яркой даже при неактивном теге */
+.tag__inactive::before {
+    opacity: 1;
 }
 
 .tag_task {
     width: 1rem;
     height: 1rem;
     border-radius: 50%;
+}
+
+/* ========== PROJECT PICKER (Tag-picker с dropdown) ========== */
+.project_picker {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 50rem;
+}
+
+/* Выбранные проекты (pills в ряд) */
+.project_picker_selected {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Pill выбранного проекта — заливка цветом проекта */
+.project_pill {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    margin: 0.2rem;
+    background-color: var(--project-color, var(--button-bg));
+    border: 1px solid transparent;
+    border-radius: 1.6rem;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    cursor: pointer;
+    position: relative;
+    transition: opacity 0.2s ease, filter 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Кнопка × */
+.project_pill_close {
+    margin-left: 0.5rem;
+    font-size: 1.6rem;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    line-height: 1;
+}
+
+.project_pill:hover .project_pill_close {
+    opacity: 1;
+}
+
+.project_pill:hover {
+    filter: brightness(0.9);
+}
+
+/* Кнопка открытия dropdown */
+.project_picker_toggle {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    margin-left: 0.3rem;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1.6rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    transition: background-color 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.project_picker_toggle:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.project_picker_toggle .dropdown_arrow {
+    stroke: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.project_picker.open .project_picker_toggle .dropdown_arrow {
+    transform: rotate(180deg);
+}
+
+/* Счётчик "+N" */
+.project_picker_more {
+    margin-right: 0.4rem;
+    font-weight: 500;
+}
+
+.project_picker_more:empty {
+    display: none;
+}
+
+.project_picker_more:empty + .dropdown_arrow {
+    margin-left: 0;
+}
+
+/* Dropdown с сеткой проектов */
+.project_picker_dropdown {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    min-width: 30rem;
+    max-width: 50rem;
+    background-color: var(--command-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    transition: all 0.2s ease;
+    z-index: 200;
+    padding: 0.8rem;
+}
+
+.project_picker.open .project_picker_dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Сетка проектов (2-3 колонки) */
+.project_picker_grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Элемент в сетке — заливка цветом проекта */
+.project_grid_item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    margin: 0.3rem;
+    background-color: var(--project-color, var(--button-bg));
+    border: 1px solid transparent;
+    border-radius: 1.6rem;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    position: relative;
+    transition: filter 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.project_grid_item:hover {
+    filter: brightness(0.92);
+}
+
+/* Выбранный проект в сетке — лёгкое затемнение */
+.project_grid_item.selected {
+    filter: brightness(0.85);
+}
+
+.project_grid_item.selected:hover {
+    filter: brightness(0.8);
 }
 
 /* чекбоксы */
@@ -376,10 +591,9 @@ label {
     transition: color 0.3s ease;
 }
 
-/* делаем тег чуть бледнее при наведении */
-label:hover {
-    opacity: 0.7;
-    color: var(--text-primary);
+/* убираем hover opacity для label проектов - hover теперь на .tag */
+.checkbox label:hover {
+    opacity: 1;
 }
 
 .kanban-block__name {
@@ -497,30 +711,40 @@ label:hover {
 }
 
 .my_tasks {
-    color: var(--button-text);
+    color: var(--text-primary);
     text-decoration: none;
     font-family: 'Arial', sans-serif;
-    padding: 8px 12px;
-    border-radius: 4px;
+    padding: 0.4rem 1rem;
+    border-radius: 1.6rem;
     transition: all 0.3s ease;
     display: inline-block;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     cursor: pointer;
     -webkit-user-select: none;
+    user-select: none;
     background-color: var(--button-bg);
+    font-size: 1.5rem;
+    white-space: nowrap;
 }
 
 .my_tasks:hover {
     background-color: var(--bg-tertiary);
-    color: var(--button-text);
+    color: var(--text-primary);
     border-color: var(--border-color);
 }
 
+/* Светлая тема — активная кнопка с затемнением как у выбранных фильтров */
 .my_tasks_active {
-    transform: scale(0.98);
+    filter: brightness(0.85);
+    border-color: var(--border-color);
+}
+
+/* Тёмная тема — активная кнопка с цветным фоном */
+.wrapper.dark-theme .my_tasks_active {
     background-color: var(--button-active-bg);
     color: #e0e0e0;
-    border-color: var(--border-color);
+    border-color: var(--button-active-bg);
+    filter: none;
 }
 
 /* Переключатель темы */
@@ -622,7 +846,7 @@ label:hover {
     /* Плавный переход */
 }
 
-/* ========== DROPDOWN ГРУППИРОВКИ ========== */
+/* ========== DROPDOWN ГРУППИРОВКИ (pill-стиль как у проектов) ========== */
 .grouping_dropdown {
     position: relative;
     display: inline-block;
@@ -631,18 +855,27 @@ label:hover {
 .grouping_toggle {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.8rem 1.2rem;
+    padding: 0.4rem 1rem;
     background-color: var(--button-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 1.6rem;
     cursor: pointer;
-    color: var(--button-text);
-    font-size: 1.4rem;
+    color: var(--text-primary);
+    font-size: 1.5rem;
     font-family: 'Arial', sans-serif;
     transition: all 0.3s ease;
     -webkit-user-select: none;
     user-select: none;
+    white-space: nowrap;
+}
+
+/* замена gap на margin для совместимости с 1С */
+.grouping_toggle > * {
+    margin-left: 0.6rem;
+}
+
+.grouping_toggle > *:first-child {
+    margin-left: 0;
 }
 
 .grouping_toggle:hover {
@@ -651,7 +884,7 @@ label:hover {
 }
 
 .grouping_toggle svg {
-    stroke: var(--button-text);
+    stroke: var(--text-secondary);
     transition: stroke 0.3s ease;
 }
 
@@ -670,13 +903,14 @@ label:hover {
     min-width: 100%;
     background-color: var(--command-bg);
     border: 1px solid var(--border-color);
-    border-radius: 0.4rem;
+    border-radius: 0.8rem;
     box-shadow: 0 4px 12px var(--card-shadow);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-0.5rem);
     transition: all 0.2s ease;
     z-index: 200;
+    overflow: hidden;
 }
 
 .grouping_dropdown.open .grouping_menu {
@@ -686,29 +920,38 @@ label:hover {
 }
 
 .grouping_option {
-    padding: 0.8rem 1.2rem;
+    padding: 0.6rem 1.2rem;
     cursor: pointer;
     white-space: nowrap;
     color: var(--text-primary);
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     transition: background-color 0.2s ease;
-}
-
-.grouping_option:first-child {
-    border-radius: 0.4rem 0.4rem 0 0;
-}
-
-.grouping_option:last-child {
-    border-radius: 0 0 0.4rem 0.4rem;
+    display: flex;
+    align-items: center;
 }
 
 .grouping_option:hover {
     background-color: var(--bg-tertiary);
 }
 
+/* Светлая тема — активная опция как у my_tasks_active */
 .grouping_option.active {
+    filter: brightness(0.85);
+    background-color: var(--button-bg);
+}
+
+/* Тёмная тема — активная опция как у my_tasks_active */
+.wrapper.dark-theme .grouping_option.active {
     background-color: var(--button-active-bg);
     color: #e0e0e0;
+    filter: none;
+}
+
+/* галочка для активной опции */
+.grouping_option.active::after {
+    content: "✓";
+    margin-left: auto;
+    font-size: 1.2rem;
 }
 
 /* ========== ГРУППЫ (SWIMLANES) ========== */
