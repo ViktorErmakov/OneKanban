@@ -40,6 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initTheme();
 
+    // ========== ЗАКРЫТИЕ ВСЕХ DROPDOWN ==========
+    const closeAllDropdowns = (except = null) => {
+        const dropdowns = [
+            document.querySelector('.project_picker'),
+            document.querySelector('.executor_dropdown'),
+            document.querySelector('.grouping_dropdown')
+        ];
+        dropdowns.forEach(dropdown => {
+            if (dropdown && dropdown !== except) {
+                dropdown.classList.remove('open');
+            }
+        });
+    };
+
     // ========== PROJECT PICKER (Tag-picker с dropdown) ==========
     const MAX_VISIBLE_PROJECTS = 3; // Максимум видимых pills
     
@@ -162,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Открытие/закрытие dropdown
         toggle.addEventListener('click', (e) => {
             e.stopPropagation();
+            closeAllDropdowns(picker);
             picker.classList.toggle('open');
         });
         
@@ -396,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Открытие/закрытие dropdown
         toggle.addEventListener('click', (e) => {
             e.stopPropagation();
+            closeAllDropdowns(dropdown);
             populateMenu(); // Обновляем список при открытии
             dropdown.classList.toggle('open');
         });
@@ -457,6 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Открытие/закрытие dropdown
         groupingToggle.addEventListener('click', (e) => {
             e.stopPropagation();
+            closeAllDropdowns(groupingDropdown);
             groupingDropdown.classList.toggle('open');
         });
 

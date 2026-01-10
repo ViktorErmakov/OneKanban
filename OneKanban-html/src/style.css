@@ -376,6 +376,10 @@ input[type="checkbox"] {
     display: flex;
     align-items: center;
     max-width: 50rem;
+    background-color: var(--bg-tertiary);
+    padding: 0.3rem 0.5rem;
+    border-radius: 1.6rem;
+    margin-right: 1rem;
 }
 
 /* Выбранные проекты (pills в ряд) */
@@ -958,7 +962,7 @@ label {
 .executor_dropdown {
     position: relative;
     display: inline-block;
-    margin-right: 1rem;
+    margin-right: 0.3rem;
 }
 
 .executor_toggle {
@@ -1009,7 +1013,7 @@ label {
     position: absolute;
     top: calc(100% + 0.4rem);
     left: 0;
-    min-width: 100%;
+    min-width: 15rem;
     max-height: 30rem;
     overflow-y: auto;
     background-color: var(--command-bg);
@@ -1030,7 +1034,7 @@ label {
 }
 
 .executor_option {
-    padding: 0.6rem 1.2rem;
+    padding: 0.6rem 2.5rem 0.6rem 1.2rem;
     cursor: pointer;
     white-space: nowrap;
     color: var(--text-primary);
@@ -1038,6 +1042,7 @@ label {
     transition: background-color 0.2s ease;
     display: flex;
     align-items: center;
+    position: relative;
 }
 
 .executor_option:hover {
@@ -1060,7 +1065,8 @@ label {
 /* галочка для выбранного исполнителя */
 .executor_option.selected::after {
     content: "✓";
-    margin-left: auto;
+    position: absolute;
+    right: 1rem;
     font-size: 1.2rem;
 }
 
