@@ -45,34 +45,40 @@
                     <div class="executor_dropdown">
                         <button id="executor_toggle" class="executor_toggle">
                             <span id="executor_label">Исполнитель</span>
+                            <span class="executor_clear" id="executor_clear">×</span>
                             <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
                                 <polyline points="6 9 12 15 18 9"/>
                             </svg>
                         </button>
                         <div id="executor_menu" class="executor_menu">
-                            <!-- Первый пункт — "Мои задачи", id пользователя берётся из my_tasks -->
-                            <div class="executor_option" data-value="my_tasks">Мои задачи</div>
-                            <!-- Остальные исполнители заполняются из JS -->
+                            <!-- Исполнители заполняются из JS -->
                         </div>
+                    </div>
+
+                    <!-- ========== GROUPING ========== -->
+                    <div class="grouping_dropdown">
+                        <button id="grouping_toggle" class="grouping_toggle">
+                            <span id="grouping_label">Без группировки</span>
+                            <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                        <div id="grouping_menu" class="grouping_menu">
+                            <div class="grouping_option active" data-value="none">Без группировки</div>
+                            <div class="grouping_option" data-value="executor">По исполнителю</div>
+                        </div>
+                    </div>
+
+                    <!-- ========== SEARCH ========== -->
+                    <div class="search_container">
+                        <input type="text" id="search_input" class="search_input" placeholder="Поиск по задачам...">
+                        <span class="search_clear" id="search_clear">×</span>
                     </div>
 
                     <!-- Скрытый элемент для хранения ID текущего пользователя (приходит из 1С) -->
                     <div id="my_tasks" class="my_tasks" style="display: none;"></div>
 
                     <div class="command_panel_buttons">
-
-                        <div class="grouping_dropdown">
-                            <button id="grouping_toggle" class="grouping_toggle">
-                                <span id="grouping_label">Без группировки</span>
-                                <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
-                                    <polyline points="6 9 12 15 18 9"/>
-                                </svg>
-                            </button>
-                            <div id="grouping_menu" class="grouping_menu">
-                                <div class="grouping_option active" data-value="none">Без группировки</div>
-                                <div class="grouping_option" data-value="executor">По исполнителю</div>
-                            </div>
-                        </div>
 
                         <div id="update_svg">
                             <svg fill="#8c8c8c" stroke="#8c8c8c" width="32" height="32" style="pointer-events: none;"

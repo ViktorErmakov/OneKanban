@@ -280,17 +280,16 @@ input[type="checkbox"] {
 /* Тёмная тема — project_pill как у кнопок "Мои задачи" и "Без группировки" */
 .wrapper.dark-theme .project_pill,
 .wrapper.dark-theme .project_grid_item {
-    background-color: var(--button-bg);
+    background-color: var(--project-color, var(--button-bg));
     border-color: var(--border-color);
     color: var(--text-primary);
 }
 
-/* Тёмная тема — выбранный проект как активная кнопка */
-.wrapper.dark-theme .project_grid_item.selected {
-    background-color: var(--button-active-bg);
-    color: #e0e0e0;
-    border-color: var(--button-active-bg);
-    filter: none;
+/* Тёмная тема — выбранный проект без изменения цвета */
+/* .wrapper.dark-theme .project_grid_item.selected — наследует цвет */
+
+.wrapper.dark-theme .project_grid_item.selected:hover {
+    filter: brightness(1.05);
 }
 
 /* общие настройки для тегов проектов (pill-стиль) */
@@ -505,7 +504,7 @@ input[type="checkbox"] {
 .project_grid_item {
     display: flex;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
     margin: 0.3rem;
     background-color: var(--project-color, var(--button-bg));
     border: 1px solid transparent;
@@ -523,13 +522,19 @@ input[type="checkbox"] {
     filter: brightness(0.92);
 }
 
-/* Выбранный проект в сетке — лёгкое затемнение */
-.project_grid_item.selected {
-    filter: brightness(0.85);
-}
+/* Выбранный проект в сетке — без изменения цвета */
+/* .project_grid_item.selected — наследует цвет */
 
 .project_grid_item.selected:hover {
-    filter: brightness(0.8);
+    filter: brightness(0.95);
+}
+
+/* Галочка для выбранного проекта */
+.project_grid_item.selected::after {
+    content: "✓";
+    position: absolute;
+    right: 0.8rem;
+    font-size: 1.2rem;
 }
 
 /* чекбоксы */
@@ -1005,6 +1010,28 @@ label {
     transition: transform 0.2s ease;
 }
 
+/* Крестик очистки фильтра по исполнителям */
+.executor_clear {
+    font-size: 1.6rem;
+    opacity: 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: opacity 0.2s ease;
+    line-height: 1;
+    pointer-events: none;
+    margin-left: 0.4rem;
+}
+
+/* Показывать крестик когда есть выбранные исполнители */
+.executor_dropdown.has-selected .executor_clear {
+    opacity: 0.6;
+    pointer-events: auto;
+}
+
+.executor_clear:hover {
+    opacity: 1;
+}
+
 .executor_dropdown.open .dropdown_arrow {
     transform: rotate(180deg);
 }
@@ -1049,6 +1076,16 @@ label {
     background-color: var(--bg-tertiary);
 }
 
+/* Фото исполнителя в меню */
+.executor_option_photo {
+    width: 2rem;
+    height: 2.3rem;
+    border-radius: 0.3rem;
+    margin-right: 0.6rem;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
 /* Светлая тема — выбранный исполнитель */
 .executor_option.selected {
     filter: brightness(0.85);
@@ -1068,6 +1105,63 @@ label {
     position: absolute;
     right: 1rem;
     font-size: 1.2rem;
+}
+
+/* ========== SEARCH ========== */
+.search_container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
+}
+
+.search_input {
+    padding: 0.4rem 2.5rem 0.4rem 1rem;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1.6rem;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-family: 'Arial', sans-serif;
+    outline: none;
+    min-width: 15rem;
+    transition: border-color 0.2s ease;
+}
+
+.search_input::placeholder {
+    color: var(--text-secondary);
+}
+
+.search_input:focus {
+    border-color: var(--link-color);
+}
+
+/* Крестик очистки поиска */
+.search_clear {
+    position: absolute;
+    right: 1rem;
+    font-size: 1.6rem;
+    opacity: 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: opacity 0.2s ease;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* Показывать крестик когда есть текст */
+.search_container.has-text .search_clear {
+    opacity: 0.6;
+    pointer-events: auto;
+}
+
+.search_clear:hover {
+    opacity: 1;
+}
+
+/* Скрытие карточек при поиске */
+.card.card__search_hidden {
+    display: none;
 }
 
 /* ========== ГРУППЫ (SWIMLANES) ========== */

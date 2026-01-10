@@ -239,9 +239,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const toggle = document.getElementById('executor_toggle');
         const menu = document.getElementById('executor_menu');
         const label = document.getElementById('executor_label');
+        const executorClear = document.getElementById('executor_clear');
         const myTasksElement = document.getElementById('my_tasks');
         
         if (!dropdown || !toggle || !menu) return;
+        
+        // Обновление класса has-selected
+        const updateHasSelected = () => {
+            if (selectedExecutors.size > 0) {
+                dropdown.classList.add('has-selected');
+            } else {
+                dropdown.classList.remove('has-selected');
+            }
+        };
         
         // Получаем ID текущего пользователя из my_tasks
         const currentUserId = myTasksElement ? myTasksElement.classList[1] : null;
@@ -280,19 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Заполняем меню исполнителями
         const populateMenu = () => {
-            // Очищаем меню кроме первого пункта "Мои задачи"
-            const myTasksOption = menu.querySelector('[data-value="my_tasks"]');
+            // Очищаем меню
             menu.innerHTML = '';
-            if (myTasksOption) {
-                menu.appendChild(myTasksOption);
-            } else {
-                // Создаём "Мои задачи" если его нет
-                const myTasksOpt = document.createElement('div');
-                myTasksOpt.className = 'executor_option';
-                myTasksOpt.setAttribute('data-value', 'my_tasks');
-                myTasksOpt.textContent = 'Мои задачи';
-                menu.appendChild(myTasksOpt);
-            }
             
             // Добавляем исполнителей
             const executors = collectExecutors();
@@ -300,7 +299,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const option = document.createElement('div');
                 option.className = 'executor_option';
                 option.setAttribute('data-value', userId);
-                option.textContent = data.name;
+                
+                // Добавляем фото если есть
+                if (data.photo) {
+                    const img = document.createElement('img');
+                    img.className = 'executor_option_photo';
+                    img.src = data.photo;
+                    img.alt = data.name;
+                    option.appendChild(img);
+                }
+                
+                // Добавляем имя (заменяем _ на пробел для отображения)
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = data.name.replace(/_/g, ' ');
+                option.appendChild(nameSpan);
                 
                 if (selectedExecutors.has(userId)) {
                     option.classList.add('selected');
@@ -308,16 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 menu.appendChild(option);
             });
-            
-            // Обновляем состояние "Мои задачи"
-            const myTasksOpt = menu.querySelector('[data-value="my_tasks"]');
-            if (myTasksOpt) {
-                if (selectedExecutors.has('my_tasks')) {
-                    myTasksOpt.classList.add('selected');
-                } else {
-                    myTasksOpt.classList.remove('selected');
-                }
-            }
         };
         
         // Обновление текста кнопки
@@ -326,12 +328,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 label.textContent = 'Исполнитель';
             } else if (selectedExecutors.size === 1) {
                 const value = Array.from(selectedExecutors)[0];
-                if (value === 'my_tasks') {
-                    label.textContent = 'Мои задачи';
-                } else {
-                    const option = menu.querySelector(`[data-value="${value}"]`);
-                    label.textContent = option ? option.textContent : 'Исполнитель';
-                }
+                const option = menu.querySelector(`[data-value="${value}"]`);
+                // Берём текст из span внутри option (или textContent если span нет)
+                const nameSpan = option ? option.querySelector('span') : null;
+                label.textContent = nameSpan ? nameSpan.textContent : (option ? option.textContent : 'Исполнитель');
             } else {
                 label.textContent = `Исполнитель (${selectedExecutors.size})`;
             }
@@ -340,8 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Применение фильтрации по исполнителям
         const applyFilter = () => {
             const cards = document.querySelectorAll('.card');
-            const myTasksElement = document.getElementById('my_tasks');
-            const currentUserId = myTasksElement ? myTasksElement.classList[1] : null;
             
             cards.forEach(card => {
                 // Проверяем, активен ли проект карточки
@@ -362,16 +360,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Есть фильтр — проверяем исполнителя
                     let shouldShow = false;
                     
-                    // Проверяем "Мои задачи"
-                    if (selectedExecutors.has('my_tasks') && currentUserId) {
-                        if (card.classList.contains(currentUserId)) {
-                            shouldShow = true;
-                        }
-                    }
-                    
-                    // Проверяем других исполнителей
+                    // Проверяем исполнителей
                     selectedExecutors.forEach(executorId => {
-                        if (executorId !== 'my_tasks' && card.classList.contains(executorId)) {
+                        if (card.classList.contains(executorId)) {
                             shouldShow = true;
                         }
                     });
@@ -396,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             updateLabel();
+            updateHasSelected();
             applyFilter();
         };
         
@@ -422,6 +414,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 dropdown.classList.remove('open');
             }
         });
+        
+        // Очистка по клику на крестик
+        if (executorClear) {
+            executorClear.addEventListener('click', (e) => {
+                e.stopPropagation(); // Не открывать dropdown
+                selectedExecutors.clear();
+                updateLabel();
+                updateHasSelected();
+                populateMenu(); // Обновить визуальное состояние опций
+                applyFilter();
+            });
+        }
         
         // Экспортируем для переинициализации
         window.applyExecutorFilter = applyFilter;
@@ -726,6 +730,67 @@ document.addEventListener('DOMContentLoaded', () => {
     initDragDrop();
     initCardDrag();
 
+    // ========== ПОИСК ПО ЗАДАЧАМ ==========
+    const initSearch = () => {
+        const searchInput = document.getElementById('search_input');
+        const searchClear = document.getElementById('search_clear');
+        const searchContainer = document.querySelector('.search_container');
+        if (!searchInput) return;
+        
+        searchInput.addEventListener('input', (e) => {
+            const searchText = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.card');
+            
+            // Показать/скрыть крестик
+            if (e.target.value.trim()) {
+                searchContainer.classList.add('has-text');
+            } else {
+                searchContainer.classList.remove('has-text');
+            }
+            
+            cards.forEach(card => {
+                const cardTextSpan = card.querySelector('.card__text span');
+                const text = cardTextSpan ? cardTextSpan.textContent.toLowerCase() : '';
+                
+                if (searchText === '') {
+                    // Пустой поиск — убираем класс скрытия от поиска
+                    card.classList.remove('card__search_hidden');
+                } else if (text.includes(searchText)) {
+                    card.classList.remove('card__search_hidden');
+                } else {
+                    card.classList.add('card__search_hidden');
+                }
+            });
+            
+            // Применяем фильтры проектов и исполнителей поверх поиска
+            if (window.applyExecutorFilter) {
+                window.applyExecutorFilter();
+            }
+            RecalculateKanbanBlock();
+        });
+        
+        // Очистка по клику на крестик
+        if (searchClear) {
+            searchClear.addEventListener('click', () => {
+                searchInput.value = '';
+                searchContainer.classList.remove('has-text');
+                
+                // Убрать скрытие от поиска со всех карточек
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.remove('card__search_hidden');
+                });
+                
+                // Применить остальные фильтры
+                if (window.applyExecutorFilter) {
+                    window.applyExecutorFilter();
+                }
+                RecalculateKanbanBlock();
+            });
+        }
+    };
+
+    initSearch();
+
     // document.querySelectorAll('.add_task').forEach(button => {
     //     button.addEventListener('click', (event) => {
     //         // логика добавления задачи, возможно, с извлечением ID статуса из класса
@@ -794,7 +859,7 @@ function RecalculateKanbanBlock() {
             document.querySelectorAll('.group').forEach(group => {
                 const groupBlocks = group.querySelectorAll('.kanban-block');
                 if (groupBlocks[index]) {
-                    count += groupBlocks[index].querySelectorAll('.card:not(.card__inactive)').length;
+                    count += groupBlocks[index].querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)').length;
                 }
             });
             let number = block_header.querySelector('.kanban-block__number');
@@ -805,7 +870,7 @@ function RecalculateKanbanBlock() {
     } else {
         // Без группировки - обычный подсчёт
         kanbanBlocks.forEach((kanbanBlock, index) => {
-            let tasks = kanbanBlock.querySelectorAll('.card:not(.card__inactive)');
+            let tasks = kanbanBlock.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)');
             let block_header = block_headers[index];
             if (block_header) {
                 let number = block_header.querySelector('.kanban-block__number');
@@ -820,7 +885,7 @@ function RecalculateKanbanBlock() {
     document.querySelectorAll('.group').forEach(group => {
         const groupCount = group.querySelector('.group-count');
         if (groupCount) {
-            const visibleCards = group.querySelectorAll('.card:not(.card__inactive)');
+            const visibleCards = group.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)');
             groupCount.textContent = visibleCards.length;
         }
     });
