@@ -74,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Собираем проекты из чекбоксов (приходят из 1С)
         const collectProjectsFromCheckboxes = () => {
             projects = [];
+            // Получаем дефолтный цвет кнопок для сравнения
+            const defaultButtonBg = getComputedStyle(document.documentElement).getPropertyValue('--button-bg').trim();
+            
             checkboxes.forEach(checkbox => {
                 const input = checkbox.querySelector('input[type="checkbox"]');
                 const tag = checkbox.querySelector('.tag');
@@ -81,7 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Получаем цвет из background-color тега
                     const computedStyle = getComputedStyle(tag);
                     const bgColor = computedStyle.backgroundColor;
-                    const color = (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') ? bgColor : null;
+                    
+                    // Проверяем, является ли цвет дефолтным (--button-bg) или transparent
+                    const isDefaultColor = !bgColor || 
+                        bgColor === 'rgba(0, 0, 0, 0)' || 
+                        bgColor === 'rgb(240, 240, 240)' ||  // светлая тема --button-bg
+                        bgColor === 'rgb(42, 42, 42)';       // тёмная тема --button-bg
+                    
+                    const color = isDefaultColor ? null : bgColor;
                     
                     projects.push({
                         id: input.id,
@@ -650,9 +660,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         const computedStyle = tag ? getComputedStyle(tag) : null;
                         const bgColor = computedStyle ? computedStyle.backgroundColor : null;
                         
+                        // Проверяем, является ли цвет дефолтным (--button-bg) или transparent
+                        const isDefaultColor = !bgColor || 
+                            bgColor === 'rgba(0, 0, 0, 0)' || 
+                            bgColor === 'rgb(240, 240, 240)' ||  // светлая тема --button-bg
+                            bgColor === 'rgb(42, 42, 42)';       // тёмная тема --button-bg
+                        
                         projectsMap.set(projectClass, {
                             name: projectName,
-                            color: (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') ? bgColor : null,
+                            color: isDefaultColor ? null : bgColor,
                             statuses: new Map()
                         });
                     }

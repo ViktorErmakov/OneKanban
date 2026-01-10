@@ -135,6 +135,7 @@ body {
     flex-direction: column;
     z-index: 100;
     width: 100%;
+    background-color: var(--command-bg);
     transition: background-color 0.3s ease;
 }
 
@@ -148,6 +149,7 @@ body {
     display: flex;
     width: 100%;
     min-height: 5.8rem;
+    background-color: var(--bg-primary);
 }
 
 #main-content-wrapper {
@@ -174,18 +176,18 @@ body {
 .kanban_body {
     display: flex;
     width: 100%;
-    min-height: calc(100vh - 5.8rem - 4rem);
-    /* Account for header height */
-    margin-top: 5.8rem;
+    min-height: calc(100vh - 11.8rem);
+    /* Account for fixed header height: kanban_header (5.8rem) + command_panel (6rem) */
+    margin-top: 1rem;
 }
 
 .kanban-block {
-    margin-top: 11.4rem;
+    margin-top: 1.5rem;
     background-color: var(--bg-secondary);
     transition: background-color 0.3s ease;
     display: flex;
     flex-direction: column;
-    min-height: 85vh;
+    min-height: calc(100vh - 11.8rem);
 }
 
 .block_header,
@@ -276,20 +278,56 @@ input[type="checkbox"] {
     color: #ffffff;
 }
 
-/* Тёмная тема — плашки проектов как у кнопки "Мои задачи" */
-/* Тёмная тема — project_pill как у кнопок "Мои задачи" и "Без группировки" */
-.wrapper.dark-theme .project_pill,
-.wrapper.dark-theme .project_grid_item {
-    background-color: var(--project-color, var(--button-bg));
-    border-color: var(--border-color);
+/* Тёмная тема — project_pill и project_grid_item с заданным цветом проекта */
+.wrapper.dark-theme .project_pill[style*="--project-color"],
+.wrapper.dark-theme .project_grid_item[style*="--project-color"] {
+    background-color: var(--project-color);
+    border-color: transparent;
     color: var(--text-primary);
 }
 
-/* Тёмная тема — выбранный проект без изменения цвета */
-/* .wrapper.dark-theme .project_grid_item.selected — наследует цвет */
+.wrapper.dark-theme .project_pill[style*="--project-color"]:hover,
+.wrapper.dark-theme .project_grid_item[style*="--project-color"]:hover {
+    filter: brightness(0.85);
+}
 
-.wrapper.dark-theme .project_grid_item.selected:hover {
-    filter: brightness(1.05);
+/* Тёмная тема — выбранный проект с цветом: затемнение */
+.wrapper.dark-theme .project_grid_item.selected[style*="--project-color"] {
+    filter: brightness(0.75);
+}
+
+.wrapper.dark-theme .project_grid_item.selected[style*="--project-color"]:hover {
+    filter: brightness(0.85);
+}
+
+/* Тёмная тема — project_pill и project_grid_item БЕЗ цвета (стили как у grouping_toggle) */
+.wrapper.dark-theme .project_pill:not([style*="--project-color"]),
+.wrapper.dark-theme .project_grid_item:not([style*="--project-color"]) {
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.wrapper.dark-theme .project_pill:not([style*="--project-color"]):hover,
+.wrapper.dark-theme .project_grid_item:not([style*="--project-color"]):hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+/* Тёмная тема — выбранный проект без цвета: активный фон */
+.wrapper.dark-theme .project_grid_item.selected:not([style*="--project-color"]) {
+    background-color: var(--button-active-bg);
+    color: #e0e0e0;
+    border-color: var(--button-active-bg);
+}
+
+.wrapper.dark-theme .project_grid_item.selected:not([style*="--project-color"]):hover {
+    filter: brightness(1.1);
+}
+
+/* Светлая тема — выбранный проект без цвета: затемнение фона */
+.project_grid_item.selected:not([style*="--project-color"]) {
+    filter: brightness(0.85);
 }
 
 /* общие настройки для тегов проектов (pill-стиль) */
@@ -389,23 +427,29 @@ input[type="checkbox"] {
     overflow: hidden;
 }
 
-/* Pill выбранного проекта — заливка цветом проекта */
+/* Pill выбранного проекта */
+/* Светлая тема: если есть цвет проекта — используем его, иначе стандартный фон */
 .project_pill {
     display: flex;
     align-items: center;
     padding: 0.4rem 0.8rem;
     margin: 0.2rem;
     background-color: var(--project-color, var(--button-bg));
-    border: 1px solid transparent;
+    border: 1px solid var(--border-color);
     border-radius: 1.6rem;
     font-size: 1.5rem;
     color: var(--text-primary);
     white-space: nowrap;
     cursor: pointer;
     position: relative;
-    transition: opacity 0.2s ease, filter 0.2s ease;
+    transition: opacity 0.2s ease, filter 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
     -webkit-user-select: none;
     user-select: none;
+}
+
+/* Светлая тема: проекты с цветом — прозрачная граница */
+.project_pill[style*="--project-color"] {
+    border-color: transparent;
 }
 
 /* Кнопка × */
@@ -421,8 +465,14 @@ input[type="checkbox"] {
     opacity: 1;
 }
 
-.project_pill:hover {
+/* Светлая тема: hover для проектов с цветом */
+.project_pill[style*="--project-color"]:hover {
     filter: brightness(0.9);
+}
+
+/* Светлая тема: hover для проектов без цвета */
+.project_pill:not([style*="--project-color"]):hover {
+    background-color: var(--bg-tertiary);
 }
 
 /* Кнопка открытия dropdown */
@@ -662,7 +712,7 @@ label {
     padding: .5rem;
     background-color: var(--command-bg);
     justify-content: space-between;
-    height: 10.3rem;
+    min-height: 6rem;
     /* border-bottom: 1px solid var(--border-color); */
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
@@ -1171,7 +1221,7 @@ label {
 
 /* Первая группа - отступ сверху для sticky заголовка */
 .group:first-child {
-    margin-top: 17.1rem;
+    margin-top: 12.8rem;
 }
 
 .group-header {
@@ -1278,8 +1328,8 @@ label {
 }
 
 #kanban-board:not(.grouped) .kanban-block {
-    margin-top: 11.4rem;
-    min-height: 85vh;
+    margin-top: 11.8rem;
+    min-height: calc(100vh - 11.8rem);
 }
 
 /* Режим с группировкой */

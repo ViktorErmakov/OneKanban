@@ -33,7 +33,7 @@
   <scriptVariant>Russian</scriptVariant>
   <defaultRoles>Role.канбан_ОбщиеПрава</defaultRoles>
   <vendor>@ViktorErmakov</vendor>
-  <version>2.8</version>
+  <version>3.0</version>
   <defaultLanguage>Language.Русский</defaultLanguage>
   <languages uuid="9bb2d542-5c6b-457a-88d2-15e059da5635">
     <name>Русский</name>
