@@ -954,6 +954,116 @@ label {
     font-size: 1.2rem;
 }
 
+/* ========== EXECUTOR FILTER ========== */
+.executor_dropdown {
+    position: relative;
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+.executor_toggle {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 1rem;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1.6rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-family: 'Arial', sans-serif;
+    transition: all 0.3s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* замена gap на margin для совместимости с 1С */
+.executor_toggle > * {
+    margin-left: 0.6rem;
+}
+
+.executor_toggle > *:first-child {
+    margin-left: 0;
+}
+
+.executor_toggle:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+.executor_toggle svg {
+    stroke: var(--text-secondary);
+    transition: stroke 0.3s ease;
+}
+
+.executor_toggle .dropdown_arrow {
+    transition: transform 0.2s ease;
+}
+
+.executor_dropdown.open .dropdown_arrow {
+    transform: rotate(180deg);
+}
+
+.executor_menu {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    min-width: 100%;
+    max-height: 30rem;
+    overflow-y: auto;
+    background-color: var(--command-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    transition: all 0.2s ease;
+    z-index: 200;
+}
+
+.executor_dropdown.open .executor_menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.executor_option {
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.executor_option:hover {
+    background-color: var(--bg-tertiary);
+}
+
+/* Светлая тема — выбранный исполнитель */
+.executor_option.selected {
+    filter: brightness(0.85);
+    background-color: var(--button-bg);
+}
+
+/* Тёмная тема — выбранный исполнитель */
+.wrapper.dark-theme .executor_option.selected {
+    background-color: var(--button-active-bg);
+    color: #e0e0e0;
+    filter: none;
+}
+
+/* галочка для выбранного исполнителя */
+.executor_option.selected::after {
+    content: "✓";
+    margin-left: auto;
+    font-size: 1.2rem;
+}
+
 /* ========== ГРУППЫ (SWIMLANES) ========== */
 .group {
     width: 100%;

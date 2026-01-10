@@ -183,27 +183,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         project.checked = event.target.checked;
                     }
                     
-                    // Логика фильтрации карточек
+                    // Обновляем состояние тега проекта
                     const tag = document.querySelector(`.tag.${id}`);
                     if (tag) {
-                        tag.classList.toggle('tag__inactive');
+                        tag.classList.toggle('tag__inactive', !event.target.checked);
                     }
 
-                    const cards = document.querySelectorAll(`.card.${id}`);
-                    const my_tasks = document.getElementById('my_tasks');
-                    const actualUserId = my_tasks ? my_tasks.classList[1] : null;
+                    // Применяем общую фильтрацию (проекты + исполнители)
+                    if (window.applyExecutorFilter) {
+                        window.applyExecutorFilter();
+                    } else {
+                        // Fallback если executor filter не инициализирован
+                        const cards = document.querySelectorAll(`.card.${id}`);
+                        cards.forEach(card => {
+                            card.classList.toggle('card__inactive', !event.target.checked);
+                        });
+                        RecalculateKanbanBlock();
+                    }
                     
-                    cards.forEach(card => {
-                        if (my_tasks && my_tasks.classList.contains('my_tasks_active')) {
-                            if (card.classList.contains(actualUserId)) {
-                                card.classList.toggle('card__inactive');
-                            }
-                        } else {
-                            card.classList.toggle('card__inactive');
-                        }
-                    });
-
-                    RecalculateKanbanBlock();
                     updateDisplay();
                 });
             }
@@ -218,6 +215,204 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     initProjectPicker();
+
+    // ========== EXECUTOR FILTER (Фильтр по исполнителям) ==========
+    let selectedExecutors = new Set(); // Выбранные исполнители
+    
+    const initExecutorFilter = () => {
+        const dropdown = document.querySelector('.executor_dropdown');
+        const toggle = document.getElementById('executor_toggle');
+        const menu = document.getElementById('executor_menu');
+        const label = document.getElementById('executor_label');
+        const myTasksElement = document.getElementById('my_tasks');
+        
+        if (!dropdown || !toggle || !menu) return;
+        
+        // Получаем ID текущего пользователя из my_tasks
+        const currentUserId = myTasksElement ? myTasksElement.classList[1] : null;
+        
+        // Собираем исполнителей с доски
+        const collectExecutors = () => {
+            const executorsMap = new Map(); // userId -> { name, photo }
+            const cards = document.querySelectorAll('.card');
+            
+            cards.forEach(card => {
+                // Ищем класс user... (ID пользователя)
+                const classList = card.className.split(' ');
+                let userId = null;
+                let userName = null;
+                
+                for (const cls of classList) {
+                    if (cls.startsWith('user') && !cls.startsWith('user_name')) {
+                        userId = cls;
+                    }
+                    if (cls.startsWith('user_name')) {
+                        userName = cls.substring('user_name'.length);
+                    }
+                }
+                
+                if (userId && userName && !executorsMap.has(userId)) {
+                    const photo = card.querySelector('.card__photo');
+                    executorsMap.set(userId, {
+                        name: userName,
+                        photo: photo ? photo.src : null
+                    });
+                }
+            });
+            
+            return executorsMap;
+        };
+        
+        // Заполняем меню исполнителями
+        const populateMenu = () => {
+            // Очищаем меню кроме первого пункта "Мои задачи"
+            const myTasksOption = menu.querySelector('[data-value="my_tasks"]');
+            menu.innerHTML = '';
+            if (myTasksOption) {
+                menu.appendChild(myTasksOption);
+            } else {
+                // Создаём "Мои задачи" если его нет
+                const myTasksOpt = document.createElement('div');
+                myTasksOpt.className = 'executor_option';
+                myTasksOpt.setAttribute('data-value', 'my_tasks');
+                myTasksOpt.textContent = 'Мои задачи';
+                menu.appendChild(myTasksOpt);
+            }
+            
+            // Добавляем исполнителей
+            const executors = collectExecutors();
+            executors.forEach((data, userId) => {
+                const option = document.createElement('div');
+                option.className = 'executor_option';
+                option.setAttribute('data-value', userId);
+                option.textContent = data.name;
+                
+                if (selectedExecutors.has(userId)) {
+                    option.classList.add('selected');
+                }
+                
+                menu.appendChild(option);
+            });
+            
+            // Обновляем состояние "Мои задачи"
+            const myTasksOpt = menu.querySelector('[data-value="my_tasks"]');
+            if (myTasksOpt) {
+                if (selectedExecutors.has('my_tasks')) {
+                    myTasksOpt.classList.add('selected');
+                } else {
+                    myTasksOpt.classList.remove('selected');
+                }
+            }
+        };
+        
+        // Обновление текста кнопки
+        const updateLabel = () => {
+            if (selectedExecutors.size === 0) {
+                label.textContent = 'Исполнитель';
+            } else if (selectedExecutors.size === 1) {
+                const value = Array.from(selectedExecutors)[0];
+                if (value === 'my_tasks') {
+                    label.textContent = 'Мои задачи';
+                } else {
+                    const option = menu.querySelector(`[data-value="${value}"]`);
+                    label.textContent = option ? option.textContent : 'Исполнитель';
+                }
+            } else {
+                label.textContent = `Исполнитель (${selectedExecutors.size})`;
+            }
+        };
+        
+        // Применение фильтрации по исполнителям
+        const applyFilter = () => {
+            const cards = document.querySelectorAll('.card');
+            const myTasksElement = document.getElementById('my_tasks');
+            const currentUserId = myTasksElement ? myTasksElement.classList[1] : null;
+            
+            cards.forEach(card => {
+                // Проверяем, активен ли проект карточки
+                const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
+                const projectTag = projectClass ? document.querySelector(`.tag.${projectClass}`) : null;
+                const projectInactive = projectTag && projectTag.classList.contains('tag__inactive');
+                
+                if (projectInactive) {
+                    // Проект неактивен — карточка скрыта
+                    card.classList.add('card__inactive');
+                    return;
+                }
+                
+                if (selectedExecutors.size === 0) {
+                    // Нет фильтра по исполнителям — показываем всё (с учётом проектов)
+                    card.classList.remove('card__inactive');
+                } else {
+                    // Есть фильтр — проверяем исполнителя
+                    let shouldShow = false;
+                    
+                    // Проверяем "Мои задачи"
+                    if (selectedExecutors.has('my_tasks') && currentUserId) {
+                        if (card.classList.contains(currentUserId)) {
+                            shouldShow = true;
+                        }
+                    }
+                    
+                    // Проверяем других исполнителей
+                    selectedExecutors.forEach(executorId => {
+                        if (executorId !== 'my_tasks' && card.classList.contains(executorId)) {
+                            shouldShow = true;
+                        }
+                    });
+                    
+                    card.classList.toggle('card__inactive', !shouldShow);
+                }
+            });
+            
+            RecalculateKanbanBlock();
+        };
+        
+        // Обработчик клика на опцию
+        const handleOptionClick = (option) => {
+            const value = option.getAttribute('data-value');
+            
+            if (selectedExecutors.has(value)) {
+                selectedExecutors.delete(value);
+                option.classList.remove('selected');
+            } else {
+                selectedExecutors.add(value);
+                option.classList.add('selected');
+            }
+            
+            updateLabel();
+            applyFilter();
+        };
+        
+        // Делегирование событий для опций
+        menu.addEventListener('click', (e) => {
+            const option = e.target.closest('.executor_option');
+            if (option) {
+                e.stopPropagation();
+                handleOptionClick(option);
+            }
+        });
+        
+        // Открытие/закрытие dropdown
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            populateMenu(); // Обновляем список при открытии
+            dropdown.classList.toggle('open');
+        });
+        
+        // Закрытие при клике вне
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+        
+        // Экспортируем для переинициализации
+        window.applyExecutorFilter = applyFilter;
+        window.populateExecutorMenu = populateMenu;
+    };
+    
+    initExecutorFilter();
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     // Извлечение имени пользователя из классов карточки
@@ -510,22 +705,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initGroupCollapse();
 
-    // Кнопка мои задачи отрабатывает без вызова 1С
-    let my_tasks = document.getElementById('my_tasks');
-    let actualUserId = my_tasks.classList[1];
-    my_tasks.addEventListener('click', function () {
-        my_tasks.classList.toggle('my_tasks_active');
-        let tasks = document.querySelectorAll('.card');
-        tasks.forEach(function (taskCard) {
-            let tag = document.querySelector(`.tag.${taskCard.classList[1]}`);
-
-            if (!taskCard.classList.contains(actualUserId) && !tag.classList.contains('tag__inactive')) {
-                taskCard.classList.toggle('card__inactive');
-            }
-        });
-        RecalculateKanbanBlock();
-    });
-
     // Перетаскивание задач по статусам
     initDragDrop();
     initCardDrag();
@@ -569,6 +748,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (window.updateProjectPicker) {
             window.updateProjectPicker();
+        }
+        // Обновляем меню исполнителей и применяем фильтр
+        if (window.populateExecutorMenu) {
+            window.populateExecutorMenu();
+        }
+        if (window.applyExecutorFilter) {
+            window.applyExecutorFilter();
         }
         initGroupCollapse();
         RecalculateKanbanBlock();
