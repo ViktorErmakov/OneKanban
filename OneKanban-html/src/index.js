@@ -509,8 +509,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Применяем группировку
                 if (value === 'none') {
                     removeGrouping();
-                } else if (value === 'executor') {
-                    applyGroupingByExecutor();
+                } else {
+                    // Сначала восстанавливаем оригинальную структуру если она была сохранена
+                    if (originalBoardContent) {
+                        const kanbanBoard = document.getElementById('kanban-board');
+                        kanbanBoard.innerHTML = originalBoardContent;
+                        kanbanBoard.classList.remove('grouped');
+                    }
+                    
+                    // Затем применяем новую группировку
+                    if (value === 'executor') {
+                        applyGroupingByExecutor();
+                    } else if (value === 'project') {
+                        applyGroupingByProject();
+                    }
                 }
 
                 RecalculateKanbanBlock();
@@ -591,6 +603,107 @@ document.addEventListener('DOMContentLoaded', () => {
                 block.setAttribute('fullNameObjectStatus', originalBlock.getAttribute('fullNameObjectStatus'));
 
                 // Добавляем карточки этого исполнителя для этого статуса
+                const cardsForStatus = data.statuses.get(statusIndex) || [];
+                cardsForStatus.forEach(card => {
+                    block.appendChild(card);
+                });
+
+                content.appendChild(block);
+            });
+
+            group.appendChild(content);
+            kanbanBoard.appendChild(group);
+        });
+
+        // Переинициализируем обработчики
+        initGroupCollapse();
+        initDragDropForGroups();
+    };
+
+    // Применение группировки по проектам
+    const applyGroupingByProject = () => {
+        const kanbanBoard = document.getElementById('kanban-board');
+        
+        // Сохраняем оригинальную структуру если ещё не сохранена
+        if (!originalBoardContent) {
+            originalBoardContent = kanbanBoard.innerHTML;
+        }
+
+        // Получаем все блоки статусов
+        const statusBlocks = kanbanBoard.querySelectorAll('.kanban-block');
+        if (statusBlocks.length === 0) return;
+
+        // Собираем все проекты
+        const projectsMap = new Map(); // projectId -> { name, color, statuses: Map<statusIndex, cards[]> }
+        
+        statusBlocks.forEach((block, statusIndex) => {
+            const cards = block.querySelectorAll('.card');
+            
+            cards.forEach(card => {
+                // Находим класс проекта (начинается с 'project')
+                const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
+                if (projectClass) {
+                    if (!projectsMap.has(projectClass)) {
+                        // Получаем данные проекта из тега
+                        const tag = document.querySelector(`.tag.${projectClass}`);
+                        const projectName = tag ? tag.textContent : projectClass;
+                        const computedStyle = tag ? getComputedStyle(tag) : null;
+                        const bgColor = computedStyle ? computedStyle.backgroundColor : null;
+                        
+                        projectsMap.set(projectClass, {
+                            name: projectName,
+                            color: (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') ? bgColor : null,
+                            statuses: new Map()
+                        });
+                    }
+                    const project = projectsMap.get(projectClass);
+                    if (!project.statuses.has(statusIndex)) {
+                        project.statuses.set(statusIndex, []);
+                    }
+                    project.statuses.get(statusIndex).push(card.cloneNode(true));
+                }
+            });
+        });
+
+        // Очищаем доску
+        kanbanBoard.innerHTML = '';
+        kanbanBoard.classList.add('grouped');
+
+        // Создаём группы для каждого проекта
+        projectsMap.forEach((data, projectId) => {
+            const group = document.createElement('div');
+            group.className = 'group';
+
+            // Заголовок группы
+            const header = document.createElement('div');
+            header.className = 'group-header';
+            
+            // Цветная метка проекта
+            const colorStyle = data.color ? `background-color: ${data.color};` : '';
+            
+            header.innerHTML = `
+                <div class="group-toggle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
+                <span class="group-project-color" style="${colorStyle}"></span>
+                <span class="group-name">${data.name}</span>
+                <span class="group-count">0</span>
+            `;
+            group.appendChild(header);
+
+            // Контент группы (блоки для каждого статуса)
+            const content = document.createElement('div');
+            content.className = 'group-content';
+
+            statusBlocks.forEach((originalBlock, statusIndex) => {
+                const block = document.createElement('div');
+                block.className = 'kanban-block';
+                block.id = originalBlock.id;
+                block.setAttribute('fullNameObjectStatus', originalBlock.getAttribute('fullNameObjectStatus'));
+
+                // Добавляем карточки этого проекта для этого статуса
                 const cardsForStatus = data.statuses.get(statusIndex) || [];
                 cardsForStatus.forEach(card => {
                     block.appendChild(card);
