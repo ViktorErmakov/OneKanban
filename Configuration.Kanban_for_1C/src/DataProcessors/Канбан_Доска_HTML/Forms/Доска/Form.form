@@ -38,6 +38,10 @@
     <showInFooter>true</showInFooter>
     <extInfo xsi:type="form:HtmlFieldExtInfo">
       <handlers>
+        <event>DocumentComplete</event>
+        <name>КанбанДоскаДокументСформирован</name>
+      </handlers>
+      <handlers>
         <event>OnClick</event>
         <name>КанбанДоскаПриНажатии</name>
       </handlers>
@@ -66,6 +70,14 @@
   <handlers>
     <event>OnCreateAtServer</event>
     <name>ПриСозданииНаСервере</name>
+  </handlers>
+  <handlers>
+    <event>OnOpen</event>
+    <name>ПриОткрытии</name>
+  </handlers>
+  <handlers>
+    <event>BeforeClose</event>
+    <name>ПередЗакрытием</name>
   </handlers>
   <excludedCommands>Abort</excludedCommands>
   <excludedCommands>Cancel</excludedCommands>
@@ -124,14 +136,37 @@
     </edit>
   </attributes>
   <attributes>
-    <name>ТемнаяТема</name>
+    <name>ИмяПользователя</name>
     <title>
       <key>ru</key>
-      <value>Темная тема</value>
+      <value>Имя пользователя</value>
     </title>
-    <id>4</id>
+    <id>7</id>
     <valueType>
-      <types>Boolean</types>
+      <types>String</types>
+      <stringQualifiers>
+        <length>100</length>
+      </stringQualifiers>
+    </valueType>
+    <view>
+      <common>true</common>
+    </view>
+    <edit>
+      <common>true</common>
+    </edit>
+  </attributes>
+  <attributes>
+    <name>ИдентификаторПользователя</name>
+    <title>
+      <key>ru</key>
+      <value>Идентификатор пользователя</value>
+    </title>
+    <id>8</id>
+    <valueType>
+      <types>String</types>
+      <stringQualifiers>
+        <length>36</length>
+      </stringQualifiers>
     </valueType>
     <view>
       <common>true</common>

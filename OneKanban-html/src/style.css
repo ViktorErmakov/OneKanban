@@ -145,6 +145,20 @@ body {
     flex: 1;
 }
 
+/* Плейсхолдер "Выберите проект" в project_picker */
+.project_picker_placeholder {
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 1.4rem;
+    padding: 0.4rem 0.8rem;
+    white-space: nowrap;
+}
+
+/* Состояние когда нет выбранных проектов */
+.project_picker.no-selection {
+    border-color: var(--border-color);
+}
+
 #kanban_header {
     display: flex;
     width: 100%;

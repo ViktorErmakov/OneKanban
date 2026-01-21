@@ -1,27 +1,465 @@
 import './style.css';
 
+// ========== ГЛОБАЛЬНЫЕ НАСТРОЙКИ ДОСКИ ==========
+const boardSettings = {
+    currentUserId: null,      // ID текущего пользователя (например: 'user123')
+    currentUserName: null,    // Имя текущего пользователя (например: 'Иванов Иван')
+};
+
+// Геттеры для удобства
+const getCurrentUserId = () => boardSettings.currentUserId;
+const getCurrentUserName = () => boardSettings.currentUserName;
+
+// Экспортируем глобально для доступа из других частей
+window.boardSettings = boardSettings;
+window.getCurrentUserId = getCurrentUserId;
+window.getCurrentUserName = getCurrentUserName;
+
+// Глобальная переменная для хранения текущего типа группировки
+let currentGroupingType = 'none';
+
+// Вспомогательные функции для получения состояния UI
+const getCurrentTheme = () => {
+    const wrapper = document.getElementById('wrapper');
+    return wrapper && wrapper.classList.contains('dark-theme') ? 'dark' : 'light';
+};
+
+const getCurrentGrouping = () => {
+    return currentGroupingType;
+};
+
+const getSelectedExecutors = () => {
+    return window.selectedExecutorsSet ? Array.from(window.selectedExecutorsSet) : [];
+};
+
+const getSelectedProjects = () => {
+    return window.projectsList ? window.projectsList.filter(p => p.checked).map(p => p.id) : [];
+};
+
+const getSearchQuery = () => {
+    const searchInput = document.getElementById('search_input');
+    return searchInput ? searchInput.value : '';
+};
+
+// ========== ФУНКЦИИ ОБРАБОТКИ ЗАДАЧ ==========
+
+// Обновление классов карточки (проект, исполнитель)
+// ОПТИМИЗАЦИЯ: меняем классы только если они реально изменились
+const updateCardClasses = (card, project, user, user_name) => {
+    
+    // ===== ШАГ 1: Получаем текущие классы карточки =====
+    // Преобразуем classList в обычный массив для удобства поиска
+    const classList = Array.from(card.classList);
+    
+    // Находим текущий класс проекта (начинается с 'project')
+    // Например: 'project-abc-123' или пустая строка если нет
+    const currentProject = classList.find(cls => cls.startsWith('project')) || '';
+    
+    // Находим текущий класс исполнителя (начинается с 'user', но НЕ с 'user_name')
+    // Например: 'user-xyz-456' или пустая строка если нет
+    const currentUser = classList.find(cls => cls.startsWith('user') && !cls.startsWith('user_name')) || '';
+    
+    // Находим текущий класс имени исполнителя (начинается с 'user_name')
+    // Например: 'user_nameИванов_Иван' или пустая строка если нет
+    const currentUserNameClass = classList.find(cls => cls.startsWith('user_name')) || '';
+    
+    // ===== ШАГ 2: Обновляем проект только если он изменился =====
+    // Проверяем: передан ли новый проект И отличается ли он от текущего
+    if (project !== undefined && project !== currentProject) {
+        // Удаляем старый класс проекта (если был)
+        if (currentProject) {
+            card.classList.remove(currentProject);
+        }
+        // Добавляем новый класс проекта (если не пустой)
+        if (project) {
+            card.classList.add(project);
+        }
+    }
+    
+    // ===== ШАГ 3: Обновляем исполнителя только если он изменился =====
+    if (user !== undefined && user !== currentUser) {
+        // Удаляем старый класс исполнителя (если был)
+        if (currentUser) {
+            card.classList.remove(currentUser);
+        }
+        // Добавляем новый класс исполнителя (если не пустой)
+        if (user) {
+            card.classList.add(user);
+        }
+    }
+    
+    // ===== ШАГ 4: Обновляем имя исполнителя только если оно изменилось =====
+    // Из 1С user_name приходит уже с префиксом "user_name" (например: "user_nameИванов_Иван")
+    // Только заменяем пробелы на подчёркивания (на случай если в имени есть пробелы)
+    const newUserNameClass = user_name ? user_name.split(' ').join('_') : '';
+    
+    if (user_name !== undefined && newUserNameClass !== currentUserNameClass) {
+        // Удаляем старый класс имени (если был)
+        if (currentUserNameClass) {
+            card.classList.remove(currentUserNameClass);
+        }
+        // Добавляем новый класс имени (если не пустой)
+        if (newUserNameClass) {
+            card.classList.add(newUserNameClass);
+        }
+    }
+};
+
+// Обновление содержимого карточки
+// ОПТИМИЗАЦИЯ: меняем содержимое только если оно реально изменилось
+const updateCardContent = (card, linkHref, linkName, photoSrc, altText, textContent, fullnameobjecttask) => {
+    
+    // ===== Обновляем ссылку на задачу =====
+    const link = card.querySelector('.card__link');
+    if (link) {
+        // Обновляем URL ссылки (href) только если он изменился
+        if (linkHref !== undefined) {
+            const currentHref = link.getAttribute('href') || '';
+            if (currentHref !== linkHref) {
+                link.setAttribute('href', linkHref);
+            }
+        }
+        // Обновляем текст ссылки только если он изменился
+        if (linkName !== undefined && link.textContent !== linkName) {
+            link.textContent = linkName;
+        }
+    }
+    
+    // ===== Обновляем фото =====
+    const photo = card.querySelector('.card__photo');
+    if (photo) {
+        // Обновляем src фото только если он изменился
+        if (photoSrc !== undefined && photo.src !== photoSrc) {
+            photo.src = photoSrc;
+        }
+        // Обновляем alt фото только если он изменился
+        if (altText !== undefined && photo.alt !== altText) {
+            photo.alt = altText;
+        }
+    }
+    
+    // ===== Обновляем текст карточки =====
+    const textSpan = card.querySelector('.card__text span');
+    if (textSpan && textContent !== undefined) {
+        // Сравниваем текущий текст с новым
+        if (textSpan.textContent !== textContent) {
+            textSpan.textContent = textContent;
+        }
+    }
+    
+    // ===== Обновляем атрибут fullNameObjectTask =====
+    if (fullnameobjecttask !== undefined) {
+        // Получаем текущее значение атрибута
+        const currentAttr = card.getAttribute('fullNameObjectTask') || '';
+        // Меняем только если значение отличается
+        if (currentAttr !== fullnameobjecttask) {
+            card.setAttribute('fullNameObjectTask', fullnameobjecttask);
+        }
+    }
+};
+
+// Перемещение карточки в статус
+// При активной группировке (по исполнителям или проектам) ищем блок статуса
+// внутри той же группы, где находится карточка, чтобы не переместить её
+// в чужую группу (т.к. ID статусов дублируются в каждой группе)
+const moveCardToStatus = (card, statusId) => {
+    let targetBlock = null;
+    
+    // Проверяем, активна ли группировка
+    if (currentGroupingType !== 'none') {
+        // При группировке — ищем блок статуса внутри той же группы
+        const group = card.closest('.group');
+        if (group) {
+            // Ищем блок с нужным ID внутри группы карточки
+            targetBlock = group.querySelector(`.kanban-block[id="${statusId}"]`);
+        }
+    } else {
+        // Без группировки — обычный поиск по ID (ID уникальны)
+        targetBlock = document.getElementById(statusId);
+    }
+    
+    // Перемещаем карточку, если нашли целевой блок и карточка ещё не в нём
+    if (targetBlock && card.parentElement !== targetBlock) {
+        targetBlock.appendChild(card);
+        
+        // ===== СИНХРОНИЗАЦИЯ с originalCardsMap =====
+        // Обновляем статус карточки в хранилище, чтобы при переключении
+        // группировки карточка оказалась в правильном статусе
+        if (window.updateOriginalCardsMap) {
+            window.updateOriginalCardsMap(card.id, statusId);
+        }
+    }
+};
+
+// Создание новой карточки
+const createNewCard = (taskData) => {
+    const card = document.createElement('div');
+    // Из 1С user_name приходит уже с префиксом "user_name" (например: "user_nameИванов_Иван")
+    // Только заменяем пробелы на подчёркивания (на случай если в имени есть пробелы)
+    const userNameClass = taskData.user_name ? taskData.user_name.split(' ').join('_') : '';
+    card.className = `card ${taskData.project || ''} ${taskData.user || ''} ${userNameClass}`.trim();
+    card.id = taskData.idTask;
+    card.draggable = true;
+    if (taskData.fullnameobjecttask) {
+        card.setAttribute('fullNameObjectTask', taskData.fullnameobjecttask);
+    }
+    
+    // Формируем HTML карточки
+    // card__link_href — URL ссылки на задачу (если пустой, используем #)
+    // card__link_name — текст ссылки (название задачи)
+    card.innerHTML = `
+        <div class="card__header">
+            <div class="tag_task"></div>
+            <a class="card__link" href="${taskData.card__link_href || '#'}">${taskData.card__link_name || ''}</a>
+            <img class="card__photo" alt="${taskData.alt || ''}" src="${taskData.card__photo || ''}">
+        </div>
+        <div class="card__text"><span>${taskData.card__text || ''}</span></div>
+    `;
+    
+    return card;
+};
+
+// Инициализация drag событий для одной карточки
+const initSingleCardDrag = (card) => {
+    card.addEventListener('dragstart', (event) => {
+        event.dataTransfer.setData("text", event.target.id);
+    });
+};
+
+// Инициализация drag событий для карточки в режиме группировки
+// (аналогично initSingleCardDrag, но для клонов в группах)
+const initSingleCardDragForGroups = (card) => {
+    card.addEventListener('dragstart', (event) => {
+        event.dataTransfer.setData("text", event.target.id);
+    });
+};
+
+// Найти подходящий блок для новой карточки в режиме группировки
+// На основе классов карточки определяем, в какую группу она должна попасть
+const findTargetBlockForNewCard = (card, statusId) => {
+    // Получаем текущий тип группировки
+    const groupingType = getCurrentGrouping();
+    
+    if (groupingType === 'executor') {
+        // Группировка по исполнителям — ищем группу по классу user
+        const userClass = Array.from(card.classList).find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
+        if (userClass) {
+            // Ищем группу с таким data-executor-id
+            const group = document.querySelector(`.group[data-executor-id="${userClass}"]`);
+            if (group) {
+                // Внутри группы ищем блок с нужным статусом
+                return group.querySelector(`.kanban-block[id="${statusId}"]`);
+            }
+        }
+    } else if (groupingType === 'project') {
+        // Группировка по проектам — ищем группу по классу project
+        const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
+        if (projectClass) {
+            // Ищем группу с таким data-project-id
+            const group = document.querySelector(`.group[data-project-id="${projectClass}"]`);
+            if (group) {
+                // Внутри группы ищем блок с нужным статусом
+                return group.querySelector(`.kanban-block[id="${statusId}"]`);
+            }
+        }
+    }
+    
+    // Fallback — первый блок с таким ID статуса (может быть в любой группе)
+    return document.querySelector(`.kanban-block[id="${statusId}"]`);
+};
+
+// Обработка одной задачи
+// При активной группировке синхронизирует изменения между клоном (в DOM) и оригиналом (в originalCardsMap)
+const processTask = (taskData) => {
+    const {
+        project,           // класс проекта
+        user,              // класс исполнителя (userXXX)
+        user_name,         // имя для класса (Имя_Фамилия, без префикса user_name)
+        idTask,            // ID задачи
+        fullnameobjecttask,// атрибут fullNameObjectTask
+        card__link_href,   // URL ссылки на задачу (например: e1cib/data/...)
+        card__link_name,   // текст ссылки (название задачи)
+        card__photo,       // src фото исполнителя
+        alt,               // alt текст для фото
+        card__text,        // текст/описание карточки
+        newStatus          // ID статуса (куда поместить карточку)
+    } = taskData;
+    
+    if (!idTask) return;
+    
+    // Проверяем, активна ли группировка
+    const isGrouped = window.isGroupingActive && window.isGroupingActive();
+    
+    // Находим карточку в DOM (это может быть КЛОН при активной группировке)
+    let cardInDOM = document.getElementById(idTask);
+    
+    // Получаем ОРИГИНАЛЬНУЮ карточку из хранилища (если группировка активна)
+    let originalCard = isGrouped ? (window.getOriginalCard && window.getOriginalCard(idTask)) : null;
+    
+    if (cardInDOM || originalCard) {
+        // ===== ОБНОВЛЕНИЕ СУЩЕСТВУЮЩЕЙ КАРТОЧКИ =====
+        
+        // Обновляем карточку в DOM (это клон при группировке или оригинал без группировки)
+        if (cardInDOM) {
+            updateCardClasses(cardInDOM, project, user, user_name);
+            updateCardContent(cardInDOM, card__link_href, card__link_name, card__photo, alt, card__text, fullnameobjecttask);
+        }
+        
+        // ===== СИНХРОНИЗАЦИЯ с оригиналом =====
+        // Если группировка активна — обновляем и ОРИГИНАЛЬНУЮ карточку в хранилище
+        // Это нужно, чтобы при переключении группировки данные не потерялись
+        if (isGrouped && originalCard && originalCard !== cardInDOM) {
+            updateCardClasses(originalCard, project, user, user_name);
+            updateCardContent(originalCard, card__link_href, card__link_name, card__photo, alt, card__text, fullnameobjecttask);
+        }
+        
+        // Обновляем статус если нужно
+        if (newStatus) {
+            // Перемещаем карточку в DOM
+            if (cardInDOM) {
+                moveCardToStatus(cardInDOM, newStatus);
+            }
+            // Обновляем статус в хранилище оригиналов
+            if (window.updateOriginalCardsMap) {
+                window.updateOriginalCardsMap(idTask, newStatus);
+            }
+        }
+    } else {
+        // ===== СОЗДАНИЕ НОВОЙ КАРТОЧКИ =====
+        const card = createNewCard(taskData);
+        
+        if (newStatus && card) {
+            if (isGrouped) {
+                // ===== При активной группировке =====
+                // 1. Сохраняем ОРИГИНАЛ в хранилище
+                if (window.addToOriginalCardsMap) {
+                    window.addToOriginalCardsMap(card.id, card, newStatus);
+                }
+                
+                // 2. Создаём КЛОН для отображения в сгруппированной структуре
+                const clone = card.cloneNode(true);
+                
+                // 3. Находим подходящий блок в группе (по классам карточки)
+                const targetBlock = findTargetBlockForNewCard(clone, newStatus);
+                if (targetBlock) {
+                    targetBlock.appendChild(clone);
+                    initSingleCardDragForGroups(clone);
+                }
+            } else {
+                // ===== Без группировки =====
+                // Просто добавляем карточку в DOM
+                const targetBlock = document.getElementById(newStatus);
+                if (targetBlock) {
+                    targetBlock.appendChild(card);
+                    initSingleCardDrag(card);
+                }
+            }
+        }
+    }
+};
+
 window['V8Proxy'] = {
 
     // Для запроса из JS в 1С
-    fetch: (eventName, idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus) => {
-
-         // const taskButton = document.querySelector(`.${value}`);
-        const V8_request = document.querySelector(`#V8_request`);
+    fetch: (eventName, params = {}) => {
+        const V8_request = document.querySelector('#V8_request');
         V8_request.value = eventName;
-        V8_request.setAttribute('idTask', idTask);
-        V8_request.setAttribute('fullNameObjectTask', fullNameObjectTask);
-
-        V8_request.setAttribute('idNewStatus', idNewStatus);
-        V8_request.setAttribute('fullNameObjectStatus', fullNameObjectStatus);
+        
+        // Общие параметры состояния UI (передаются всегда)
+        V8_request.setAttribute('theme', getCurrentTheme());
+        V8_request.setAttribute('grouping', getCurrentGrouping());
+        V8_request.setAttribute('executorfilter', JSON.stringify(getSelectedExecutors()));
+        V8_request.setAttribute('projectfilter', JSON.stringify(getSelectedProjects()));
+        V8_request.setAttribute('task', JSON.stringify(params));
+                
         V8_request.click();
     },
+    
     // Для отправки из 1С в JS
-    sendResponse: (eventName, value, userName1C) => {
-        // console.log(eventName);
-        // console.log(value);
-        // console.log(userName1C);
-        // UserName = userName1C;
-        // importTasks(value);
+    sendResponse: (eventName, data) => {
+        
+        // Если data - строка JSON, парсим в объект
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+                console.error('sendResponse: Failed to parse JSON:', e);
+                return;
+            }
+        }
+        
+        // data содержит:
+        // {
+        //     currentuserid: 'userXXX-XXX-XXX',            // ID текущего пользователя
+        //     currentusername: 'Иванов Иван',             // Имя текущего пользователя
+        //     theme: 'light' | 'dark',
+        //     grouping: 'none' | 'executor' | 'project',
+        //     executorfilter: ['user123', 'user456', ...],
+        //     projectfilter: ['project1', 'project2', ...],
+        //     
+        //     // Массив изменённых задач (может быть пустым или содержать несколько)
+        //     tasks: [
+        //         {
+        //             project: 'projectXXX-XXX-XXX',        // ID проекта (класс)
+        //             user: 'userXXX-XXX-XXX',              // ID исполнителя (класс)
+        //             user_name: 'Иванов_Иван',             // Имя исполнителя (для класса user_name...)
+        //             idTask: 'task123',                    // ID задачи (id элемента)
+        //             fullnameobjecttask: 'Справочник...', // Полное имя объекта задачи
+        //             card__link_href: 'e1cib/data/...',    // URL ссылки на задачу
+        //             card__link_name: 'КБ-123 Название',   // Текст ссылки (название задачи)
+        //             card__photo: 'data:image/...',        // URL или base64 фото
+        //             alt: 'Иванов Иван',                   // Alt текст для фото
+        //             card__text: 'Описание задачи',        // Текст карточки
+        //             newStatus: 'status456'                // ID нового статуса (куда поместить)
+        //         },
+        //         { ... }
+        //     ]
+        // }
+        
+        // ========== 0. СОХРАНЯЕМ ДАННЫЕ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ ==========
+        // (применяем только если явно переданы)
+        if (data.currentuserid !== undefined) {
+            boardSettings.currentUserId = data.currentuserid;
+        }
+        if (data.currentusername !== undefined) {
+            boardSettings.currentUserName = data.currentusername;
+        }
+        
+        // ========== 1. СНАЧАЛА ОБРАБАТЫВАЕМ ЗАДАЧИ ==========
+        // (до применения фильтров, т.к. фильтры влияют на видимость)
+        if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) {
+            data.tasks.forEach(taskData => {
+                processTask(taskData);
+            });
+        }
+        
+        // ========== 2. ЗАТЕМ ПРИМЕНЯЕМ НАСТРОЙКИ UI ==========
+        // (применяем только если явно переданы в JSON)
+        
+        // Применить тему
+        if (data.theme !== undefined) {
+            window.applyTheme && window.applyTheme(data.theme);
+        }
+        
+        // Применить группировку
+        if (data.grouping !== undefined) {
+            window.applyGroupingByValue && window.applyGroupingByValue(data.grouping);
+        }
+        
+        // Применить фильтр по исполнителям
+        if (data.executorfilter !== undefined) {
+            window.setSelectedExecutors && window.setSelectedExecutors(data.executorfilter);
+        }
+        
+        // Применить фильтр по проектам
+        if (data.projectfilter !== undefined) {
+            window.setSelectedProjects && window.setSelectedProjects(data.projectfilter);
+        }
+        
+        // ========== 3. ПЕРЕСЧИТЫВАЕМ СЧЁТЧИКИ ==========
+        if (typeof RecalculateKanbanBlock === 'function') {
+            RecalculateKanbanBlock();
+        }
     }
 }
 
@@ -35,7 +473,20 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggle.addEventListener('click', () => {
             wrapper.classList.toggle('dark-theme');
             themeToggle.classList.toggle('active');
+            // Уведомляем 1С об изменении настроек
+            window.V8Proxy.fetch('settingsChanged', {});
         });
+        
+        // Экспортируем функцию для применения темы из sendResponse
+        window.applyTheme = (theme) => {
+            if (theme === 'dark') {
+                wrapper.classList.add('dark-theme');
+                themeToggle.classList.add('active');
+            } else {
+                wrapper.classList.remove('dark-theme');
+                themeToggle.classList.remove('active');
+            }
+        };
     };
 
     initTheme();
@@ -116,27 +567,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const visibleProjects = selectedProjects.slice(0, MAX_VISIBLE_PROJECTS);
             const hiddenCount = selectedProjects.length - MAX_VISIBLE_PROJECTS;
             
-            // Отображаем видимые pills
-            visibleProjects.forEach(project => {
-                const pill = document.createElement('div');
-                pill.className = 'project_pill';
-                pill.setAttribute('data-project-id', project.id);
-                if (project.color) {
-                    pill.style.setProperty('--project-color', project.color);
-                }
-                pill.innerHTML = `
-                    <span class="project_pill_name">${project.name}</span>
-                    <span class="project_pill_close">×</span>
-                `;
+            // Если нет выбранных проектов — показываем плейсхолдер в picker
+            if (selectedProjects.length === 0 && projects.length > 0) {
+                const placeholder = document.createElement('span');
+                placeholder.className = 'project_picker_placeholder';
+                placeholder.textContent = 'Выберите проект';
+                selectedContainer.appendChild(placeholder);
+                picker.classList.add('no-selection');
+            } else {
+                picker.classList.remove('no-selection');
                 
-                // Клик на × - снимает выбор
-                pill.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleProject(project.id);
+                // Отображаем видимые pills
+                visibleProjects.forEach(project => {
+                    const pill = document.createElement('div');
+                    pill.className = 'project_pill';
+                    pill.setAttribute('data-project-id', project.id);
+                    if (project.color) {
+                        pill.style.setProperty('--project-color', project.color);
+                    }
+                    pill.innerHTML = `
+                        <span class="project_pill_name">${project.name}</span>
+                        <span class="project_pill_close">×</span>
+                    `;
+                    
+                    // Клик на × - снимает выбор
+                    pill.addEventListener('click', (e) => {
+                        e.stopPropagation(); // <-- Это останавливает всплытие события!
+                        toggleProject(project.id);
+                    });
+                    
+                    selectedContainer.appendChild(pill);
                 });
-                
-                selectedContainer.appendChild(pill);
-            });
+            }
             
             // Счётчик "+N"
             if (hiddenCount > 0) {
@@ -157,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Клик - toggle проекта
                 item.addEventListener('click', (e) => {
-                    e.stopPropagation();
+                    e.stopPropagation(); // <-- Это останавливает всплытие события!
                     toggleProject(project.id);
                 });
                 
@@ -185,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Открытие/закрытие dropdown
         toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // <-- Это останавливает всплытие события!
             closeAllDropdowns(picker);
             picker.classList.toggle('open');
         });
@@ -227,6 +689,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     updateDisplay();
+                    
+                    // Уведомляем 1С об изменении настроек
+                    window.V8Proxy.fetch('settingsChanged', {});
                 });
             }
         });
@@ -237,6 +702,35 @@ document.addEventListener('DOMContentLoaded', () => {
         // Экспортируем функции для reinitKanban
         window.updateProjectPicker = updateDisplay;
         window.collectProjectsFromCheckboxes = collectProjectsFromCheckboxes;
+        
+        // Экспортируем projects для получения состояния
+        window.projectsList = projects;
+        
+        // Функция для установки выбранных проектов из sendResponse
+        window.setSelectedProjects = (projectIds) => {
+            if (!projectIds || !Array.isArray(projectIds)) return;
+            
+            projects.forEach(project => {
+                project.checked = projectIds.includes(project.id);
+                // Синхронизируем с чекбоксом
+                const checkbox = document.getElementById(project.id);
+                if (checkbox) {
+                    checkbox.checked = project.checked;
+                }
+                // Обновляем тег
+                const tag = document.querySelector(`.tag.${project.id}`);
+                if (tag) {
+                    tag.classList.toggle('tag__inactive', !project.checked);
+                }
+            });
+            
+            updateDisplay();
+            
+            // Применяем фильтрацию
+            if (window.applyExecutorFilter) {
+                window.applyExecutorFilter();
+            }
+        };
     };
     
     initProjectPicker();
@@ -250,7 +744,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const menu = document.getElementById('executor_menu');
         const label = document.getElementById('executor_label');
         const executorClear = document.getElementById('executor_clear');
-        const myTasksElement = document.getElementById('my_tasks');
         
         if (!dropdown || !toggle || !menu) return;
         
@@ -263,8 +756,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         
-        // Получаем ID текущего пользователя из my_tasks
-        const currentUserId = myTasksElement ? myTasksElement.classList[1] : null;
+        // Получаем ID текущего пользователя из boardSettings
+        const currentUserId = getCurrentUserId();
         
         // Собираем исполнителей с доски
         const collectExecutors = () => {
@@ -399,20 +892,23 @@ document.addEventListener('DOMContentLoaded', () => {
             updateLabel();
             updateHasSelected();
             applyFilter();
+            
+            // Уведомляем 1С об изменении настроек
+            window.V8Proxy.fetch('settingsChanged', {});
         };
         
         // Делегирование событий для опций
         menu.addEventListener('click', (e) => {
             const option = e.target.closest('.executor_option');
             if (option) {
-                e.stopPropagation();
+                e.stopPropagation(); // <-- Это останавливает всплытие события!
                 handleOptionClick(option);
             }
         });
         
         // Открытие/закрытие dropdown
         toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // <-- Это останавливает всплытие события!
             closeAllDropdowns(dropdown);
             populateMenu(); // Обновляем список при открытии
             dropdown.classList.toggle('open');
@@ -428,18 +924,37 @@ document.addEventListener('DOMContentLoaded', () => {
         // Очистка по клику на крестик
         if (executorClear) {
             executorClear.addEventListener('click', (e) => {
-                e.stopPropagation(); // Не открывать dropdown
+                e.stopPropagation(); // <-- Это останавливает всплытие события! // Не открывать dropdown
                 selectedExecutors.clear();
                 updateLabel();
                 updateHasSelected();
                 populateMenu(); // Обновить визуальное состояние опций
                 applyFilter();
+                
+                // Уведомляем 1С об изменении настроек
+                window.V8Proxy.fetch('settingsChanged', {});
             });
         }
         
         // Экспортируем для переинициализации
         window.applyExecutorFilter = applyFilter;
         window.populateExecutorMenu = populateMenu;
+        
+        // Экспортируем selectedExecutors для получения состояния
+        window.selectedExecutorsSet = selectedExecutors;
+        
+        // Функция для установки выбранных исполнителей из sendResponse
+        window.setSelectedExecutors = (executorIds) => {
+            if (!executorIds || !Array.isArray(executorIds)) return;
+            
+            selectedExecutors.clear();
+            executorIds.forEach(id => selectedExecutors.add(id));
+            
+            populateMenu();       // Сначала заполняем меню
+            updateLabel();        // Теперь опции существуют и label обновится корректно
+            updateHasSelected();
+            applyFilter();
+        };
     };
     
     initExecutorFilter();
@@ -471,8 +986,85 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     };
 
-    // Сохранение оригинальной структуры для восстановления
-    let originalBoardContent = null;
+    // ===== ХРАНИЛИЩЕ ОРИГИНАЛЬНОГО СОСТОЯНИЯ ДОСКИ =====
+    // Используем ссылки на DOM-элементы вместо HTML-строки,
+    // чтобы изменения в сгруппированном режиме сохранялись при переключении
+    
+    // Map: cardId → { card: HTMLElement, statusId: string }
+    // Хранит ссылки на карточки и их текущие статусы
+    let originalCardsMap = null;
+    
+    // Array: [{ id, fullNameObjectStatus, className }, ...]
+    // Хранит структуру блоков статусов для восстановления
+    let originalStatusBlocks = null;
+    
+    // Функция для обновления статуса карточки в хранилище
+    // Вызывается из moveCardToStatus при перемещении карточки
+    window.updateOriginalCardsMap = (cardId, newStatusId) => {
+        if (originalCardsMap && originalCardsMap.has(cardId)) {
+            originalCardsMap.get(cardId).statusId = newStatusId;
+        }
+    };
+    
+    // Функция для добавления новой карточки в хранилище
+    // Вызывается из processTask при создании новой карточки
+    window.addToOriginalCardsMap = (cardId, card, statusId) => {
+        if (originalCardsMap) {
+            originalCardsMap.set(cardId, {
+                card: card,
+                statusId: statusId
+            });
+        }
+    };
+    
+    // Функция для обновления классов исполнителя на оригинальной карточке
+    // Вызывается при перетаскивании между исполнителями в режиме группировки
+    // (т.к. в группировке используются клоны карточек, нужно синхронизировать изменения с оригиналом)
+    // ВАЖНО: ищем ФАКТИЧЕСКИЕ старые классы на ОРИГИНАЛЕ, а не используем классы с клона,
+    // т.к. оригинал и клон могут рассинхронизироваться (например, при обновлении из 1С)
+    window.updateOriginalCardExecutor = (cardId, newUserClass, newUserNameClass, oldUserClass, oldUserNameClass) => {
+        if (originalCardsMap && originalCardsMap.has(cardId)) {
+            const originalCard = originalCardsMap.get(cardId).card;
+            
+            // Находим ФАКТИЧЕСКИЕ старые классы на ОРИГИНАЛЬНОЙ карточке
+            // (не полагаемся на oldUserClass/oldUserNameClass с клона — они могут отличаться)
+            const actualOldUserClass = Array.from(originalCard.classList)
+                .find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
+            const actualOldUserNameClass = Array.from(originalCard.classList)
+                .find(cls => cls.startsWith('user_name'));
+            
+            // Удаляем старые классы исполнителя с оригинальной карточки
+            if (actualOldUserClass) {
+                originalCard.classList.remove(actualOldUserClass);
+            }
+            if (actualOldUserNameClass) {
+                originalCard.classList.remove(actualOldUserNameClass);
+            }
+            
+            // Добавляем новые классы исполнителя на оригинальную карточку
+            if (newUserClass) {
+                originalCard.classList.add(newUserClass);
+            }
+            if (newUserNameClass) {
+                originalCard.classList.add(newUserNameClass);
+            }
+        }
+    };
+    
+    // Получить оригинальную карточку из хранилища по ID
+    // Возвращает карточку из originalCardsMap или null если не найдена/группировка не активна
+    window.getOriginalCard = (cardId) => {
+        if (originalCardsMap && originalCardsMap.has(cardId)) {
+            return originalCardsMap.get(cardId).card;
+        }
+        return null;
+    };
+    
+    // Проверить, активна ли группировка
+    // Возвращает true если originalCardsMap существует (т.е. группировка была включена)
+    window.isGroupingActive = () => {
+        return originalCardsMap !== null;
+    };
 
     // ========== ГРУППИРОВКА ==========
     const initGrouping = () => {
@@ -486,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Открытие/закрытие dropdown
         groupingToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // <-- Это останавливает всплытие события!
             closeAllDropdowns(groupingDropdown);
             groupingDropdown.classList.toggle('open');
         });
@@ -516,15 +1108,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Закрываем dropdown
                 groupingDropdown.classList.remove('open');
 
+                // Сохраняем текущий тип группировки
+                currentGroupingType = value;
+
                 // Применяем группировку
                 if (value === 'none') {
                     removeGrouping();
                 } else {
                     // Сначала восстанавливаем оригинальную структуру если она была сохранена
-                    if (originalBoardContent) {
+                    // Используем сохранённые ссылки на карточки и их статусы
+                    if (originalCardsMap) {
                         const kanbanBoard = document.getElementById('kanban-board');
-                        kanbanBoard.innerHTML = originalBoardContent;
+                        
+                        // Очищаем доску от текущей сгруппированной структуры
+                        kanbanBoard.innerHTML = '';
                         kanbanBoard.classList.remove('grouped');
+                        
+                        // Воссоздаём блоки статусов
+                        originalStatusBlocks.forEach(blockData => {
+                            const block = document.createElement('div');
+                            block.id = blockData.id;
+                            block.className = blockData.className;
+                            block.setAttribute('fullNameObjectStatus', blockData.fullNameObjectStatus);
+                            kanbanBoard.appendChild(block);
+                        });
+                        
+                        // Возвращаем карточки в их текущие статусы
+                        // (статусы в originalCardsMap актуальны, т.к. обновляются при перетаскивании)
+                        originalCardsMap.forEach((data, cardId) => {
+                            const targetBlock = document.getElementById(data.statusId);
+                            if (targetBlock && data.card) {
+                                targetBlock.appendChild(data.card);
+                            }
+                        });
                     }
                     
                     // Затем применяем новую группировку
@@ -535,9 +1151,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
+                // применить фильтры проектов и исполнителей
+                if (window.applyExecutorFilter) {
+                    window.applyExecutorFilter();
+                }
+
                 RecalculateKanbanBlock();
+                
+                // Уведомляем 1С об изменении настроек
+                window.V8Proxy.fetch('settingsChanged', {});
             });
         });
+        
+        // Экспортируем функцию для применения группировки из sendResponse
+        window.applyGroupingByValue = (value) => {
+            const option = document.querySelector(`.grouping_option[data-value="${value}"]`);
+            if (option) {
+                option.click();
+            }
+        };
     };
 
     // Применение группировки по исполнителю
@@ -545,8 +1177,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const kanbanBoard = document.getElementById('kanban-board');
         
         // Сохраняем оригинальную структуру если ещё не сохранена
-        if (!originalBoardContent) {
-            originalBoardContent = kanbanBoard.innerHTML;
+        // Используем Map для хранения ссылок на карточки и их статусы
+        if (!originalCardsMap) {
+            originalCardsMap = new Map();
+            originalStatusBlocks = [];
+            
+            // Сохраняем структуру блоков статусов (для восстановления при снятии группировки)
+            kanbanBoard.querySelectorAll('.kanban-block').forEach(block => {
+                originalStatusBlocks.push({
+                    id: block.id,
+                    fullNameObjectStatus: block.getAttribute('fullNameObjectStatus'),
+                    className: block.className
+                });
+            });
+            
+            // Сохраняем карточки с их текущими статусами
+            // (ссылки на DOM-элементы, не копии!)
+            kanbanBoard.querySelectorAll('.card').forEach(card => {
+                const statusBlock = card.closest('.kanban-block');
+                originalCardsMap.set(card.id, {
+                    card: card,  // Ссылка на реальный DOM-элемент
+                    statusId: statusBlock ? statusBlock.id : null
+                });
+            });
         }
 
         // Получаем все блоки статусов
@@ -554,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statusBlocks.length === 0) return;
 
         // Собираем всех уникальных исполнителей
-        const executors = new Map(); // userName -> { photo, cards: Map<statusId, cards[]> }
+        const executors = new Map(); // userName -> { userId, photo, statuses: Map<statusId, cards[]> }
         
         statusBlocks.forEach((block, statusIndex) => {
             const statusId = block.id;
@@ -562,9 +1215,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             cards.forEach(card => {
                 const userName = getUserNameFromCard(card);
-                if (userName) {
+                // Получаем userId из классов карточки
+                const userId = Array.from(card.classList).find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
+                
+                if (userName && userId) {
                     if (!executors.has(userName)) {
                         executors.set(userName, {
+                            userId: userId,
                             photo: getUserPhotoFromCards(userName),
                             statuses: new Map()
                         });
@@ -586,6 +1243,9 @@ document.addEventListener('DOMContentLoaded', () => {
         executors.forEach((data, userName) => {
             const group = document.createElement('div');
             group.className = 'group';
+            // Добавляем data-executor-id для определения исполнителя при drag & drop
+            group.setAttribute('data-executor-id', data.userId);
+            group.setAttribute('data-executor-name', userName);
 
             // Заголовок группы
             const header = document.createElement('div');
@@ -635,8 +1295,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const kanbanBoard = document.getElementById('kanban-board');
         
         // Сохраняем оригинальную структуру если ещё не сохранена
-        if (!originalBoardContent) {
-            originalBoardContent = kanbanBoard.innerHTML;
+        // Используем Map для хранения ссылок на карточки и их статусы
+        if (!originalCardsMap) {
+            originalCardsMap = new Map();
+            originalStatusBlocks = [];
+            
+            // Сохраняем структуру блоков статусов (для восстановления при снятии группировки)
+            kanbanBoard.querySelectorAll('.kanban-block').forEach(block => {
+                originalStatusBlocks.push({
+                    id: block.id,
+                    fullNameObjectStatus: block.getAttribute('fullNameObjectStatus'),
+                    className: block.className
+                });
+            });
+            
+            // Сохраняем карточки с их текущими статусами
+            // (ссылки на DOM-элементы, не копии!)
+            kanbanBoard.querySelectorAll('.card').forEach(card => {
+                const statusBlock = card.closest('.kanban-block');
+                originalCardsMap.set(card.id, {
+                    card: card,  // Ссылка на реальный DOM-элемент
+                    statusId: statusBlock ? statusBlock.id : null
+                });
+            });
         }
 
         // Получаем все блоки статусов
@@ -689,6 +1370,8 @@ document.addEventListener('DOMContentLoaded', () => {
         projectsMap.forEach((data, projectId) => {
             const group = document.createElement('div');
             group.className = 'group';
+            // Добавляем data-project-id для определения проекта при drag & drop
+            group.setAttribute('data-project-id', projectId);
 
             // Заголовок группы
             const header = document.createElement('div');
@@ -741,11 +1424,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const removeGrouping = () => {
         const kanbanBoard = document.getElementById('kanban-board');
         kanbanBoard.classList.remove('grouped');
+        currentGroupingType = 'none';
 
-        if (originalBoardContent) {
-            kanbanBoard.innerHTML = originalBoardContent;
-            originalBoardContent = null;
-            // Переинициализируем обработчики
+        // Восстанавливаем оригинальную структуру из сохранённых ссылок
+        if (originalCardsMap) {
+            // Очищаем доску
+            kanbanBoard.innerHTML = '';
+            
+            // Воссоздаём блоки статусов
+            originalStatusBlocks.forEach(blockData => {
+                const block = document.createElement('div');
+                block.id = blockData.id;
+                block.className = blockData.className;
+                block.setAttribute('fullNameObjectStatus', blockData.fullNameObjectStatus);
+                kanbanBoard.appendChild(block);
+            });
+            
+            // Возвращаем карточки в их актуальные статусы
+            // (статусы в originalCardsMap обновляются при каждом перетаскивании)
+            originalCardsMap.forEach((data, cardId) => {
+                const targetBlock = document.getElementById(data.statusId);
+                if (targetBlock && data.card) {
+                    targetBlock.appendChild(data.card);
+                }
+            });
+            
+            // Очищаем хранилище — группировка снята
+            originalCardsMap = null;
+            originalStatusBlocks = null;
+            
+            // Переинициализируем обработчики drag & drop
             initDragDrop();
             initCardDrag();
         }
@@ -778,12 +1486,97 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (block === lastStatus) return;
                 
+                // Получаем группу исходной карточки и целевую группу
+                const sourceGroup = lastStatus.closest('.group');
+                const targetGroup = block.closest('.group');
+                
+                // При группировке по проектам запрещаем перетаскивание между разными проектами
+                if (currentGroupingType === 'project' && sourceGroup && targetGroup) {
+                    const sourceProjectId = sourceGroup.getAttribute('data-project-id');
+                    const targetProjectId = targetGroup.getAttribute('data-project-id');
+                    if (sourceProjectId !== targetProjectId) {
+                        // Отменяем drop — нельзя перетаскивать между проектами
+                        return;
+                    }
+                }
+                
                 block.appendChild(draggedElement);
+                
+                // ===== СИНХРОНИЗАЦИЯ с originalCardsMap =====
+                // Обновляем статус карточки в хранилище при перетаскивании в группе
+                const idNewStatus = event.currentTarget.id;
+                if (window.updateOriginalCardsMap) {
+                    window.updateOriginalCardsMap(idTask, idNewStatus);
+                }
+                
                 RecalculateKanbanBlock();
 
-                const idNewStatus = event.currentTarget.id;
                 const fullNameObjectStatus = block.attributes.fullNameObjectStatus.nodeValue;
-                window.V8Proxy.fetch('changeStatus', idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus);
+                
+                // Формируем параметры для V8Proxy.fetch
+                const params = {
+                    idTask: idTask,
+                    fullNameObjectTask: fullNameObjectTask,
+                    idNewStatus: idNewStatus,
+                    fullNameObjectStatus: fullNameObjectStatus
+                };
+                
+                // ===== При группировке по исполнителям =====
+                // Если задача перенесена в группу другого исполнителя — передаём его данные в 1С
+                if (currentGroupingType === 'executor' && targetGroup) {
+                    // Получаем ID и имя нового исполнителя из атрибутов группы
+                    const idNewExecutor = targetGroup.getAttribute('data-executor-id');
+                    const newExecutorName = targetGroup.getAttribute('data-executor-name');
+                    
+                    if (idNewExecutor) {
+                        // Добавляем данные нового исполнителя в параметры для 1С
+                        params.idNewExecutor = idNewExecutor;
+                        
+                        // ===== Обновляем классы карточки на клиенте =====
+                        // Это нужно чтобы визуально отразить смену исполнителя
+                        // (фильтры и группировка используют эти классы)
+                        
+                        // Находим старые классы user и user_name
+                        const classList = Array.from(draggedElement.classList);
+                        const oldUserClass = classList.find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
+                        const oldUserNameClass = classList.find(cls => cls.startsWith('user_name'));
+                        
+                        // Удаляем старые классы (если были)
+                        if (oldUserClass) {
+                            draggedElement.classList.remove(oldUserClass);
+                        }
+                        if (oldUserNameClass) {
+                            draggedElement.classList.remove(oldUserNameClass);
+                        }
+                        
+                        // Добавляем новые классы исполнителя
+                        draggedElement.classList.add(idNewExecutor);
+                        const newUserNameClass = newExecutorName 
+                            ? 'user_name' + newExecutorName.split(' ').join('_') 
+                            : null;
+                        if (newUserNameClass) {
+                            // Заменяем пробелы на подчёркивания 
+                            // (в data-executor-name хранится "Иванов Иван", а класс должен быть "user_nameИванов_Иван")
+                            draggedElement.classList.add(newUserNameClass);
+                        }
+                        
+                        // ===== СИНХРОНИЗАЦИЯ с оригинальной карточкой =====
+                        // В режиме группировки отображаются КЛОНЫ карточек (cloneNode).
+                        // Нужно обновить классы и на ОРИГИНАЛЬНОЙ карточке в originalCardsMap,
+                        // чтобы при переключении группировки она попала к правильному исполнителю.
+                        if (window.updateOriginalCardExecutor) {
+                            window.updateOriginalCardExecutor(
+                                idTask,
+                                idNewExecutor,
+                                newUserNameClass,
+                                oldUserClass,
+                                oldUserNameClass
+                            );
+                        }
+                    }
+                }
+                
+                window.V8Proxy.fetch('changeStatus', params);
             });
         });
 
@@ -822,11 +1615,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (block === lastStatus) return;
                 
                 block.appendChild(draggedElement);
+                
+                // ===== СИНХРОНИЗАЦИЯ с originalCardsMap =====
+                // Обновляем статус карточки в хранилище (на случай если группировка будет включена позже)
+                const idNewStatus = event.currentTarget.id;
+                if (window.updateOriginalCardsMap) {
+                    window.updateOriginalCardsMap(idTask, idNewStatus);
+                }
+                
                 RecalculateKanbanBlock();
 
-                const idNewStatus = event.currentTarget.id;
                 const fullNameObjectStatus = block.attributes.fullNameObjectStatus.nodeValue;
-                window.V8Proxy.fetch('changeStatus', idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus);
+                
+                window.V8Proxy.fetch('changeStatus', {
+                    idTask: idTask,
+                    fullNameObjectTask: fullNameObjectTask,
+                    idNewStatus: idNewStatus,
+                    fullNameObjectStatus: fullNameObjectStatus
+                });
             });
         });
     };
@@ -916,9 +1722,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 RecalculateKanbanBlock();
             });
         }
+        
+        // Экспортируем функцию для установки поиска из sendResponse
+        window.setSearchQuery = (query) => {
+            searchInput.value = query || '';
+            
+            // Показать/скрыть крестик
+            if (query && query.trim()) {
+                searchContainer.classList.add('has-text');
+            } else {
+                searchContainer.classList.remove('has-text');
+            }
+            
+            // Применяем поиск
+            const searchText = (query || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('.card');
+            
+            cards.forEach(card => {
+                const cardTextSpan = card.querySelector('.card__text span');
+                const text = cardTextSpan ? cardTextSpan.textContent.toLowerCase() : '';
+                
+                if (searchText === '') {
+                    card.classList.remove('card__search_hidden');
+                } else if (text.includes(searchText)) {
+                    card.classList.remove('card__search_hidden');
+                } else {
+                    card.classList.add('card__search_hidden');
+                }
+            });
+            
+            // Применяем фильтры проектов и исполнителей
+            if (window.applyExecutorFilter) {
+                window.applyExecutorFilter();
+            }
+            RecalculateKanbanBlock();
+        };
     };
 
     initSearch();
+
+    // ========== КНОПКА ОБНОВЛЕНИЯ ==========
+    const initUpdateButton = () => {
+        const updateButton = document.getElementById('update_svg');
+        if (!updateButton) return;
+        
+        updateButton.addEventListener('click', () => {
+            // Обращаемся к 1С с событием 'refresh'
+            // V8Proxy.fetch автоматически добавит все параметры состояния доски:
+            // theme, grouping, executorfilter, projectfilter
+            window.V8Proxy.fetch('refresh', {});
+        });
+    };
+
+    initUpdateButton();
 
     // document.querySelectorAll('.add_task').forEach(button => {
     //     button.addEventListener('click', (event) => {

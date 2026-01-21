@@ -16,7 +16,7 @@
   </help>
   <includeInCommandInterface>true</includeInCommandInterface>
   <picture xsi:type="core:PictureRef">
-    <picture>CommonPicture.канбан_Доска</picture>
+    <picture>CommonPicture.канбан_ЛоготипКартинка</picture>
   </picture>
   <content>DataProcessor.Канбан_Доска_HTML</content>
   <content>CommandGroup.канбан_Информация</content>

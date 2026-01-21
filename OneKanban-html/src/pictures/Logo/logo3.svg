@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="120" height="120">
+  <defs>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+  <!-- Board -->
+  <rect x="5" y="8" width="50" height="44" rx="6" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="2"/>
+  <!-- Cards -->
+  <rect x="10" y="13" width="14" height="10" rx="2" fill="url(#g2)"/>
+  <rect x="10" y="26" width="14" height="8" rx="2" fill="url(#g2)" opacity="0.6"/>
+  <rect x="28" y="13" width="14" height="14" rx="2" fill="#fbbf24"/>
+  <rect x="28" y="30" width="14" height="6" rx="2" fill="#fbbf24" opacity="0.5"/>
+  <rect x="46" y="13" width="6" height="6" rx="1" fill="#10b981"/>
+</svg>
+
