@@ -55,8 +55,7 @@ const updateCardClasses = (card, project, user, user_name) => {
     // Например: 'project-abc-123' или пустая строка если нет
     const currentProject = classList.find(cls => cls.startsWith('project')) || '';
     
-    // Находим текущий класс исполнителя (начинается с 'user', но НЕ с 'user_name')
-    // Например: 'user-xyz-456' или пустая строка если нет
+    // Находим текущий класс исполнителя (начинается с 'user')
     const currentUser = classList.find(cls => cls.startsWith('user') && !cls.startsWith('user_name')) || '';
     
     // Находим текущий класс имени исполнителя (начинается с 'user_name')
@@ -159,78 +158,78 @@ const updateCardContent = (card, linkHref, linkName, photoSrc, altText, textCont
 };
 
 // Перемещение карточки в статус
-// При активной группировке (по исполнителям или проектам) ищем блок статуса
-// внутри той же группы, где находится карточка, чтобы не переместить её
-// в чужую группу (т.к. ID статусов дублируются в каждой группе)
+// При группировке ищем блок на основе классов карточки (user/project), а не текущего положения в DOM
 const moveCardToStatus = (card, statusId) => {
     let targetBlock = null;
     
-    // Проверяем, активна ли группировка
-    if (currentGroupingType !== 'none') {
-        // При группировке — ищем блок статуса внутри той же группы
-        const group = card.closest('.group');
-        if (group) {
-            // Ищем блок с нужным ID внутри группы карточки
-            targetBlock = group.querySelector(`.kanban-block[id="${statusId}"]`);
+    if (currentGroupingType === 'executor') {
+        // Группировка по исполнителям — ищем группу по классу user карточки
+        const userClass = Array.from(card.classList).find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
+        if (userClass) {
+            const group = document.querySelector(`.group[data-executor-id="${userClass}"]`);
+            if (group) {
+                targetBlock = group.querySelector(`.kanban-block[id="${statusId}"]`);
+            }
+        }
+    } else if (currentGroupingType === 'project') {
+        // Группировка по проектам — ищем группу по классу project карточки
+        const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
+        if (projectClass) {
+            const group = document.querySelector(`.group[data-project-id="${projectClass}"]`);
+            if (group) {
+                targetBlock = group.querySelector(`.kanban-block[id="${statusId}"]`);
+            }
         }
     } else {
-        // Без группировки — обычный поиск по ID (ID уникальны)
         targetBlock = document.getElementById(statusId);
     }
     
-    // Перемещаем карточку, если нашли целевой блок и карточка ещё не в нём
     if (targetBlock && card.parentElement !== targetBlock) {
         targetBlock.appendChild(card);
-        
-        // ===== СИНХРОНИЗАЦИЯ с originalCardsMap =====
-        // Обновляем статус карточки в хранилище, чтобы при переключении
-        // группировки карточка оказалась в правильном статусе
-        if (window.updateOriginalCardsMap) {
-            window.updateOriginalCardsMap(card.id, statusId);
-        }
+        // Обновляем статус в хранилище данных
+        const taskData = tasksData.get(card.id);
+        if (taskData) taskData.status = statusId;
     }
 };
 
-// Создание новой карточки
-const createNewCard = (taskData) => {
+// Создание карточки из данных
+const createCardFromData = (data) => {
     const card = document.createElement('div');
-    // Из 1С user_name приходит уже с префиксом "user_name" (например: "user_nameИванов_Иван")
-    // Только заменяем пробелы на подчёркивания (на случай если в имени есть пробелы)
-    const userNameClass = taskData.user_name ? taskData.user_name.split(' ').join('_') : '';
-    card.className = `card ${taskData.project || ''} ${taskData.user || ''} ${userNameClass}`.trim();
-    card.id = taskData.idTask;
+    // user_name приходит с префиксом "user_name", заменяем пробелы на подчёркивания
+    const userNameClass = data.user_name ? data.user_name.split(' ').join('_') : '';
+    card.className = `card ${data.project || ''} ${data.user || ''} ${userNameClass}`.trim();
+    card.id = data.idTask;
     card.draggable = true;
-    if (taskData.fullnameobjecttask) {
-        card.setAttribute('fullNameObjectTask', taskData.fullnameobjecttask);
+    if (data.fullnameobjecttask) {
+        card.setAttribute('fullNameObjectTask', data.fullnameobjecttask);
     }
-    
-    // Формируем HTML карточки
-    // card__link_href — URL ссылки на задачу (если пустой, используем #)
-    // card__link_name — текст ссылки (название задачи)
     card.innerHTML = `
         <div class="card__header">
             <div class="tag_task"></div>
-            <a class="card__link" href="${taskData.card__link_href || '#'}">${taskData.card__link_name || ''}</a>
-            <img class="card__photo" alt="${taskData.alt || ''}" src="${taskData.card__photo || ''}">
+            <a class="card__link" href="${data.card__link_href || '#'}">${data.card__link_name || ''}</a>
+            <img class="card__photo" alt="${data.alt || ''}" src="${data.card__photo || ''}">
         </div>
-        <div class="card__text"><span>${taskData.card__text || ''}</span></div>
+        <div class="card__text"><span>${data.card__text || ''}</span></div>
     `;
-    
     return card;
 };
 
-// Инициализация drag событий для одной карточки
-const initSingleCardDrag = (card) => {
-    card.addEventListener('dragstart', (event) => {
-        event.dataTransfer.setData("text", event.target.id);
+// Инициализация drag для карточки
+const initCardDragEvents = (card) => {
+    card.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData("text", e.target.id);
+        // Сохраняем projectId для проверки в dragover (только при группировке по проектам)
+        const projectClass = Array.from(e.target.classList).find(cls => cls.startsWith('project'));
+        window.draggingCardProjectId = projectClass || null;
     });
-};
-
-// Инициализация drag событий для карточки в режиме группировки
-// (аналогично initSingleCardDrag, но для клонов в группах)
-const initSingleCardDragForGroups = (card) => {
-    card.addEventListener('dragstart', (event) => {
-        event.dataTransfer.setData("text", event.target.id);
+    
+    card.addEventListener('dragend', () => {
+        // Очищаем сохранённый projectId
+        window.draggingCardProjectId = null;
+        // Убираем все классы подсветки с блоков
+        document.querySelectorAll('.kanban-block--drop-forbidden').forEach(block => {
+            block.classList.remove('kanban-block--drop-forbidden');
+        });
     });
 };
 
@@ -242,7 +241,7 @@ const findTargetBlockForNewCard = (card, statusId) => {
     
     if (groupingType === 'executor') {
         // Группировка по исполнителям — ищем группу по классу user
-        const userClass = Array.from(card.classList).find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
+        const userClass = Array.from(card.classList).find(cls => cls.startsWith('user'));
         if (userClass) {
             // Ищем группу с таким data-executor-id
             const group = document.querySelector(`.group[data-executor-id="${userClass}"]`);
@@ -268,95 +267,44 @@ const findTargetBlockForNewCard = (card, statusId) => {
     return document.querySelector(`.kanban-block[id="${statusId}"]`);
 };
 
-// Обработка одной задачи
-// При активной группировке синхронизирует изменения между клоном (в DOM) и оригиналом (в originalCardsMap)
+// Обработка задачи из 1С
 const processTask = (taskData) => {
-    const {
-        project,           // класс проекта
-        user,              // класс исполнителя (userXXX)
-        user_name,         // имя для класса (Имя_Фамилия, без префикса user_name)
-        idTask,            // ID задачи
-        fullnameobjecttask,// атрибут fullNameObjectTask
-        card__link_href,   // URL ссылки на задачу (например: e1cib/data/...)
-        card__link_name,   // текст ссылки (название задачи)
-        card__photo,       // src фото исполнителя
-        alt,               // alt текст для фото
-        card__text,        // текст/описание карточки
-        newStatus          // ID статуса (куда поместить карточку)
-    } = taskData;
-    
+    const { idTask, newStatus } = taskData;
     if (!idTask) return;
     
-    // Проверяем, активна ли группировка
-    const isGrouped = window.isGroupingActive && window.isGroupingActive();
-    
-    // Находим карточку в DOM (это может быть КЛОН при активной группировке)
-    let cardInDOM = document.getElementById(idTask);
-    
-    // Получаем ОРИГИНАЛЬНУЮ карточку из хранилища (если группировка активна)
-    let originalCard = isGrouped ? (window.getOriginalCard && window.getOriginalCard(idTask)) : null;
-    
-    if (cardInDOM || originalCard) {
-        // ===== ОБНОВЛЕНИЕ СУЩЕСТВУЮЩЕЙ КАРТОЧКИ =====
-        
-        // Обновляем карточку в DOM (это клон при группировке или оригинал без группировки)
-        if (cardInDOM) {
-            updateCardClasses(cardInDOM, project, user, user_name);
-            updateCardContent(cardInDOM, card__link_href, card__link_name, card__photo, alt, card__text, fullnameobjecttask);
-        }
-        
-        // ===== СИНХРОНИЗАЦИЯ с оригиналом =====
-        // Если группировка активна — обновляем и ОРИГИНАЛЬНУЮ карточку в хранилище
-        // Это нужно, чтобы при переключении группировки данные не потерялись
-        if (isGrouped && originalCard && originalCard !== cardInDOM) {
-            updateCardClasses(originalCard, project, user, user_name);
-            updateCardContent(originalCard, card__link_href, card__link_name, card__photo, alt, card__text, fullnameobjecttask);
-        }
-        
-        // Обновляем статус если нужно
-        if (newStatus) {
-            // Перемещаем карточку в DOM
-            if (cardInDOM) {
-                moveCardToStatus(cardInDOM, newStatus);
-            }
-            // Обновляем статус в хранилище оригиналов
-            if (window.updateOriginalCardsMap) {
-                window.updateOriginalCardsMap(idTask, newStatus);
-            }
-        }
+    // 1. Обновить данные в хранилище
+    const existing = tasksData.get(idTask);
+    if (existing) {
+        // Обновить только переданные поля
+        Object.keys(taskData).forEach(key => {
+            if (taskData[key] !== undefined) existing[key] = taskData[key];
+        });
+        if (newStatus) existing.status = newStatus;
     } else {
-        // ===== СОЗДАНИЕ НОВОЙ КАРТОЧКИ =====
-        const card = createNewCard(taskData);
-        
-        if (newStatus && card) {
-            if (isGrouped) {
-                // ===== При активной группировке =====
-                // 1. Сохраняем ОРИГИНАЛ в хранилище
-                if (window.addToOriginalCardsMap) {
-                    window.addToOriginalCardsMap(card.id, card, newStatus);
-                }
-                
-                // 2. Создаём КЛОН для отображения в сгруппированной структуре
-                const clone = card.cloneNode(true);
-                
-                // 3. Находим подходящий блок в группе (по классам карточки)
-                const targetBlock = findTargetBlockForNewCard(clone, newStatus);
-                if (targetBlock) {
-                    targetBlock.appendChild(clone);
-                    initSingleCardDragForGroups(clone);
-                }
-            } else {
-                // ===== Без группировки =====
-                // Просто добавляем карточку в DOM
-                const targetBlock = document.getElementById(newStatus);
-                if (targetBlock) {
-                    targetBlock.appendChild(card);
-                    initSingleCardDrag(card);
-                }
-            }
+        // Новая задача
+        tasksData.set(idTask, { ...taskData, status: newStatus });
+    }
+    
+    // 2. Обновить карточку в DOM (если отображается)
+    const cardInDOM = document.getElementById(idTask);
+    if (cardInDOM) {
+        updateCardClasses(cardInDOM, taskData.project, taskData.user, taskData.user_name);
+        updateCardContent(cardInDOM, taskData.card__link_href, taskData.card__link_name, 
+                          taskData.card__photo, taskData.alt, taskData.card__text, taskData.fullnameobjecttask);
+        if (newStatus) moveCardToStatus(cardInDOM, newStatus);
+    } else if (newStatus) {
+        // Новая карточка — добавить в DOM
+        const card = createCardFromData(tasksData.get(idTask));
+        const targetBlock = findTargetBlockForNewCard(card, newStatus);
+        if (targetBlock) {
+            targetBlock.appendChild(card);
+            initCardDragEvents(card);
         }
     }
 };
+
+// ===== ХРАНИЛИЩЕ ДАННЫХ ЗАДАЧ =====
+const tasksData = new Map();
 
 window['V8Proxy'] = {
 
@@ -771,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let userName = null;
                 
                 for (const cls of classList) {
-                    if (cls.startsWith('user') && !cls.startsWith('user_name')) {
+                    if (cls.startsWith('user')) {
                         userId = cls;
                     }
                     if (cls.startsWith('user_name')) {
@@ -986,85 +934,49 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     };
 
-    // ===== ХРАНИЛИЩЕ ОРИГИНАЛЬНОГО СОСТОЯНИЯ ДОСКИ =====
-    // Используем ссылки на DOM-элементы вместо HTML-строки,
-    // чтобы изменения в сгруппированном режиме сохранялись при переключении
+    // Структура статусов (сохраняется при первой группировке)
+    let statusBlocksData = null;
     
-    // Map: cardId → { card: HTMLElement, statusId: string }
-    // Хранит ссылки на карточки и их текущие статусы
-    let originalCardsMap = null;
-    
-    // Array: [{ id, fullNameObjectStatus, className }, ...]
-    // Хранит структуру блоков статусов для восстановления
-    let originalStatusBlocks = null;
-    
-    // Функция для обновления статуса карточки в хранилище
-    // Вызывается из moveCardToStatus при перемещении карточки
-    window.updateOriginalCardsMap = (cardId, newStatusId) => {
-        if (originalCardsMap && originalCardsMap.has(cardId)) {
-            originalCardsMap.get(cardId).statusId = newStatusId;
-        }
-    };
-    
-    // Функция для добавления новой карточки в хранилище
-    // Вызывается из processTask при создании новой карточки
-    window.addToOriginalCardsMap = (cardId, card, statusId) => {
-        if (originalCardsMap) {
-            originalCardsMap.set(cardId, {
-                card: card,
-                statusId: statusId
+    // Сохранить структуру статусов
+    const saveStatusBlocks = () => {
+        if (statusBlocksData) return;
+        statusBlocksData = [];
+        document.querySelectorAll('#kanban-board .kanban-block').forEach(block => {
+            statusBlocksData.push({
+                id: block.id,
+                fullName: block.getAttribute('fullNameObjectStatus'),
+                className: block.className
             });
-        }
+        });
     };
     
-    // Функция для обновления классов исполнителя на оригинальной карточке
-    // Вызывается при перетаскивании между исполнителями в режиме группировки
-    // (т.к. в группировке используются клоны карточек, нужно синхронизировать изменения с оригиналом)
-    // ВАЖНО: ищем ФАКТИЧЕСКИЕ старые классы на ОРИГИНАЛЕ, а не используем классы с клона,
-    // т.к. оригинал и клон могут рассинхронизироваться (например, при обновлении из 1С)
-    window.updateOriginalCardExecutor = (cardId, newUserClass, newUserNameClass, oldUserClass, oldUserNameClass) => {
-        if (originalCardsMap && originalCardsMap.has(cardId)) {
-            const originalCard = originalCardsMap.get(cardId).card;
+    // Собрать данные карточек из DOM (при инициализации)
+    const collectCardsData = () => {
+        document.querySelectorAll('.card').forEach(card => {
+            const statusBlock = card.closest('.kanban-block');
+            const classList = Array.from(card.classList);
+            const link = card.querySelector('.card__link');
+            const photo = card.querySelector('.card__photo');
+            const textSpan = card.querySelector('.card__text span');
             
-            // Находим ФАКТИЧЕСКИЕ старые классы на ОРИГИНАЛЬНОЙ карточке
-            // (не полагаемся на oldUserClass/oldUserNameClass с клона — они могут отличаться)
-            const actualOldUserClass = Array.from(originalCard.classList)
-                .find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
-            const actualOldUserNameClass = Array.from(originalCard.classList)
-                .find(cls => cls.startsWith('user_name'));
-            
-            // Удаляем старые классы исполнителя с оригинальной карточки
-            if (actualOldUserClass) {
-                originalCard.classList.remove(actualOldUserClass);
-            }
-            if (actualOldUserNameClass) {
-                originalCard.classList.remove(actualOldUserNameClass);
-            }
-            
-            // Добавляем новые классы исполнителя на оригинальную карточку
-            if (newUserClass) {
-                originalCard.classList.add(newUserClass);
-            }
-            if (newUserNameClass) {
-                originalCard.classList.add(newUserNameClass);
-            }
-        }
-    };
-    
-    // Получить оригинальную карточку из хранилища по ID
-    // Возвращает карточку из originalCardsMap или null если не найдена/группировка не активна
-    window.getOriginalCard = (cardId) => {
-        if (originalCardsMap && originalCardsMap.has(cardId)) {
-            return originalCardsMap.get(cardId).card;
-        }
-        return null;
+            tasksData.set(card.id, {
+                idTask: card.id,
+                project: classList.find(c => c.startsWith('project')) || '',
+                user: classList.find(c => c.startsWith('user')) || '',
+                user_name: classList.find(c => c.startsWith('user_name')) || '',
+                fullnameobjecttask: card.getAttribute('fullNameObjectTask') || '',
+                card__link_href: link ? link.getAttribute('href') : '',
+                card__link_name: link ? link.textContent : '',
+                card__photo: photo ? photo.src : '',
+                alt: photo ? photo.alt : '',
+                card__text: textSpan ? textSpan.textContent : '',
+                status: statusBlock ? statusBlock.id : null
+            });
+        });
     };
     
     // Проверить, активна ли группировка
-    // Возвращает true если originalCardsMap существует (т.е. группировка была включена)
-    window.isGroupingActive = () => {
-        return originalCardsMap !== null;
-    };
+    window.isGroupingActive = () => currentGroupingType !== 'none';
 
     // ========== ГРУППИРОВКА ==========
     const initGrouping = () => {
@@ -1111,49 +1023,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Сохраняем текущий тип группировки
                 currentGroupingType = value;
 
-                // Применяем группировку
+                // Применяем группировку (DOM строится из tasksData)
                 if (value === 'none') {
                     removeGrouping();
-                } else {
-                    // Сначала восстанавливаем оригинальную структуру если она была сохранена
-                    // Используем сохранённые ссылки на карточки и их статусы
-                    if (originalCardsMap) {
-                        const kanbanBoard = document.getElementById('kanban-board');
-                        
-                        // Очищаем доску от текущей сгруппированной структуры
-                        kanbanBoard.innerHTML = '';
-                        kanbanBoard.classList.remove('grouped');
-                        
-                        // Воссоздаём блоки статусов
-                        originalStatusBlocks.forEach(blockData => {
-                            const block = document.createElement('div');
-                            block.id = blockData.id;
-                            block.className = blockData.className;
-                            block.setAttribute('fullNameObjectStatus', blockData.fullNameObjectStatus);
-                            kanbanBoard.appendChild(block);
-                        });
-                        
-                        // Возвращаем карточки в их текущие статусы
-                        // (статусы в originalCardsMap актуальны, т.к. обновляются при перетаскивании)
-                        originalCardsMap.forEach((data, cardId) => {
-                            const targetBlock = document.getElementById(data.statusId);
-                            if (targetBlock && data.card) {
-                                targetBlock.appendChild(data.card);
-                            }
-                        });
-                    }
-                    
-                    // Затем применяем новую группировку
-                    if (value === 'executor') {
-                        applyGroupingByExecutor();
-                    } else if (value === 'project') {
-                        applyGroupingByProject();
-                    }
+                } else if (value === 'executor') {
+                    applyGroupingByExecutor();
+                } else if (value === 'project') {
+                    applyGroupingByProject();
                 }
 
                 // применить фильтры проектов и исполнителей
                 if (window.applyExecutorFilter) {
                     window.applyExecutorFilter();
+                }
+                
+                // Применяем текущий поиск к новым карточкам
+                if (window.applyCurrentSearch) {
+                    window.applyCurrentSearch();
                 }
 
                 RecalculateKanbanBlock();
@@ -1172,480 +1058,372 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    // Применение группировки по исполнителю
+    // Группировка по исполнителям — строим DOM из tasksData
     const applyGroupingByExecutor = () => {
+        saveStatusBlocks();
         const kanbanBoard = document.getElementById('kanban-board');
         
-        // Сохраняем оригинальную структуру если ещё не сохранена
-        // Используем Map для хранения ссылок на карточки и их статусы
-        if (!originalCardsMap) {
-            originalCardsMap = new Map();
-            originalStatusBlocks = [];
-            
-            // Сохраняем структуру блоков статусов (для восстановления при снятии группировки)
-            kanbanBoard.querySelectorAll('.kanban-block').forEach(block => {
-                originalStatusBlocks.push({
-                    id: block.id,
-                    fullNameObjectStatus: block.getAttribute('fullNameObjectStatus'),
-                    className: block.className
-                });
-            });
-            
-            // Сохраняем карточки с их текущими статусами
-            // (ссылки на DOM-элементы, не копии!)
-            kanbanBoard.querySelectorAll('.card').forEach(card => {
-                const statusBlock = card.closest('.kanban-block');
-                originalCardsMap.set(card.id, {
-                    card: card,  // Ссылка на реальный DOM-элемент
-                    statusId: statusBlock ? statusBlock.id : null
-                });
-            });
-        }
-
-        // Получаем все блоки статусов
-        const statusBlocks = kanbanBoard.querySelectorAll('.kanban-block');
-        if (statusBlocks.length === 0) return;
-
-        // Собираем всех уникальных исполнителей
-        const executors = new Map(); // userName -> { userId, photo, statuses: Map<statusId, cards[]> }
+        // Группируем данные по исполнителям
+        const executors = new Map(); // visibleName → { userId, photo, tasks: [] }
         
-        statusBlocks.forEach((block, statusIndex) => {
-            const statusId = block.id;
-            const cards = block.querySelectorAll('.card');
+        tasksData.forEach((data) => {
+            if (!data.user) return;
+            // Извлекаем отображаемое имя из класса user_name
+            const visibleName = data.user_name 
+                ? data.user_name.replace('user_name', '').replace(/_/g, ' ') 
+                : data.user;
             
-            cards.forEach(card => {
-                const userName = getUserNameFromCard(card);
-                // Получаем userId из классов карточки
-                const userId = Array.from(card.classList).find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
+            if (!executors.has(visibleName)) {
+                executors.set(visibleName, { 
+                    userId: data.user, 
+                    photo: data.card__photo, 
+                    tasks: [] 
+                });
+            }
+            executors.get(visibleName).tasks.push(data);
+        });
+        
+        // Строим DOM
+        kanbanBoard.innerHTML = '';
+        kanbanBoard.classList.add('grouped');
+        
+        executors.forEach((exec, visibleName) => {
+            const group = document.createElement('div');
+            group.className = 'group';
+            group.setAttribute('data-executor-id', exec.userId);
+            group.setAttribute('data-executor-name', visibleName);
+            
+            // Заголовок группы
+            const photoHtml = exec.photo ? `<img class="group-photo" src="${exec.photo}" alt="${visibleName}">` : '';
+            group.innerHTML = `
+                <div class="group-header">
+                    <div class="group-toggle">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </div>
+                    ${photoHtml}
+                    <span class="group-name">${visibleName}</span>
+                    <span class="group-count">0</span>
+                </div>
+                <div class="group-content"></div>
+            `;
+            
+            const content = group.querySelector('.group-content');
+            
+            // Создаём блоки статусов
+            statusBlocksData.forEach(blockData => {
+                const block = document.createElement('div');
+                block.className = 'kanban-block';
+                block.id = blockData.id;
+                block.setAttribute('fullNameObjectStatus', blockData.fullName);
                 
-                if (userName && userId) {
-                    if (!executors.has(userName)) {
-                        executors.set(userName, {
-                            userId: userId,
-                            photo: getUserPhotoFromCards(userName),
-                            statuses: new Map()
-                        });
-                    }
-                    const executor = executors.get(userName);
-                    if (!executor.statuses.has(statusIndex)) {
-                        executor.statuses.set(statusIndex, []);
-                    }
-                    executor.statuses.get(statusIndex).push(card.cloneNode(true));
-                }
-            });
-        });
-
-        // Очищаем доску
-        kanbanBoard.innerHTML = '';
-        kanbanBoard.classList.add('grouped');
-
-        // Создаём группы для каждого исполнителя
-        executors.forEach((data, userName) => {
-            const group = document.createElement('div');
-            group.className = 'group';
-            // Добавляем data-executor-id для определения исполнителя при drag & drop
-            group.setAttribute('data-executor-id', data.userId);
-            group.setAttribute('data-executor-name', userName);
-
-            // Заголовок группы
-            const header = document.createElement('div');
-            header.className = 'group-header';
-            header.innerHTML = `
-                <div class="group-toggle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                </div>
-                ${data.photo ? `<img class="group-photo" src="${data.photo}" alt="${userName}">` : ''}
-                <span class="group-name">${userName}</span>
-                <span class="group-count">0</span>
-            `;
-            group.appendChild(header);
-
-            // Контент группы (блоки для каждого статуса)
-            const content = document.createElement('div');
-            content.className = 'group-content';
-
-            statusBlocks.forEach((originalBlock, statusIndex) => {
-                const block = document.createElement('div');
-                block.className = 'kanban-block';
-                block.id = originalBlock.id;
-                block.setAttribute('fullNameObjectStatus', originalBlock.getAttribute('fullNameObjectStatus'));
-
                 // Добавляем карточки этого исполнителя для этого статуса
-                const cardsForStatus = data.statuses.get(statusIndex) || [];
-                cardsForStatus.forEach(card => {
+                exec.tasks.filter(t => t.status === blockData.id).forEach(taskData => {
+                    const card = createCardFromData(taskData);
                     block.appendChild(card);
                 });
-
+                
                 content.appendChild(block);
             });
-
-            group.appendChild(content);
+            
             kanbanBoard.appendChild(group);
         });
-
-        // Переинициализируем обработчики
+        
         initGroupCollapse();
         initDragDropForGroups();
     };
 
-    // Применение группировки по проектам
+    // Группировка по проектам — строим DOM из tasksData
     const applyGroupingByProject = () => {
+        saveStatusBlocks();
         const kanbanBoard = document.getElementById('kanban-board');
         
-        // Сохраняем оригинальную структуру если ещё не сохранена
-        // Используем Map для хранения ссылок на карточки и их статусы
-        if (!originalCardsMap) {
-            originalCardsMap = new Map();
-            originalStatusBlocks = [];
-            
-            // Сохраняем структуру блоков статусов (для восстановления при снятии группировки)
-            kanbanBoard.querySelectorAll('.kanban-block').forEach(block => {
-                originalStatusBlocks.push({
-                    id: block.id,
-                    fullNameObjectStatus: block.getAttribute('fullNameObjectStatus'),
-                    className: block.className
-                });
-            });
-            
-            // Сохраняем карточки с их текущими статусами
-            // (ссылки на DOM-элементы, не копии!)
-            kanbanBoard.querySelectorAll('.card').forEach(card => {
-                const statusBlock = card.closest('.kanban-block');
-                originalCardsMap.set(card.id, {
-                    card: card,  // Ссылка на реальный DOM-элемент
-                    statusId: statusBlock ? statusBlock.id : null
-                });
-            });
-        }
-
-        // Получаем все блоки статусов
-        const statusBlocks = kanbanBoard.querySelectorAll('.kanban-block');
-        if (statusBlocks.length === 0) return;
-
-        // Собираем все проекты
-        const projectsMap = new Map(); // projectId -> { name, color, statuses: Map<statusIndex, cards[]> }
+        // Группируем данные по проектам
+        const projectsMap = new Map(); // projectId → { name, color, tasks: [] }
         
-        statusBlocks.forEach((block, statusIndex) => {
-            const cards = block.querySelectorAll('.card');
+        tasksData.forEach((data) => {
+            const projectClass = data.project;
+            if (!projectClass) return;
             
-            cards.forEach(card => {
-                // Находим класс проекта (начинается с 'project')
-                const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
-                if (projectClass) {
-                    if (!projectsMap.has(projectClass)) {
-                        // Получаем данные проекта из тега
-                        const tag = document.querySelector(`.tag.${projectClass}`);
-                        const projectName = tag ? tag.textContent : projectClass;
-                        const computedStyle = tag ? getComputedStyle(tag) : null;
-                        const bgColor = computedStyle ? computedStyle.backgroundColor : null;
-                        
-                        // Проверяем, является ли цвет дефолтным (--button-bg) или transparent
-                        const isDefaultColor = !bgColor || 
-                            bgColor === 'rgba(0, 0, 0, 0)' || 
-                            bgColor === 'rgb(240, 240, 240)' ||  // светлая тема --button-bg
-                            bgColor === 'rgb(42, 42, 42)';       // тёмная тема --button-bg
-                        
-                        projectsMap.set(projectClass, {
-                            name: projectName,
-                            color: isDefaultColor ? null : bgColor,
-                            statuses: new Map()
-                        });
-                    }
-                    const project = projectsMap.get(projectClass);
-                    if (!project.statuses.has(statusIndex)) {
-                        project.statuses.set(statusIndex, []);
-                    }
-                    project.statuses.get(statusIndex).push(card.cloneNode(true));
-                }
-            });
+            if (!projectsMap.has(projectClass)) {
+                // Получаем данные проекта из тега в DOM
+                const tag = document.querySelector(`.tag.${projectClass}`);
+                const projectName = tag ? tag.textContent : projectClass;
+                const computedStyle = tag ? getComputedStyle(tag) : null;
+                const bgColor = computedStyle ? computedStyle.backgroundColor : null;
+                
+                const isDefaultColor = !bgColor || 
+                    bgColor === 'rgba(0, 0, 0, 0)' || 
+                    bgColor === 'rgb(240, 240, 240)' || 
+                    bgColor === 'rgb(42, 42, 42)';
+                
+                projectsMap.set(projectClass, {
+                    name: projectName,
+                    color: isDefaultColor ? null : bgColor,
+                    tasks: []
+                });
+            }
+            projectsMap.get(projectClass).tasks.push(data);
         });
-
-        // Очищаем доску
+        
+        // Строим DOM
         kanbanBoard.innerHTML = '';
         kanbanBoard.classList.add('grouped');
-
-        // Создаём группы для каждого проекта
-        projectsMap.forEach((data, projectId) => {
+        
+        projectsMap.forEach((proj, projectId) => {
             const group = document.createElement('div');
             group.className = 'group';
-            // Добавляем data-project-id для определения проекта при drag & drop
             group.setAttribute('data-project-id', projectId);
-
-            // Заголовок группы
-            const header = document.createElement('div');
-            header.className = 'group-header';
             
-            // Цветная метка проекта
-            const colorStyle = data.color ? `background-color: ${data.color};` : '';
-            
-            header.innerHTML = `
-                <div class="group-toggle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"/>
-                    </svg>
+            const colorStyle = proj.color ? `background-color: ${proj.color};` : '';
+            group.innerHTML = `
+                <div class="group-header">
+                    <div class="group-toggle">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </div>
+                    <span class="group-project-color" style="${colorStyle}"></span>
+                    <span class="group-name">${proj.name}</span>
+                    <span class="group-count">0</span>
                 </div>
-                <span class="group-project-color" style="${colorStyle}"></span>
-                <span class="group-name">${data.name}</span>
-                <span class="group-count">0</span>
+                <div class="group-content"></div>
             `;
-            group.appendChild(header);
-
-            // Контент группы (блоки для каждого статуса)
-            const content = document.createElement('div');
-            content.className = 'group-content';
-
-            statusBlocks.forEach((originalBlock, statusIndex) => {
+            
+            const content = group.querySelector('.group-content');
+            
+            // Создаём блоки статусов
+            statusBlocksData.forEach(blockData => {
                 const block = document.createElement('div');
                 block.className = 'kanban-block';
-                block.id = originalBlock.id;
-                block.setAttribute('fullNameObjectStatus', originalBlock.getAttribute('fullNameObjectStatus'));
-
+                block.id = blockData.id;
+                block.setAttribute('fullNameObjectStatus', blockData.fullName);
+                
                 // Добавляем карточки этого проекта для этого статуса
-                const cardsForStatus = data.statuses.get(statusIndex) || [];
-                cardsForStatus.forEach(card => {
+                proj.tasks.filter(t => t.status === blockData.id).forEach(taskData => {
+                    const card = createCardFromData(taskData);
                     block.appendChild(card);
                 });
-
+                
                 content.appendChild(block);
             });
-
-            group.appendChild(content);
+            
             kanbanBoard.appendChild(group);
         });
-
-        // Переинициализируем обработчики
+        
         initGroupCollapse();
         initDragDropForGroups();
     };
 
-    // Снятие группировки
+    // Снятие группировки — строим плоскую доску из данных
     const removeGrouping = () => {
         const kanbanBoard = document.getElementById('kanban-board');
         kanbanBoard.classList.remove('grouped');
         currentGroupingType = 'none';
-
-        // Восстанавливаем оригинальную структуру из сохранённых ссылок
-        if (originalCardsMap) {
-            // Очищаем доску
-            kanbanBoard.innerHTML = '';
-            
-            // Воссоздаём блоки статусов
-            originalStatusBlocks.forEach(blockData => {
-                const block = document.createElement('div');
-                block.id = blockData.id;
-                block.className = blockData.className;
-                block.setAttribute('fullNameObjectStatus', blockData.fullNameObjectStatus);
-                kanbanBoard.appendChild(block);
-            });
-            
-            // Возвращаем карточки в их актуальные статусы
-            // (статусы в originalCardsMap обновляются при каждом перетаскивании)
-            originalCardsMap.forEach((data, cardId) => {
-                const targetBlock = document.getElementById(data.statusId);
-                if (targetBlock && data.card) {
-                    targetBlock.appendChild(data.card);
-                }
-            });
-            
-            // Очищаем хранилище — группировка снята
-            originalCardsMap = null;
-            originalStatusBlocks = null;
-            
-            // Переинициализируем обработчики drag & drop
-            initDragDrop();
-            initCardDrag();
-        }
+        
+        if (!statusBlocksData) return;
+        
+        // Очищаем и строим заново с обёрткой kanban_body
+        kanbanBoard.innerHTML = '';
+        const kanbanBody = document.createElement('div');
+        kanbanBody.className = 'kanban_body';
+        
+        // Создаём блоки статусов
+        statusBlocksData.forEach(blockData => {
+            const block = document.createElement('div');
+            block.id = blockData.id;
+            block.className = blockData.className;
+            block.setAttribute('fullNameObjectStatus', blockData.fullName);
+            kanbanBody.appendChild(block);
+        });
+        
+        kanbanBoard.appendChild(kanbanBody);
+        
+        // Добавляем карточки из данных
+        tasksData.forEach((data) => {
+            const card = createCardFromData(data);
+            const targetBlock = document.getElementById(data.status);
+            if (targetBlock) {
+                targetBlock.appendChild(card);
+            }
+        });
+        
+        initDragDrop();
+        initCardDrag();
     };
 
     // Инициализация drag & drop для групп
+    // Drag & drop для сгруппированной доски
     const initDragDropForGroups = () => {
         document.querySelectorAll('.group-content .kanban-block').forEach(block => {
-            block.addEventListener('dragover', (event) => {
-                event.preventDefault();
+            block.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                
+                // При группировке по проектам проверяем, можно ли бросить сюда
+                if (currentGroupingType === 'project' && window.draggingCardProjectId) {
+                    const targetGroup = block.closest('.group');
+                    const targetProjectId = targetGroup ? targetGroup.getAttribute('data-project-id') : null;
+                    
+                    if (targetProjectId && window.draggingCardProjectId !== targetProjectId) {
+                        // Запрещённая зона — другой проект
+                        block.classList.remove('kanban-block--dragover');
+                        block.classList.add('kanban-block--drop-forbidden');
+                        e.dataTransfer.dropEffect = 'none';
+                        return;
+                    }
+                }
+                
+                // Разрешённая зона
+                block.classList.remove('kanban-block--drop-forbidden');
                 block.classList.add('kanban-block--dragover');
             });
 
-            block.addEventListener('dragleave', (event) => {
-                if (!block.contains(event.relatedTarget)) {
+            block.addEventListener('dragleave', (e) => {
+                if (!block.contains(e.relatedTarget)) {
                     block.classList.remove('kanban-block--dragover');
+                    block.classList.remove('kanban-block--drop-forbidden');
                 }
             });
 
-            block.addEventListener('drop', (event) => {
-                event.preventDefault();
+            block.addEventListener('drop', (e) => {
+                e.preventDefault();
                 block.classList.remove('kanban-block--dragover');
+                block.classList.remove('kanban-block--drop-forbidden');
 
-                const idTask = event.dataTransfer.getData("text");
+                const idTask = e.dataTransfer.getData("text");
                 const draggedElement = document.getElementById(idTask);
                 if (!draggedElement) return;
 
-                const fullNameObjectTask = draggedElement.attributes.fullNameObjectTask.nodeValue;
+                const fullNameObjectTask = draggedElement.getAttribute('fullNameObjectTask');
                 const lastStatus = draggedElement.parentElement;
-                
                 if (block === lastStatus) return;
                 
-                // Получаем группу исходной карточки и целевую группу
                 const sourceGroup = lastStatus.closest('.group');
                 const targetGroup = block.closest('.group');
                 
-                // При группировке по проектам запрещаем перетаскивание между разными проектами
+                // При группировке по проектам запрещаем перенос между проектами
                 if (currentGroupingType === 'project' && sourceGroup && targetGroup) {
-                    const sourceProjectId = sourceGroup.getAttribute('data-project-id');
-                    const targetProjectId = targetGroup.getAttribute('data-project-id');
-                    if (sourceProjectId !== targetProjectId) {
-                        // Отменяем drop — нельзя перетаскивать между проектами
+                    if (sourceGroup.getAttribute('data-project-id') !== targetGroup.getAttribute('data-project-id')) {
                         return;
                     }
                 }
                 
                 block.appendChild(draggedElement);
                 
-                // ===== СИНХРОНИЗАЦИЯ с originalCardsMap =====
-                // Обновляем статус карточки в хранилище при перетаскивании в группе
-                const idNewStatus = event.currentTarget.id;
-                if (window.updateOriginalCardsMap) {
-                    window.updateOriginalCardsMap(idTask, idNewStatus);
+                const idNewStatus = block.id;
+                const fullNameObjectStatus = block.getAttribute('fullNameObjectStatus');
+                
+                // Обновляем данные в хранилище
+                const taskData = tasksData.get(idTask);
+                if (taskData) {
+                    taskData.status = idNewStatus;
                 }
                 
-                RecalculateKanbanBlock();
-
-                const fullNameObjectStatus = block.attributes.fullNameObjectStatus.nodeValue;
-                
-                // Формируем параметры для V8Proxy.fetch
                 const params = {
-                    idTask: idTask,
-                    fullNameObjectTask: fullNameObjectTask,
-                    idNewStatus: idNewStatus,
-                    fullNameObjectStatus: fullNameObjectStatus
+                    idTask,
+                    fullNameObjectTask,
+                    idNewStatus,
+                    fullNameObjectStatus
                 };
                 
-                // ===== При группировке по исполнителям =====
-                // Если задача перенесена в группу другого исполнителя — передаём его данные в 1С
+                // При группировке по исполнителям — обновляем исполнителя
                 if (currentGroupingType === 'executor' && targetGroup) {
-                    // Получаем ID и имя нового исполнителя из атрибутов группы
                     const idNewExecutor = targetGroup.getAttribute('data-executor-id');
                     const newExecutorName = targetGroup.getAttribute('data-executor-name');
                     
                     if (idNewExecutor) {
-                        // Добавляем данные нового исполнителя в параметры для 1С
                         params.idNewExecutor = idNewExecutor;
                         
-                        // ===== Обновляем классы карточки на клиенте =====
-                        // Это нужно чтобы визуально отразить смену исполнителя
-                        // (фильтры и группировка используют эти классы)
-                        
-                        // Находим старые классы user и user_name
+                        // Обновляем классы на карточке в DOM
                         const classList = Array.from(draggedElement.classList);
-                        const oldUserClass = classList.find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
-                        const oldUserNameClass = classList.find(cls => cls.startsWith('user_name'));
+                        const oldUserClass = classList.find(c => c.startsWith('user') && !c.startsWith('user_name'));
+                        const oldUserNameClass = classList.find(c => c.startsWith('user_name'));
                         
-                        // Удаляем старые классы (если были)
-                        if (oldUserClass) {
-                            draggedElement.classList.remove(oldUserClass);
-                        }
-                        if (oldUserNameClass) {
-                            draggedElement.classList.remove(oldUserNameClass);
-                        }
+                        if (oldUserClass) draggedElement.classList.remove(oldUserClass);
+                        if (oldUserNameClass) draggedElement.classList.remove(oldUserNameClass);
                         
-                        // Добавляем новые классы исполнителя
                         draggedElement.classList.add(idNewExecutor);
-                        const newUserNameClass = newExecutorName 
-                            ? 'user_name' + newExecutorName.split(' ').join('_') 
-                            : null;
-                        if (newUserNameClass) {
-                            // Заменяем пробелы на подчёркивания 
-                            // (в data-executor-name хранится "Иванов Иван", а класс должен быть "user_nameИванов_Иван")
-                            draggedElement.classList.add(newUserNameClass);
-                        }
+                        const newUserNameClass = 'user_name' + newExecutorName.replace(/ /g, '_');
+                        draggedElement.classList.add(newUserNameClass);
                         
-                        // ===== СИНХРОНИЗАЦИЯ с оригинальной карточкой =====
-                        // В режиме группировки отображаются КЛОНЫ карточек (cloneNode).
-                        // Нужно обновить классы и на ОРИГИНАЛЬНОЙ карточке в originalCardsMap,
-                        // чтобы при переключении группировки она попала к правильному исполнителю.
-                        if (window.updateOriginalCardExecutor) {
-                            window.updateOriginalCardExecutor(
-                                idTask,
-                                idNewExecutor,
-                                newUserNameClass,
-                                oldUserClass,
-                                oldUserNameClass
-                            );
+                        // Обновляем данные в хранилище
+                        if (taskData) {
+                            taskData.user = idNewExecutor;
+                            taskData.user_name = newUserNameClass;
                         }
+                    }
+                } else if (currentGroupingType === 'project') {
+                    // При группировке по проектам — передаём текущего исполнителя (он не меняется)
+                    const idNewExecutor = Array.from(draggedElement.classList).find(c => c.startsWith('user') && !c.startsWith('user_name'));
+                    if (idNewExecutor) {
+                        params.idNewExecutor = idNewExecutor;
                     }
                 }
                 
+                RecalculateKanbanBlock();
                 window.V8Proxy.fetch('changeStatus', params);
             });
         });
 
         document.querySelectorAll('.group-content .card').forEach(card => {
-            card.addEventListener('dragstart', (event) => {
-                event.dataTransfer.setData("text", event.target.id);
-            });
+            initCardDragEvents(card);
         });
     };
 
-    // Инициализация drag & drop (без групп)
+    // Drag & drop для плоской доски
     const initDragDrop = () => {
         document.querySelectorAll('.kanban-block').forEach(block => {
-            block.addEventListener('dragover', (event) => {
-                event.preventDefault();
+            block.addEventListener('dragover', (e) => {
+                e.preventDefault();
                 block.classList.add('kanban-block--dragover');
             });
 
-            block.addEventListener('dragleave', (event) => {
-                if (!block.contains(event.relatedTarget)) {
+            block.addEventListener('dragleave', (e) => {
+                if (!block.contains(e.relatedTarget)) {
                     block.classList.remove('kanban-block--dragover');
                 }
             });
 
-            block.addEventListener('drop', (event) => {
-                event.preventDefault();
+            block.addEventListener('drop', (e) => {
+                e.preventDefault();
                 block.classList.remove('kanban-block--dragover');
 
-                const idTask = event.dataTransfer.getData("text");
+                const idTask = e.dataTransfer.getData("text");
                 const draggedElement = document.getElementById(idTask);
                 if (!draggedElement) return;
 
-                const fullNameObjectTask = draggedElement.attributes.fullNameObjectTask.nodeValue;
+                const fullNameObjectTask = draggedElement.getAttribute('fullNameObjectTask');
                 const lastStatus = draggedElement.parentElement;
-                
                 if (block === lastStatus) return;
                 
                 block.appendChild(draggedElement);
                 
-                // ===== СИНХРОНИЗАЦИЯ с originalCardsMap =====
-                // Обновляем статус карточки в хранилище (на случай если группировка будет включена позже)
-                const idNewStatus = event.currentTarget.id;
-                if (window.updateOriginalCardsMap) {
-                    window.updateOriginalCardsMap(idTask, idNewStatus);
-                }
+                const idNewStatus = block.id;
+                const fullNameObjectStatus = block.getAttribute('fullNameObjectStatus');
+                
+                // Обновляем данные в хранилище
+                const taskData = tasksData.get(idTask);
+                if (taskData) taskData.status = idNewStatus;
+                
+                // Получаем текущего исполнителя карточки (он не меняется в режиме без группировки)
+                const idNewExecutor = Array.from(draggedElement.classList).find(c => c.startsWith('user') && !c.startsWith('user_name'));
                 
                 RecalculateKanbanBlock();
-
-                const fullNameObjectStatus = block.attributes.fullNameObjectStatus.nodeValue;
-                
-                window.V8Proxy.fetch('changeStatus', {
-                    idTask: idTask,
-                    fullNameObjectTask: fullNameObjectTask,
-                    idNewStatus: idNewStatus,
-                    fullNameObjectStatus: fullNameObjectStatus
-                });
+                window.V8Proxy.fetch('changeStatus', { idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus, idNewExecutor });
             });
         });
     };
 
     // Инициализация перетаскивания карточек
     const initCardDrag = () => {
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('dragstart', (event) => {
-                event.dataTransfer.setData("text", event.target.id);
-            });
-        });
+        document.querySelectorAll('.card').forEach(card => initCardDragEvents(card));
     };
 
+    // Собираем данные карточек и структуру статусов из DOM
+    saveStatusBlocks();
+    collectCardsData();
+    
     initGrouping();
 
     // ========== СВОРАЧИВАНИЕ ГРУПП ==========
@@ -1756,6 +1534,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.applyExecutorFilter();
             }
             RecalculateKanbanBlock();
+        };
+        
+        // Функция для повторного применения текущего поиска (вызывается после смены группировки)
+        window.applyCurrentSearch = () => {
+            const searchText = searchInput.value.toLowerCase().trim();
+            if (searchText === '') return; // Нет поиска — ничего не делаем
+            
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const cardTextSpan = card.querySelector('.card__text span');
+                const text = cardTextSpan ? cardTextSpan.textContent.toLowerCase() : '';
+                
+                if (text.includes(searchText)) {
+                    card.classList.remove('card__search_hidden');
+                } else {
+                    card.classList.add('card__search_hidden');
+                }
+            });
         };
     };
 

@@ -919,6 +919,33 @@ label {
     /* Плавный переход */
 }
 
+/* Запрещённая зона для drop при группировке по проектам */
+.kanban-block--drop-forbidden {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    outline: 2px dashed #dc3545 !important;
+    outline-offset: -2px;
+    cursor: not-allowed;
+    position: relative;
+}
+
+/* Тёмная тема — запрещённая зона */
+.wrapper.dark-theme .kanban-block--drop-forbidden {
+    background-color: rgba(220, 53, 69, 0.15) !important;
+}
+
+/* Иконка запрета */
+.kanban-block--drop-forbidden::after {
+    content: "✕";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.4rem;
+    color: #dc3545;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
 /* ========== DROPDOWN ГРУППИРОВКИ (pill-стиль как у проектов) ========== */
 .grouping_dropdown {
     position: relative;
