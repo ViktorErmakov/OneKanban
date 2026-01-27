@@ -203,9 +203,19 @@ const createCardFromData = (data) => {
     if (data.fullnameobjecttask) {
         card.setAttribute('fullNameObjectTask', data.fullnameobjecttask);
     }
+    
+    // Получаем цвет проекта из projectsList для отображения кружочка
+    let projectColorStyle = '';
+    if (data.project && window.projectsList) {
+        const project = window.projectsList.find(p => p.id === data.project);
+        if (project && project.color) {
+            projectColorStyle = `style="--project-color: ${project.color}"`;
+        }
+    }
+    
     card.innerHTML = `
         <div class="card__header">
-            <div class="tag_task"></div>
+            <div class="tag_task" ${projectColorStyle}></div>
             <a class="card__link" href="${data.card__link_href || '#'}">${data.card__link_name || ''}</a>
             <img class="card__photo" alt="${data.alt || ''}" src="${data.card__photo || ''}">
         </div>
@@ -1002,59 +1012,64 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Выбор опции группировки
+        // Внутренняя функция применения группировки (без уведомления 1С)
+        const applyGroupingInternal = (value) => {
+            const option = document.querySelector(`.grouping_option[data-value="${value}"]`);
+            if (!option) return;
+            
+            const text = option.textContent;
+
+            // Обновляем активную опцию
+            document.querySelectorAll('.grouping_option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            option.classList.add('active');
+
+            // Обновляем текст кнопки
+            groupingLabel.textContent = text;
+
+            // Закрываем dropdown
+            groupingDropdown.classList.remove('open');
+
+            // Сохраняем текущий тип группировки
+            currentGroupingType = value;
+
+            // Применяем группировку (DOM строится из tasksData)
+            if (value === 'none') {
+                removeGrouping();
+            } else if (value === 'executor') {
+                applyGroupingByExecutor();
+            } else if (value === 'project') {
+                applyGroupingByProject();
+            }
+
+            // применить фильтры проектов и исполнителей
+            if (window.applyExecutorFilter) {
+                window.applyExecutorFilter();
+            }
+            
+            // Применяем текущий поиск к новым карточкам
+            if (window.applyCurrentSearch) {
+                window.applyCurrentSearch();
+            }
+
+            RecalculateKanbanBlock();
+        };
+        
+        // Выбор опции группировки (клик пользователя)
         document.querySelectorAll('.grouping_option').forEach(option => {
             option.addEventListener('click', () => {
                 const value = option.getAttribute('data-value');
-                const text = option.textContent;
-
-                // Обновляем активную опцию
-                document.querySelectorAll('.grouping_option').forEach(opt => {
-                    opt.classList.remove('active');
-                });
-                option.classList.add('active');
-
-                // Обновляем текст кнопки
-                groupingLabel.textContent = text;
-
-                // Закрываем dropdown
-                groupingDropdown.classList.remove('open');
-
-                // Сохраняем текущий тип группировки
-                currentGroupingType = value;
-
-                // Применяем группировку (DOM строится из tasksData)
-                if (value === 'none') {
-                    removeGrouping();
-                } else if (value === 'executor') {
-                    applyGroupingByExecutor();
-                } else if (value === 'project') {
-                    applyGroupingByProject();
-                }
-
-                // применить фильтры проектов и исполнителей
-                if (window.applyExecutorFilter) {
-                    window.applyExecutorFilter();
-                }
+                applyGroupingInternal(value);
                 
-                // Применяем текущий поиск к новым карточкам
-                if (window.applyCurrentSearch) {
-                    window.applyCurrentSearch();
-                }
-
-                RecalculateKanbanBlock();
-                
-                // Уведомляем 1С об изменении настроек
+                // Уведомляем 1С об изменении настроек (только при клике пользователя)
                 window.V8Proxy.fetch('settingsChanged', {});
             });
         });
         
-        // Экспортируем функцию для применения группировки из sendResponse
+        // Экспортируем функцию для применения группировки из sendResponse (без уведомления 1С)
         window.applyGroupingByValue = (value) => {
-            const option = document.querySelector(`.grouping_option[data-value="${value}"]`);
-            if (option) {
-                option.click();
-            }
+            applyGroupingInternal(value);
         };
     };
 

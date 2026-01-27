@@ -419,6 +419,7 @@ input[type="checkbox"] {
     width: 1rem;
     height: 1rem;
     border-radius: 50%;
+    background-color: var(--project-color, transparent);
 }
 
 /* ========== PROJECT PICKER (Tag-picker с dropdown) ========== */
