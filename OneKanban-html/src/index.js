@@ -279,7 +279,7 @@ const findTargetBlockForNewCard = (card, statusId) => {
 
 // Обработка задачи из 1С
 const processTask = (taskData) => {
-    const { idTask, newStatus } = taskData;
+    const { idTask, status } = taskData;
     if (!idTask) return;
     
     // 1. Обновить данные в хранилище
@@ -289,10 +289,9 @@ const processTask = (taskData) => {
         Object.keys(taskData).forEach(key => {
             if (taskData[key] !== undefined) existing[key] = taskData[key];
         });
-        if (newStatus) existing.status = newStatus;
     } else {
         // Новая задача
-        tasksData.set(idTask, { ...taskData, status: newStatus });
+        tasksData.set(idTask, { ...taskData });
     }
     
     // 2. Обновить карточку в DOM (если отображается)
@@ -301,11 +300,11 @@ const processTask = (taskData) => {
         updateCardClasses(cardInDOM, taskData.project, taskData.user, taskData.user_name);
         updateCardContent(cardInDOM, taskData.card__link_href, taskData.card__link_name, 
                           taskData.card__photo, taskData.alt, taskData.card__text, taskData.fullnameobjecttask);
-        if (newStatus) moveCardToStatus(cardInDOM, newStatus);
-    } else if (newStatus) {
+        if (status) moveCardToStatus(cardInDOM, status);
+    } else if (status) {
         // Новая карточка — добавить в DOM
         const card = createCardFromData(tasksData.get(idTask));
-        const targetBlock = findTargetBlockForNewCard(card, newStatus);
+        const targetBlock = findTargetBlockForNewCard(card, status);
         if (targetBlock) {
             targetBlock.appendChild(card);
             initCardDragEvents(card);
@@ -315,6 +314,7 @@ const processTask = (taskData) => {
 
 // ===== ХРАНИЛИЩЕ ДАННЫХ ЗАДАЧ =====
 const tasksData = new Map();
+window.tasksData = tasksData;
 
 window['V8Proxy'] = {
 
@@ -368,7 +368,7 @@ window['V8Proxy'] = {
         //             card__photo: 'data:image/...',        // URL или base64 фото
         //             alt: 'Иванов Иван',                   // Alt текст для фото
         //             card__text: 'Описание задачи',        // Текст карточки
-        //             newStatus: 'status456'                // ID нового статуса (куда поместить)
+        //             status: 'status456'                   // ID статуса (куда поместить)
         //         },
         //         { ... }
         //     ]
@@ -414,7 +414,16 @@ window['V8Proxy'] = {
             window.setSelectedProjects && window.setSelectedProjects(data.projectfilter);
         }
         
-        // ========== 3. ПЕРЕСЧИТЫВАЕМ СЧЁТЧИКИ ==========
+        // ========== 3. ПРИМЕНЯЕМ ТЕКУЩИЕ ФИЛЬТРЫ К НОВЫМ КАРТОЧКАМ ==========
+        // (всегда, даже если фильтры не пришли из 1С)
+        if (window.applyExecutorFilter) {
+            window.applyExecutorFilter();
+        }
+        if (window.applyCurrentSearch) {
+            window.applyCurrentSearch();
+        }
+        
+        // ========== 4. ПЕРЕСЧИТЫВАЕМ СЧЁТЧИКИ ==========
         if (typeof RecalculateKanbanBlock === 'function') {
             RecalculateKanbanBlock();
         }
