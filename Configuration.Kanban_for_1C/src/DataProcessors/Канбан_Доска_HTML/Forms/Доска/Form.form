@@ -175,6 +175,29 @@
       <common>true</common>
     </edit>
   </attributes>
+  <attributes>
+    <name>ПоказыватьФотоПользователя</name>
+    <title>
+      <key>ru</key>
+      <value>Показывать фото пользователя</value>
+    </title>
+    <id>10</id>
+    <valueType>
+      <types>Boolean</types>
+    </valueType>
+    <view>
+      <common>true</common>
+    </view>
+    <edit>
+      <common>true</common>
+    </edit>
+  </attributes>
+  <parameters>
+    <name>СкрыватьФотоПользователя</name>
+    <valueType>
+      <types>Boolean</types>
+    </valueType>
+  </parameters>
   <commandInterface>
     <navigationPanel/>
     <commandBar/>

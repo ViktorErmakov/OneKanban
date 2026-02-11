@@ -519,6 +519,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             });
+            
+            // Сортируем проекты по наименованию для стабильного порядка
+            projects.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
         };
         
         // Инициализируем проекты из чекбоксов

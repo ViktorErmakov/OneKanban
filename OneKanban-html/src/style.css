@@ -425,9 +425,8 @@ input[type="checkbox"] {
 /* ========== PROJECT PICKER (Tag-picker с dropdown) ========== */
 .project_picker {
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    max-width: 50rem;
     background-color: var(--bg-tertiary);
     padding: 0.3rem 0.5rem;
     border-radius: 1.6rem;
@@ -447,12 +446,12 @@ input[type="checkbox"] {
 .project_pill {
     display: flex;
     align-items: center;
-    padding: 0.4rem 0.8rem;
-    margin: 0.2rem;
+    padding: 0.3rem 0.7rem;
+    margin: 0.15rem;
     background-color: var(--project-color, var(--button-bg));
     border: 1px solid var(--border-color);
     border-radius: 1.6rem;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     color: var(--text-primary);
     white-space: nowrap;
     cursor: pointer;
