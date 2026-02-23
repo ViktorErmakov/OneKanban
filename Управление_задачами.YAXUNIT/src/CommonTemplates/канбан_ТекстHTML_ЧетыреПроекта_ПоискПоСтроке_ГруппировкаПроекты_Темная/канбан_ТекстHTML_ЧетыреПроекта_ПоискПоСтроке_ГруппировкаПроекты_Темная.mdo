@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:CommonTemplate xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="d1b1570f-d107-47a4-840d-21cfdebc06f3">
+  <name>канбан_ТекстHTML_ЧетыреПроекта_ПоискПоСтроке_ГруппировкаПроекты_Темная</name>
+  <synonym>
+    <key>ru</key>
+    <value>Канбан текст HTML четыре проекта поиск по строке группировка проекты темная</value>
+  </synonym>
+  <templateType>TextDocument</templateType>
+</mdclass:CommonTemplate>

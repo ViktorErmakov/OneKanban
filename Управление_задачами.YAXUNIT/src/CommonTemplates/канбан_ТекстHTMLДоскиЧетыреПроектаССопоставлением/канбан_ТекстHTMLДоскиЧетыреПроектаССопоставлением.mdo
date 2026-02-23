@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:CommonTemplate xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="39c2d981-06a3-4c43-95e4-76a6398b0d8f">
+  <name>канбан_ТекстHTMLДоскиЧетыреПроектаССопоставлением</name>
+  <synonym>
+    <key>ru</key>
+    <value>Ттекст HTMLДоски четыре проекта с сопоставлением</value>
+  </synonym>
+  <templateType>TextDocument</templateType>
+</mdclass:CommonTemplate>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:CommonModule xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="c898b2b2-5982-42a2-b2c0-35cdcb51fead">
+  <name>канбан_ТестыВызовСервера</name>
+  <synonym>
+    <key>ru</key>
+    <value>Канбан тесты вызов сервера</value>
+  </synonym>
+  <server>true</server>
+  <serverCall>true</serverCall>
+</mdclass:CommonModule>
