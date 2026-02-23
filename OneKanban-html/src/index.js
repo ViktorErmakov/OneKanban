@@ -6,14 +6,41 @@ const boardSettings = {
     currentUserName: null,    // Имя текущего пользователя (например: 'Иванов Иван')
 };
 
-// Геттеры для удобства
-const getCurrentUserId = () => boardSettings.currentUserId;
-const getCurrentUserName = () => boardSettings.currentUserName;
-
-// Экспортируем глобально для доступа из других частей
-window.boardSettings = boardSettings;
-window.getCurrentUserId = getCurrentUserId;
-window.getCurrentUserName = getCurrentUserName;
+// Общая функция применения настроек доски (для sendResponse и board-settings)
+const applyBoardSettingsFromData = (data) => {
+    if (!data || typeof data !== 'object') return;
+    
+    if (data.currentuserid !== undefined) {
+        boardSettings.currentUserId = data.currentuserid;
+    }
+    if (data.currentusername !== undefined) {
+        boardSettings.currentUserName = data.currentusername;
+    }
+    if (data.theme !== undefined && window.applyTheme) {
+        window.applyTheme(data.theme);
+    }
+    if (data.grouping !== undefined && window.applyGroupingByValue) {
+        window.applyGroupingByValue(data.grouping);
+    }
+    if (data.executorfilter !== undefined && window.setSelectedExecutors) {
+        window.setSelectedExecutors(data.executorfilter);
+    }
+    if (data.projectfilter !== undefined && window.setSelectedProjects) {
+        window.setSelectedProjects(data.projectfilter);
+    }
+    if (data.search !== undefined && window.setSearchQuery) {
+        window.setSearchQuery(data.search);
+    }
+    if (window.applyExecutorFilter) {
+        window.applyExecutorFilter();
+    }
+    if (window.applyCurrentSearch) {
+        window.applyCurrentSearch();
+    }
+    if (typeof RecalculateKanbanBlock === 'function') {
+        RecalculateKanbanBlock();
+    }
+};
 
 // Глобальная переменная для хранения текущего типа группировки
 let currentGroupingType = 'none';
@@ -34,11 +61,6 @@ const getSelectedExecutors = () => {
 
 const getSelectedProjects = () => {
     return window.projectsList ? window.projectsList.filter(p => p.checked).map(p => p.id) : [];
-};
-
-const getSearchQuery = () => {
-    const searchInput = document.getElementById('search_input');
-    return searchInput ? searchInput.value : '';
 };
 
 // ========== ФУНКЦИИ ОБРАБОТКИ ЗАДАЧ ==========
@@ -354,6 +376,7 @@ window['V8Proxy'] = {
         //     grouping: 'none' | 'executor' | 'project',
         //     executorfilter: ['user123', 'user456', ...],
         //     projectfilter: ['project1', 'project2', ...],
+        //     search: 'текст поиска',                       // Поиск по задачам
         //     
         //     // Массив изменённых задач (может быть пустым или содержать несколько)
         //     tasks: [
@@ -374,59 +397,15 @@ window['V8Proxy'] = {
         //     ]
         // }
         
-        // ========== 0. СОХРАНЯЕМ ДАННЫЕ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ ==========
-        // (применяем только если явно переданы)
-        if (data.currentuserid !== undefined) {
-            boardSettings.currentUserId = data.currentuserid;
-        }
-        if (data.currentusername !== undefined) {
-            boardSettings.currentUserName = data.currentusername;
-        }
-        
         // ========== 1. СНАЧАЛА ОБРАБАТЫВАЕМ ЗАДАЧИ ==========
-        // (до применения фильтров, т.к. фильтры влияют на видимость)
         if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) {
             data.tasks.forEach(taskData => {
                 processTask(taskData);
             });
         }
         
-        // ========== 2. ЗАТЕМ ПРИМЕНЯЕМ НАСТРОЙКИ UI ==========
-        // (применяем только если явно переданы в JSON)
-        
-        // Применить тему
-        if (data.theme !== undefined) {
-            window.applyTheme && window.applyTheme(data.theme);
-        }
-        
-        // Применить группировку
-        if (data.grouping !== undefined) {
-            window.applyGroupingByValue && window.applyGroupingByValue(data.grouping);
-        }
-        
-        // Применить фильтр по исполнителям
-        if (data.executorfilter !== undefined) {
-            window.setSelectedExecutors && window.setSelectedExecutors(data.executorfilter);
-        }
-        
-        // Применить фильтр по проектам
-        if (data.projectfilter !== undefined) {
-            window.setSelectedProjects && window.setSelectedProjects(data.projectfilter);
-        }
-        
-        // ========== 3. ПРИМЕНЯЕМ ТЕКУЩИЕ ФИЛЬТРЫ К НОВЫМ КАРТОЧКАМ ==========
-        // (всегда, даже если фильтры не пришли из 1С)
-        if (window.applyExecutorFilter) {
-            window.applyExecutorFilter();
-        }
-        if (window.applyCurrentSearch) {
-            window.applyCurrentSearch();
-        }
-        
-        // ========== 4. ПЕРЕСЧИТЫВАЕМ СЧЁТЧИКИ ==========
-        if (typeof RecalculateKanbanBlock === 'function') {
-            RecalculateKanbanBlock();
-        }
+        // ========== 2. ПРИМЕНЯЕМ НАСТРОЙКИ UI ==========
+        applyBoardSettingsFromData(data);
     }
 }
 
@@ -485,51 +464,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedContainer = document.getElementById('project_picker_selected');
         const grid = document.getElementById('project_picker_grid');
         const moreCounter = document.getElementById('project_picker_more');
-        const checkboxes = document.querySelectorAll('.checkboxes .checkbox');
         
-        if (!picker || !toggle || checkboxes.length === 0) return;
+        if (!picker || !toggle) return;
         
-        // Собираем проекты из чекбоксов (приходят из 1С)
-        const collectProjectsFromCheckboxes = () => {
-            projects = [];
-            // Получаем дефолтный цвет кнопок для сравнения
-            const defaultButtonBg = getComputedStyle(document.documentElement).getPropertyValue('--button-bg').trim();
-            
-            checkboxes.forEach(checkbox => {
-                const input = checkbox.querySelector('input[type="checkbox"]');
-                const tag = checkbox.querySelector('.tag');
-                if (input && tag) {
-                    // Получаем цвет из background-color тега
-                    const computedStyle = getComputedStyle(tag);
-                    const bgColor = computedStyle.backgroundColor;
-                    
-                    // Проверяем, является ли цвет дефолтным (--button-bg) или transparent
-                    const isDefaultColor = !bgColor || 
-                        bgColor === 'rgba(0, 0, 0, 0)' || 
-                        bgColor === 'rgb(240, 240, 240)' ||  // светлая тема --button-bg
-                        bgColor === 'rgb(42, 42, 42)';       // тёмная тема --button-bg
-                    
-                    const color = isDefaultColor ? null : bgColor;
-                    
-                    projects.push({
-                        id: input.id,
-                        name: tag.textContent,
-                        color: color,
-                        checked: input.checked
-                    });
-                }
-            });
-            
-            // Сортируем проекты по наименованию для стабильного порядка
+        // Собираем проекты из script#projects-data (генерируется 1С)
+        const collectProjectsFromData = () => {
+            const scriptEl = document.getElementById('projects-data');
+            if (!scriptEl) {
+                projects = [];
+                return;
+            }
+            try {
+                const data = JSON.parse(scriptEl.textContent || '[]');
+                projects = Array.isArray(data) ? data.map(p => ({
+                    id: p.id || '',
+                    name: p.name || '',
+                    color: p.color || null,
+                    checked: false
+                })) : [];
+            } catch (e) {
+                console.error('projects-data: Failed to parse JSON:', e);
+                projects = [];
+            }
             projects.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
         };
         
-        // Инициализируем проекты из чекбоксов
-        collectProjectsFromCheckboxes();
+        collectProjectsFromData();
         
         // Функция обновления отображения
         const updateDisplay = () => {
-            // Очищаем контейнеры
             selectedContainer.innerHTML = '';
             grid.innerHTML = '';
             
@@ -537,7 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const visibleProjects = selectedProjects.slice(0, MAX_VISIBLE_PROJECTS);
             const hiddenCount = selectedProjects.length - MAX_VISIBLE_PROJECTS;
             
-            // Если нет выбранных проектов — показываем плейсхолдер в picker
             if (selectedProjects.length === 0 && projects.length > 0) {
                 const placeholder = document.createElement('span');
                 placeholder.className = 'project_picker_placeholder';
@@ -547,7 +509,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 picker.classList.remove('no-selection');
                 
-                // Отображаем видимые pills
                 visibleProjects.forEach(project => {
                     const pill = document.createElement('div');
                     pill.className = 'project_pill';
@@ -559,25 +520,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="project_pill_name">${project.name}</span>
                         <span class="project_pill_close">×</span>
                     `;
-                    
-                    // Клик на × - снимает выбор
                     pill.addEventListener('click', (e) => {
-                        e.stopPropagation(); // <-- Это останавливает всплытие события!
+                        e.stopPropagation();
                         toggleProject(project.id);
                     });
-                    
                     selectedContainer.appendChild(pill);
                 });
             }
             
-            // Счётчик "+N"
             if (hiddenCount > 0) {
                 moreCounter.textContent = '+' + hiddenCount;
             } else {
                 moreCounter.textContent = '';
             }
             
-            // Заполняем сетку в dropdown
             projects.forEach(project => {
                 const item = document.createElement('div');
                 item.className = 'project_grid_item' + (project.checked ? ' selected' : '');
@@ -586,117 +542,61 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.style.setProperty('--project-color', project.color);
                 }
                 item.textContent = project.name;
-                
-                // Клик - toggle проекта
                 item.addEventListener('click', (e) => {
-                    e.stopPropagation(); // <-- Это останавливает всплытие события!
+                    e.stopPropagation();
                     toggleProject(project.id);
                 });
-                
                 grid.appendChild(item);
             });
         };
         
-        // Функция toggle проекта
         const toggleProject = (projectId) => {
             const project = projects.find(p => p.id === projectId);
             if (!project) return;
             
             project.checked = !project.checked;
+            updateDisplay();
             
-            // Синхронизируем с оригинальным чекбоксом
-            const checkbox = document.getElementById(projectId);
-            if (checkbox) {
-                checkbox.checked = project.checked;
-                // Триггерим change event для существующей логики фильтрации
-                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+            if (window.applyExecutorFilter) {
+                window.applyExecutorFilter();
+            } else {
+                const cards = document.querySelectorAll(`.card.${projectId}`);
+                cards.forEach(card => {
+                    card.classList.toggle('card__inactive', !project.checked);
+                });
+                RecalculateKanbanBlock();
             }
             
-            updateDisplay();
+            window.V8Proxy.fetch('settingsChanged', {});
         };
         
-        // Открытие/закрытие dropdown
         toggle.addEventListener('click', (e) => {
-            e.stopPropagation(); // <-- Это останавливает всплытие события!
+            e.stopPropagation();
             closeAllDropdowns(picker);
             picker.classList.toggle('open');
         });
         
-        // Закрытие при клике вне
         document.addEventListener('click', (e) => {
             if (!picker.contains(e.target)) {
                 picker.classList.remove('open');
             }
         });
         
-        // Добавляем обработчики для чекбоксов (фильтрация карточек)
-        checkboxes.forEach(checkbox => {
-            const input = checkbox.querySelector('input[type="checkbox"]');
-            if (input) {
-                input.addEventListener('change', (event) => {
-                    const id = event.target.id;
-                    const project = projects.find(p => p.id === id);
-                    if (project) {
-                        project.checked = event.target.checked;
-                    }
-                    
-                    // Обновляем состояние тега проекта
-                    const tag = document.querySelector(`.tag.${id}`);
-                    if (tag) {
-                        tag.classList.toggle('tag__inactive', !event.target.checked);
-                    }
-
-                    // Применяем общую фильтрацию (проекты + исполнители)
-                    if (window.applyExecutorFilter) {
-                        window.applyExecutorFilter();
-                    } else {
-                        // Fallback если executor filter не инициализирован
-                        const cards = document.querySelectorAll(`.card.${id}`);
-                        cards.forEach(card => {
-                            card.classList.toggle('card__inactive', !event.target.checked);
-                        });
-                        RecalculateKanbanBlock();
-                    }
-                    
-                    updateDisplay();
-                    
-                    // Уведомляем 1С об изменении настроек
-                    window.V8Proxy.fetch('settingsChanged', {});
-                });
-            }
-        });
-        
-        // Инициализация
         updateDisplay();
         
-        // Экспортируем функции для reinitKanban
         window.updateProjectPicker = updateDisplay;
-        window.collectProjectsFromCheckboxes = collectProjectsFromCheckboxes;
-        
-        // Экспортируем projects для получения состояния
+        window.collectProjectsFromCheckboxes = collectProjectsFromData;
         window.projectsList = projects;
         
-        // Функция для установки выбранных проектов из sendResponse
         window.setSelectedProjects = (projectIds) => {
             if (!projectIds || !Array.isArray(projectIds)) return;
             
             projects.forEach(project => {
                 project.checked = projectIds.includes(project.id);
-                // Синхронизируем с чекбоксом
-                const checkbox = document.getElementById(project.id);
-                if (checkbox) {
-                    checkbox.checked = project.checked;
-                }
-                // Обновляем тег
-                const tag = document.querySelector(`.tag.${project.id}`);
-                if (tag) {
-                    tag.classList.toggle('tag__inactive', !project.checked);
-                }
             });
             
             updateDisplay();
             
-            // Применяем фильтрацию
             if (window.applyExecutorFilter) {
                 window.applyExecutorFilter();
             }
@@ -725,9 +625,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 dropdown.classList.remove('has-selected');
             }
         };
-        
-        // Получаем ID текущего пользователя из boardSettings
-        const currentUserId = getCurrentUserId();
         
         // Собираем исполнителей с доски
         const collectExecutors = () => {
@@ -815,10 +712,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.card');
             
             cards.forEach(card => {
-                // Проверяем, активен ли проект карточки
+                // Проверяем, активен ли проект карточки (из projectsList)
                 const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
-                const projectTag = projectClass ? document.querySelector(`.tag.${projectClass}`) : null;
-                const projectInactive = projectTag && projectTag.classList.contains('tag__inactive');
+                const projectData = projectClass && window.projectsList 
+                    ? window.projectsList.find(p => p.id === projectClass) 
+                    : null;
+                const projectInactive = projectData && !projectData.checked;
                 
                 if (projectInactive) {
                     // Проект неактивен — карточка скрыта
@@ -930,32 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initExecutorFilter();
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-    // Извлечение имени пользователя из классов карточки
-    const getUserNameFromCard = (card) => {
-        const prefix = 'user_name';
-        const classList = card.className.split(' ');
-        for (let i = 0; i < classList.length; i++) {
-            if (classList[i].startsWith(prefix)) {
-                return classList[i].substring(prefix.length).split('_').join(' '); // убираем 'user_name' и заменяем "_" на пробел
-            }
-        }
-        return null;
-    };
-
-    // Получение фото пользователя из первой карточки с таким именем
-    const getUserPhotoFromCards = (userName) => {
-        const cards = document.querySelectorAll('.card');
-        for (let i = 0; i < cards.length; i++) {
-            if (getUserNameFromCard(cards[i]) === userName) {
-                const photo = cards[i].querySelector('.card__photo');
-                if (photo) {
-                    return photo.src;
-                }
-            }
-        }
-        return null;
-    };
-
+    
     // Структура статусов (сохраняется при первой группировке)
     let statusBlocksData = null;
     
@@ -1174,20 +1048,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!projectClass) return;
             
             if (!projectsMap.has(projectClass)) {
-                // Получаем данные проекта из тега в DOM
-                const tag = document.querySelector(`.tag.${projectClass}`);
-                const projectName = tag ? tag.textContent : projectClass;
-                const computedStyle = tag ? getComputedStyle(tag) : null;
-                const bgColor = computedStyle ? computedStyle.backgroundColor : null;
-                
-                const isDefaultColor = !bgColor || 
-                    bgColor === 'rgba(0, 0, 0, 0)' || 
-                    bgColor === 'rgb(240, 240, 240)' || 
-                    bgColor === 'rgb(42, 42, 42)';
+                // Получаем данные проекта из projectsList
+                const projectData = window.projectsList 
+                    ? window.projectsList.find(p => p.id === projectClass) 
+                    : null;
+                const projectName = projectData ? projectData.name : projectClass;
+                const projectColor = projectData ? projectData.color : null;
                 
                 projectsMap.set(projectClass, {
                     name: projectName,
-                    color: isDefaultColor ? null : bgColor,
+                    color: projectColor,
                     tasks: []
                 });
             }
@@ -1650,6 +1520,15 @@ document.addEventListener('DOMContentLoaded', () => {
         RecalculateKanbanBlock();
     };
 
+    // Применяем начальные настройки доски из script#board-settings (генерируется 1С при построении страницы)
+    const scriptEl = document.getElementById('board-settings');
+    if (scriptEl && scriptEl.textContent && scriptEl.textContent.trim() !== '{}') {
+        try {
+            applyBoardSettingsFromData(JSON.parse(scriptEl.textContent));
+        } catch (e) {
+            console.error('board-settings: Failed to parse JSON:', e);
+        }
+    }
 });
 
 // Обновление счетчиков задач в блоках

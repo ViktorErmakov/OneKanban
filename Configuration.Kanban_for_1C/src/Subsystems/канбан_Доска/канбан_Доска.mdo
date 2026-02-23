@@ -37,4 +37,5 @@
   <content>CommonCommand.канбан_Ошибки</content>
   <content>DefinedType.канбан_Ошибки</content>
   <content>Catalog.канбан_Ошибки</content>
+  <content>CommonModule.канбан_КанбанДоскаКлиентСервер</content>
 </mdclass:Subsystem>

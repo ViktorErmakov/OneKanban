@@ -54,6 +54,7 @@
   <commonModules>CommonModule.канбан_КанбанДоскаВызовСервера</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаКлиент</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаКлиентПереопределяемый</commonModules>
+  <commonModules>CommonModule.канбан_КанбанДоскаКлиентСервер</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаПереопределяемый</commonModules>
   <commonModules>CommonModule.ОбщегоНазначенияПереопределяемый</commonModules>
   <functionalOptions>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</functionalOptions>

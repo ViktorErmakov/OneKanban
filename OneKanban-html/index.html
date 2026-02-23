@@ -37,9 +37,14 @@
                         </div>
                     </div>
 
-                    <!-- Скрытые чекбоксы (приходят из 1С) -->
-                    <div id="checkboxes" class="checkboxes" style="display: none;">       
-                    </div>
+                    <!-- Массив проектов (1С генерирует при построении страницы).
+                         Формат: [{"id":"project-uuid","name":"Название","color":"rgb(r,g,b)"|null}]
+                         Выбор проектов (checked) приходит только через sendResponse.projectfilter -->
+                    <script type="application/json" id="projects-data">[]</script>
+
+                    <!-- Начальные настройки доски (1С генерирует при построении страницы).
+                         Формат: {"theme":"light"|"dark","grouping":"none"|"executor"|"project","executorfilter":[],"projectfilter":[],"search":"текст"} -->
+                    <script type="application/json" id="board-settings">{}</script>
 
                     <!-- ========== EXECUTOR FILTER ========== -->
                     <div class="executor_dropdown">
