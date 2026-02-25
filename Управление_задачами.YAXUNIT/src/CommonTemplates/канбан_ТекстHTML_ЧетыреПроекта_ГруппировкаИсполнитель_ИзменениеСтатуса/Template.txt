@@ -20,8 +20,8 @@
 "color": "rgb(28, 85, 174)"
 }
 ]</script><script type="application/json" id="board-settings">{
-"theme": "light",
-"grouping": "",
+"theme": "dark",
+"grouping": "executor",
 "executorfilter": [],
 "projectfilter": [
 "projectb49a3cc7-3026-11f0-952c-107b4419808b",
