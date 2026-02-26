@@ -4,7 +4,26 @@ import './style.css';
 const boardSettings = {
     currentUserId: null,      // ID текущего пользователя (например: 'user123')
     currentUserName: null,    // Имя текущего пользователя (например: 'Иванов Иван')
+    urgencyLevels: [],        // [{ id: 'urgent_1', name: 'Критично' }, ...] — из 1С
+    urgencySettings: {},     // { 'urgent_1': { iconId: 'fire', colorId: 'red' }, ... }
 };
+
+// Встроенные иконки и цвета для срочности
+const URGENCY_ICONS = {
+    flag: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>',
+    fire: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M12 23c3.31 0 6-2.69 6-6 0-2-1-4-2.5-5.5l-.5.5c.87.87 1.5 2.11 1.5 3.5 0 2.76-2.24 5-5 5-2.76 0-5-2.24-5-5 0-1.39.63-2.63 1.5-3.5L10 10c-1.5 1.5-2.5 3.5-2.5 5.5 0 3.31 2.69 6 6 6z"/></svg>',
+    lightning: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>',
+    exclamation: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>'
+};
+const URGENCY_COLORS = {
+    red: '#c62828',
+    orange: '#e65100',
+    amber: '#ff8f00',
+    yellow: '#f9a825',
+    pink: '#ad1457'
+};
+const URGENCY_ICON_IDS = Object.keys(URGENCY_ICONS);
+const URGENCY_COLOR_IDS = Object.keys(URGENCY_COLORS);
 
 // Общая функция применения настроек доски (для sendResponse и board-settings)
 const applyBoardSettingsFromData = (data) => {
@@ -30,6 +49,15 @@ const applyBoardSettingsFromData = (data) => {
     }
     if (data.search !== undefined && window.setSearchQuery) {
         window.setSearchQuery(data.search);
+    }
+    if (data.urgencylevels !== undefined && Array.isArray(data.urgencylevels)) {
+        boardSettings.urgencyLevels = data.urgencylevels;
+    }
+    if (data.urgencysettings !== undefined && typeof data.urgencysettings === 'object') {
+        boardSettings.urgencySettings = data.urgencysettings;
+    }
+    if (data.urgencyfilter !== undefined && window.setSelectedUrgencies) {
+        window.setSelectedUrgencies(data.urgencyfilter);
     }
     if (window.applyExecutorFilter) {
         window.applyExecutorFilter();
@@ -63,11 +91,24 @@ const getSelectedProjects = () => {
     return window.projectsList ? window.projectsList.filter(p => p.checked).map(p => p.id) : [];
 };
 
+const getSelectedUrgencies = () => {
+    return window.selectedUrgenciesSet ? Array.from(window.selectedUrgenciesSet) : [];
+};
+
 // ========== ФУНКЦИИ ОБРАБОТКИ ЗАДАЧ ==========
 
-// Обновление классов карточки (проект, исполнитель)
+// HTML иконки срочности по urgencyId (из boardSettings.urgencySettings) или пустая строка
+const getUrgencyIconHtml = (urgencyId) => {
+    if (!urgencyId || !boardSettings.urgencySettings[urgencyId]) return '';
+    const { iconId, colorId } = boardSettings.urgencySettings[urgencyId];
+    const icon = URGENCY_ICON_IDS.includes(iconId) ? URGENCY_ICONS[iconId] : URGENCY_ICONS.fire;
+    const color = URGENCY_COLOR_IDS.includes(colorId) ? URGENCY_COLORS[colorId] : URGENCY_COLORS.red;
+    return `<span class="card__urgency" style="--urgency-color: ${color}" title="${urgencyId}">${icon}</span>`;
+};
+
+// Обновление классов карточки (проект, исполнитель, срочность)
 // ОПТИМИЗАЦИЯ: меняем классы только если они реально изменились
-const updateCardClasses = (card, project, user, user_name) => {
+const updateCardClasses = (card, project, user, user_name, urgencyId) => {
     
     // ===== ШАГ 1: Получаем текущие классы карточки =====
     // Преобразуем classList в обычный массив для удобства поиска
@@ -122,6 +163,36 @@ const updateCardClasses = (card, project, user, user_name) => {
         // Добавляем новый класс имени (если не пустой)
         if (newUserNameClass) {
             card.classList.add(newUserNameClass);
+        }
+    }
+    
+    // ===== ШАГ 5: Срочность — класс и иконка =====
+    if (urgencyId !== undefined) {
+        const urgencyClass = card.classList.contains('urgency-' + urgencyId);
+        const currentUrgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-')) || '';
+        const newUrgencyClass = urgencyId ? 'urgency-' + urgencyId : '';
+        if (newUrgencyClass !== currentUrgencyClass) {
+            if (currentUrgencyClass) card.classList.remove(currentUrgencyClass);
+            if (newUrgencyClass) card.classList.add(newUrgencyClass);
+        }
+        let urgencyEl = card.querySelector('.card__urgency-wrap');
+        const iconHtml = getUrgencyIconHtml(urgencyId);
+        if (iconHtml) {
+            if (!urgencyEl) {
+                urgencyEl = document.createElement('div');
+                urgencyEl.className = 'card__urgency-wrap';
+                const header = card.querySelector('.card__header');
+                const tagTask = header ? header.querySelector('.tag_task') : null;
+                if (header) {
+                    if (tagTask) header.insertBefore(urgencyEl, tagTask.nextSibling);
+                    else header.prepend(urgencyEl);
+                }
+            }
+            urgencyEl.innerHTML = iconHtml;
+            urgencyEl.style.display = '';
+        } else if (urgencyEl) {
+            urgencyEl.innerHTML = '';
+            urgencyEl.style.display = 'none';
         }
     }
 };
@@ -235,9 +306,15 @@ const createCardFromData = (data) => {
         }
     }
     
+    // Класс и иконка срочности (отдельно от проекта — иконка справа от кружка)
+    const urgencyClass = data.urgencyId ? 'urgency-' + data.urgencyId : '';
+    const urgencyIconHtml = getUrgencyIconHtml(data.urgencyId);
+    if (urgencyClass) card.classList.add(urgencyClass);
+    
     card.innerHTML = `
         <div class="card__header">
             <div class="tag_task" ${projectColorStyle}></div>
+            ${urgencyIconHtml ? `<div class="card__urgency-wrap">${urgencyIconHtml}</div>` : ''}
             <a class="card__link" href="${data.card__link_href || '#'}">${data.card__link_name || ''}</a>
             <img class="card__photo" alt="${data.alt || ''}" src="${data.card__photo || ''}">
         </div>
@@ -319,7 +396,7 @@ const processTask = (taskData) => {
     // 2. Обновить карточку в DOM (если отображается)
     const cardInDOM = document.getElementById(idTask);
     if (cardInDOM) {
-        updateCardClasses(cardInDOM, taskData.project, taskData.user, taskData.user_name);
+        updateCardClasses(cardInDOM, taskData.project, taskData.user, taskData.user_name, taskData.urgencyId);
         updateCardContent(cardInDOM, taskData.card__link_href, taskData.card__link_name, 
                           taskData.card__photo, taskData.alt, taskData.card__text, taskData.fullnameobjecttask);
         if (status) moveCardToStatus(cardInDOM, status);
@@ -350,6 +427,7 @@ window['V8Proxy'] = {
         V8_request.setAttribute('grouping', getCurrentGrouping());
         V8_request.setAttribute('executorfilter', JSON.stringify(getSelectedExecutors()));
         V8_request.setAttribute('projectfilter', JSON.stringify(getSelectedProjects()));
+        V8_request.setAttribute('urgencyfilter', JSON.stringify(getSelectedUrgencies()));
         V8_request.setAttribute('task', JSON.stringify(params));
                 
         V8_request.click();
@@ -370,32 +448,23 @@ window['V8Proxy'] = {
         
         // data содержит:
         // {
-        //     currentuserid: 'userXXX-XXX-XXX',            // ID текущего пользователя
-        //     currentusername: 'Иванов Иван',             // Имя текущего пользователя
-        //     theme: 'light' | 'dark',
-        //     grouping: 'none' | 'executor' | 'project',
-        //     executorfilter: ['user123', 'user456', ...],
-        //     projectfilter: ['project1', 'project2', ...],
-        //     search: 'текст поиска',                       // Поиск по задачам
-        //     
-        //     // Массив изменённых задач (может быть пустым или содержать несколько)
+        //     currentuserid: '...', currentusername: '...',
+        //     theme: 'light'|'dark', grouping: 'none'|'executor'|'project',
+        //     executorfilter: [], projectfilter: [], urgencyfilter: [],
+        //     urgencylevels: [{ id: 'urgent_1', name: 'Критично' }, ...],  // для фильтра и настроек
+        //     urgencysettings: { 'urgent_1': { iconId: 'fire', colorId: 'red' }, ... },
+        //     search: '...',
         //     tasks: [
         //         {
-        //             project: 'projectXXX-XXX-XXX',        // ID проекта (класс)
-        //             user: 'userXXX-XXX-XXX',              // ID исполнителя (класс)
-        //             user_name: 'Иванов_Иван',             // Имя исполнителя (для класса user_name...)
-        //             idTask: 'task123',                    // ID задачи (id элемента)
-        //             fullnameobjecttask: 'Справочник...', // Полное имя объекта задачи
-        //             card__link_href: 'e1cib/data/...',    // URL ссылки на задачу
-        //             card__link_name: 'КБ-123 Название',   // Текст ссылки (название задачи)
-        //             card__photo: 'data:image/...',        // URL или base64 фото
-        //             alt: 'Иванов Иван',                   // Alt текст для фото
-        //             card__text: 'Описание задачи',        // Текст карточки
-        //             status: 'status456'                   // ID статуса (куда поместить)
+        //             idTask, status, project, user, user_name,
+        //             urgencyId: 'urgent_1',  // опционально; представление только в urgencylevels
+        //             fullnameobjecttask, card__link_href, card__link_name,
+        //             card__photo, alt, card__text
         //         },
-        //         { ... }
         //     ]
         // }
+        
+        expandedBlocks.clear();
         
         // ========== 1. СНАЧАЛА ОБРАБАТЫВАЕМ ЗАДАЧИ ==========
         if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) {
@@ -442,6 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dropdowns = [
             document.querySelector('.project_picker'),
             document.querySelector('.executor_dropdown'),
+            document.querySelector('.urgency_dropdown'),
             document.querySelector('.grouping_dropdown')
         ];
         dropdowns.forEach(dropdown => {
@@ -548,14 +618,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 grid.appendChild(item);
             });
+            
+            if (projects.length > 1) {
+                const separator = document.createElement('div');
+                separator.className = 'project_grid_separator';
+                grid.appendChild(separator);
+                
+                const allSelected = projects.every(p => p.checked);
+                const selectAllItem = document.createElement('div');
+                selectAllItem.className = 'project_grid_item project_grid_item_all' + (allSelected ? ' selected' : '');
+                selectAllItem.textContent = 'Выбрать все';
+                selectAllItem.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const shouldSelect = !projects.every(p => p.checked);
+                    projects.forEach(p => { p.checked = shouldSelect; });
+                    const wasOpen = picker.classList.contains('open');
+                    updateDisplay();
+                    if (wasOpen) picker.classList.add('open');
+                    
+                    if (window.applyExecutorFilter) {
+                        window.applyExecutorFilter();
+                    } else {
+                        RecalculateKanbanBlock();
+                    }
+                    window.V8Proxy.fetch('settingsChanged', {});
+                });
+                grid.appendChild(selectAllItem);
+            }
         };
         
         const toggleProject = (projectId) => {
             const project = projects.find(p => p.id === projectId);
             if (!project) return;
             
+            const wasOpen = picker.classList.contains('open');
             project.checked = !project.checked;
             updateDisplay();
+            if (wasOpen) picker.classList.add('open');
             
             if (window.applyExecutorFilter) {
                 window.applyExecutorFilter();
@@ -578,6 +677,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.addEventListener('click', (e) => {
             if (!picker.contains(e.target)) {
+                picker.classList.remove('open');
+            }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && picker.classList.contains('open')) {
                 picker.classList.remove('open');
             }
         });
@@ -741,6 +846,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     card.classList.toggle('card__inactive', !shouldShow);
                 }
+                
+                // Фильтр по срочности: если выбран хотя бы один уровень — показываем только карточки с этим уровнем
+                const selectedUrgencies = window.selectedUrgenciesSet || new Set();
+                if (selectedUrgencies.size > 0 && !card.classList.contains('card__inactive')) {
+                    const urgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-'));
+                    const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : null;
+                    if (!urgencyId || !selectedUrgencies.has(urgencyId)) {
+                        card.classList.add('card__inactive');
+                    }
+                }
             });
             
             RecalculateKanbanBlock();
@@ -828,6 +943,119 @@ document.addEventListener('DOMContentLoaded', () => {
     
     initExecutorFilter();
 
+    // ========== URGENCY FILTER ==========
+    let selectedUrgencies = new Set();
+    
+    const initUrgencyFilter = () => {
+        const dropdown = document.querySelector('.urgency_dropdown');
+        const toggle = document.getElementById('urgency_toggle');
+        const menu = document.getElementById('urgency_menu');
+        const label = document.getElementById('urgency_label');
+        const urgencyClear = document.getElementById('urgency_clear');
+        
+        if (!dropdown || !toggle || !menu) return;
+        
+        const updateHasSelected = () => {
+            if (selectedUrgencies.size > 0) dropdown.classList.add('has-selected');
+            else dropdown.classList.remove('has-selected');
+        };
+        
+        const populateMenu = () => {
+            menu.innerHTML = '';
+            const levels = boardSettings.urgencyLevels || [];
+            levels.forEach(({ id, name }) => {
+                const option = document.createElement('div');
+                option.className = 'urgency_option';
+                option.setAttribute('data-value', id);
+                if (selectedUrgencies.has(id)) option.classList.add('selected');
+                const label = document.createElement('span');
+                label.className = 'urgency_option_label';
+                label.textContent = name || id;
+                option.appendChild(label);
+                const settingsBtn = document.createElement('button');
+                settingsBtn.type = 'button';
+                settingsBtn.className = 'urgency_option_settings';
+                settingsBtn.title = 'Настройка иконки и цвета';
+                settingsBtn.setAttribute('aria-label', 'Настройка');
+                settingsBtn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+                option.appendChild(settingsBtn);
+                settingsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.openUrgencySettingsModal) window.openUrgencySettingsModal(id, name || id);
+                });
+                menu.appendChild(option);
+            });
+        };
+        
+        const updateLabel = () => {
+            if (selectedUrgencies.size === 0) {
+                label.textContent = 'Срочность';
+            } else if (selectedUrgencies.size === 1) {
+                const id = Array.from(selectedUrgencies)[0];
+                const level = (boardSettings.urgencyLevels || []).find(l => l.id === id);
+                label.textContent = level ? level.name : id;
+            } else {
+                label.textContent = `Срочность (${selectedUrgencies.size})`;
+            }
+        };
+        
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeAllDropdowns(dropdown);
+            populateMenu();
+            dropdown.classList.toggle('open');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+        });
+        
+        menu.addEventListener('click', (e) => {
+            if (e.target.closest('.urgency_option_settings')) return;
+            const option = e.target.closest('.urgency_option');
+            if (!option) return;
+            e.stopPropagation();
+            const value = option.getAttribute('data-value');
+            if (selectedUrgencies.has(value)) {
+                selectedUrgencies.delete(value);
+                option.classList.remove('selected');
+            } else {
+                selectedUrgencies.add(value);
+                option.classList.add('selected');
+            }
+            updateLabel();
+            updateHasSelected();
+            if (window.applyExecutorFilter) window.applyExecutorFilter();
+            window.V8Proxy.fetch('settingsChanged', {});
+        });
+        
+        if (urgencyClear) {
+            urgencyClear.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectedUrgencies.clear();
+                updateLabel();
+                updateHasSelected();
+                populateMenu();
+                if (window.applyExecutorFilter) window.applyExecutorFilter();
+                window.V8Proxy.fetch('settingsChanged', {});
+            });
+        }
+        
+        window.selectedUrgenciesSet = selectedUrgencies;
+        window.setSelectedUrgencies = (urgencyIds) => {
+            if (!urgencyIds || !Array.isArray(urgencyIds)) return;
+            selectedUrgencies.clear();
+            urgencyIds.forEach(id => selectedUrgencies.add(id));
+            populateMenu();
+            updateLabel();
+            updateHasSelected();
+            if (window.applyExecutorFilter) window.applyExecutorFilter();
+        };
+        window.populateUrgencyMenu = populateMenu;
+    };
+    
+    initUrgencyFilter();
+
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     
     // Структура статусов (сохраняется при первой группировке)
@@ -854,12 +1082,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const link = card.querySelector('.card__link');
             const photo = card.querySelector('.card__photo');
             const textSpan = card.querySelector('.card__text span');
+            const urgencyClass = classList.find(c => c.startsWith('urgency-'));
+            const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : '';
             
             tasksData.set(card.id, {
                 idTask: card.id,
                 project: classList.find(c => c.startsWith('project')) || '',
                 user: classList.find(c => c.startsWith('user')) || '',
                 user_name: classList.find(c => c.startsWith('user_name')) || '',
+                urgencyId: urgencyId || undefined,
                 fullnameobjecttask: card.getAttribute('fullNameObjectTask') || '',
                 card__link_href: link ? link.getAttribute('href') : '',
                 card__link_name: link ? link.textContent : '',
@@ -900,6 +1131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Внутренняя функция применения группировки (без уведомления 1С)
         const applyGroupingInternal = (value) => {
+            expandedBlocks.clear();
             const option = document.querySelector(`.grouping_option[data-value="${value}"]`);
             if (!option) return;
             
@@ -1469,6 +1701,110 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initUpdateButton();
 
+    // Обновить иконки срочности на всех карточках (после смены настроек)
+    const refreshUrgencyIconsOnCards = () => {
+        document.querySelectorAll('.card').forEach(card => {
+            const urgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-'));
+            const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : null;
+            if (urgencyId) {
+                const header = card.querySelector('.card__header');
+                let wrap = card.querySelector('.card__urgency-wrap');
+                const iconHtml = getUrgencyIconHtml(urgencyId);
+                if (iconHtml) {
+                    if (!wrap) {
+                        wrap = document.createElement('div');
+                        wrap.className = 'card__urgency-wrap';
+                        const tagTask = header.querySelector('.tag_task');
+                        header.insertBefore(wrap, tagTask ? tagTask.nextSibling : header.firstChild);
+                    }
+                    wrap.innerHTML = iconHtml;
+                    wrap.style.display = '';
+                } else if (wrap) {
+                    wrap.innerHTML = '';
+                    wrap.style.display = 'none';
+                }
+            }
+        });
+    };
+
+    // Модальное окно настроек срочности (иконка + цвет для одного уровня — открывается из фильтра по кнопке у строки)
+    const initSettingsModal = () => {
+        const modal = document.getElementById('settings_modal');
+        const backdrop = modal ? modal.querySelector('.settings_modal_backdrop') : null;
+        const closeBtn = document.getElementById('settings_modal_close');
+        const listEl = document.getElementById('urgency_settings_list');
+        const titleEl = modal ? modal.querySelector('.settings_modal_title') : null;
+        const hintEl = modal ? modal.querySelector('.settings_modal_hint') : null;
+        
+        if (!modal || !listEl) return;
+        
+        const renderSingleUrgencySettings = (urgencyId, name) => {
+            listEl.innerHTML = '';
+            const s = boardSettings.urgencySettings[urgencyId] || {};
+            const iconId = s.iconId || 'fire';
+            const colorId = s.colorId || 'red';
+            const row = document.createElement('div');
+            row.className = 'urgency_setting_row';
+            row.innerHTML = `
+                <div class="urgency_setting_icons" data-urgency-id="${urgencyId}">
+                    ${URGENCY_ICON_IDS.map(iid => `
+                        <button type="button" class="urgency_icon_btn ${iid === iconId ? 'selected' : ''}" data-icon="${iid}" title="${iid}">${URGENCY_ICONS[iid]}</button>
+                    `).join('')}
+                </div>
+                <div class="urgency_setting_colors" data-urgency-id="${urgencyId}">
+                    ${URGENCY_COLOR_IDS.map(cid => `
+                        <button type="button" class="urgency_color_btn ${cid === colorId ? 'selected' : ''}" data-color="${cid}" style="background-color: ${URGENCY_COLORS[cid]}" title="${cid}"></button>
+                    `).join('')}
+                </div>
+            `;
+            listEl.appendChild(row);
+            listEl.querySelectorAll('.urgency_icon_btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const wrap = btn.closest('.urgency_setting_icons');
+                    const id = wrap.getAttribute('data-urgency-id');
+                    if (!boardSettings.urgencySettings[id]) boardSettings.urgencySettings[id] = {};
+                    boardSettings.urgencySettings[id].iconId = btn.getAttribute('data-icon');
+                    wrap.querySelectorAll('.urgency_icon_btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                });
+            });
+            listEl.querySelectorAll('.urgency_color_btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const wrap = btn.closest('.urgency_setting_colors');
+                    const id = wrap.getAttribute('data-urgency-id');
+                    if (!boardSettings.urgencySettings[id]) boardSettings.urgencySettings[id] = {};
+                    boardSettings.urgencySettings[id].colorId = btn.getAttribute('data-color');
+                    wrap.querySelectorAll('.urgency_color_btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                });
+            });
+        };
+        
+        const closeModal = () => {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            window.V8Proxy.fetch('settingsChanged', {});
+            refreshUrgencyIconsOnCards();
+        };
+        
+        window.openUrgencySettingsModal = (urgencyId, name) => {
+            closeAllDropdowns();
+            if (titleEl) titleEl.textContent = 'Настройка: ' + (name || urgencyId);
+            if (hintEl) hintEl.style.display = '';
+            renderSingleUrgencySettings(urgencyId, name);
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        };
+        
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        modal.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    };
+    
+    initSettingsModal();
+
     // document.querySelectorAll('.add_task').forEach(button => {
     //     button.addEventListener('click', (event) => {
     //         // логика добавления задачи, возможно, с извлечением ID статуса из класса
@@ -1513,12 +1849,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.populateExecutorMenu) {
             window.populateExecutorMenu();
         }
+        if (window.populateUrgencyMenu) {
+            window.populateUrgencyMenu();
+        }
         if (window.applyExecutorFilter) {
             window.applyExecutorFilter();
         }
         initGroupCollapse();
         RecalculateKanbanBlock();
     };
+
+    // Пересчёт лимита карточек при изменении размера окна
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            RecalculateKanbanBlock();
+        }, 150);
+    });
 
     // Применяем начальные настройки доски из script#board-settings (генерируется 1С при построении страницы)
     const scriptEl = document.getElementById('board-settings');
@@ -1530,6 +1878,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// ========== CARD LIMIT (ограничение видимых карточек в колонке) ==========
+const expandedBlocks = new Set();
+
+const getBlockKey = (block) => {
+    const group = block.closest('.group');
+    if (group) {
+        return (group.getAttribute('data-executor-id') || group.getAttribute('data-project-id') || '') + '|' + block.id;
+    }
+    return block.id;
+};
+
+const limitBlockCards = (block, availableHeight, linkReserve) => {
+    if (expandedBlocks.has(getBlockKey(block))) return;
+
+    const visibleCards = Array.from(
+        block.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)')
+    );
+    if (visibleCards.length === 0) return;
+
+    let totalHeight = 0;
+    let limitIndex = visibleCards.length;
+
+    for (let i = 0; i < visibleCards.length; i++) {
+        const cs = getComputedStyle(visibleCards[i]);
+        const cardH = visibleCards[i].offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
+        const isLast = i === visibleCards.length - 1;
+        const maxH = isLast ? availableHeight : availableHeight - linkReserve;
+
+        if (totalHeight + cardH > maxH) {
+            limitIndex = i;
+            break;
+        }
+        totalHeight += cardH;
+    }
+
+    if (limitIndex >= visibleCards.length) return;
+    if (limitIndex < 1) limitIndex = 1;
+
+    for (let i = limitIndex; i < visibleCards.length; i++) {
+        visibleCards[i].classList.add('card__overflow_hidden');
+    }
+
+    const link = document.createElement('span');
+    link.className = 'show_all_link';
+    link.textContent = 'Показать все (' + visibleCards.length + ')';
+    link.addEventListener('click', () => {
+        expandedBlocks.add(getBlockKey(block));
+        applyCardLimits();
+    });
+    block.appendChild(link);
+};
+
+function applyCardLimits() {
+    document.querySelectorAll('.card__overflow_hidden').forEach(c => c.classList.remove('card__overflow_hidden'));
+    document.querySelectorAll('.show_all_link').forEach(l => l.remove());
+
+    const kanbanBoard = document.getElementById('kanban-board');
+    if (!kanbanBoard) return;
+
+    const remPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const vH = window.innerHeight;
+    const linkReserve = 3 * remPx;
+    if (kanbanBoard.classList.contains('grouped')) return;
+
+    {
+        const headerH = 11.8 * remPx;
+        kanbanBoard.querySelectorAll('.kanban-block').forEach(block => {
+            const bs = getComputedStyle(block);
+            const avail = vH - headerH - parseFloat(bs.paddingTop) - parseFloat(bs.paddingBottom);
+            limitBlockCards(block, avail, linkReserve);
+        });
+    }
+}
 
 // Обновление счетчиков задач в блоках
 const kanbanBlocks = document.querySelectorAll('.kanban-block');
@@ -1576,6 +1998,8 @@ function RecalculateKanbanBlock() {
             groupCount.textContent = visibleCards.length;
         }
     });
+
+    applyCardLimits();
 }
 
 RecalculateKanbanBlock();

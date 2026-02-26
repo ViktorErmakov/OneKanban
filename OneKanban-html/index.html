@@ -60,6 +60,20 @@
                         </div>
                     </div>
 
+                    <!-- ========== URGENCY FILTER ========== -->
+                    <div class="urgency_dropdown">
+                        <button id="urgency_toggle" class="urgency_toggle">
+                            <span id="urgency_label">Срочность</span>
+                            <span class="urgency_clear" id="urgency_clear">×</span>
+                            <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                        <div id="urgency_menu" class="urgency_menu">
+                            <!-- Уровни срочности заполняются из JS (из 1С) -->
+                        </div>
+                    </div>
+
                     <!-- ========== GROUPING ========== -->
                     <div class="grouping_dropdown">
                         <button id="grouping_toggle" class="grouping_toggle">
@@ -186,6 +200,21 @@
 
         <button id='V8_request' style="display: none;"></button>
         <button id='V8_response' style="display: none;"></button>
+
+        <!-- Модальное окно настроек (срочность: иконка и цвет) -->
+        <div id="settings_modal" class="settings_modal" aria-hidden="true">
+            <div class="settings_modal_backdrop"></div>
+            <div class="settings_modal_content">
+                <h3 class="settings_modal_title">Настройка срочности</h3>
+                <p class="settings_modal_hint" id="settings_modal_hint">Выберите иконку и цвет.</p>
+                <div id="urgency_settings_list" class="urgency_settings_list">
+                    <!-- Заполняется из JS по boardSettings.urgencyLevels -->
+                </div>
+                <div class="settings_modal_actions">
+                    <button type="button" id="settings_modal_close" class="settings_modal_close">Закрыть</button>
+                </div>
+            </div>
+        </div>
 
     </div>
 
