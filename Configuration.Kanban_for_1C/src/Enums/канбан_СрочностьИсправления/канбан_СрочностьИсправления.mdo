@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:Enum xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="f9e96926-bfc5-4f8a-b685-ae8cb1259e32">
+  <producedTypes>
+    <refType typeId="b218763b-5fff-4bed-b093-cd48526b8c91" valueTypeId="a0d08954-3cd7-4df0-8a48-efb50f37910e"/>
+    <listType typeId="c9205d5a-4a12-49fe-8cbd-d765edd40857" valueTypeId="de7dd620-eb84-4c66-93d6-6f8025f39eb2"/>
+    <managerType typeId="9616c2ed-3b40-4767-a28b-1d17a87609f1" valueTypeId="da9f771b-9367-4514-82c5-69eb553be9f5"/>
+  </producedTypes>
+  <name>канбан_СрочностьИсправления</name>
+  <synonym>
+    <key>ru</key>
+    <value>Срочность исправления</value>
+  </synonym>
+  <quickChoice>true</quickChoice>
+  <choiceMode>BothWays</choiceMode>
+  <enumValues uuid="8e4b848c-1d9c-4cc1-ba4d-9f7dc2a444df">
+    <name>Немедленно</name>
+    <synonym>
+      <key>ru</key>
+      <value>Немедленно</value>
+    </synonym>
+  </enumValues>
+  <enumValues uuid="f1b61508-cb5f-41a2-abf9-a6000c228bfd">
+    <name>ЖелательноБыстрее</name>
+    <synonym>
+      <key>ru</key>
+      <value>Желательно быстрее</value>
+    </synonym>
+  </enumValues>
+  <enumValues uuid="774fc845-584a-45d2-9581-a02da0116d65">
+    <name>ВПлановомПорядке</name>
+    <synonym>
+      <key>ru</key>
+      <value>В плановом порядке</value>
+    </synonym>
+  </enumValues>
+</mdclass:Enum>

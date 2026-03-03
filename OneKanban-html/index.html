@@ -74,6 +74,19 @@
                         </div>
                     </div>
 
+                    <!-- ========== CARD TYPE FILTER ========== -->
+                    <div class="cardtype_dropdown">
+                        <button id="cardtype_toggle" class="cardtype_toggle">
+                            <span id="cardtype_label">Тип</span>
+                            <span class="cardtype_clear" id="cardtype_clear">×</span>
+                            <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                        <div id="cardtype_menu" class="cardtype_menu">
+                        </div>
+                    </div>
+
                     <!-- ========== GROUPING ========== -->
                     <div class="grouping_dropdown">
                         <button id="grouping_toggle" class="grouping_toggle">
@@ -201,18 +214,14 @@
         <button id='V8_request' style="display: none;"></button>
         <button id='V8_response' style="display: none;"></button>
 
-        <!-- Модальное окно настроек (срочность: иконка и цвет) -->
-        <div id="settings_modal" class="settings_modal" aria-hidden="true">
-            <div class="settings_modal_backdrop"></div>
-            <div class="settings_modal_content">
-                <h3 class="settings_modal_title">Настройка срочности</h3>
-                <p class="settings_modal_hint" id="settings_modal_hint">Выберите иконку и цвет.</p>
-                <div id="urgency_settings_list" class="urgency_settings_list">
-                    <!-- Заполняется из JS по boardSettings.urgencyLevels -->
-                </div>
-                <div class="settings_modal_actions">
-                    <button type="button" id="settings_modal_close" class="settings_modal_close">Закрыть</button>
-                </div>
+        <!-- Popover настроек срочности (иконка и цвет) -->
+        <div id="urgency_settings_popover" class="urgency-popover" aria-hidden="true">
+            <h3 class="urgency-popover__title">Настройка срочности</h3>
+            <p class="urgency-popover__hint">Выберите иконку и цвет.</p>
+            <div id="urgency_settings_list" class="urgency_settings_list"></div>
+            <div class="urgency-popover__actions">
+                <button type="button" id="urgency_popover_save" class="urgency-popover__btn urgency-popover__btn--save">Сохранить</button>
+                <button type="button" id="urgency_popover_cancel" class="urgency-popover__btn urgency-popover__btn--cancel">Отмена</button>
             </div>
         </div>
 

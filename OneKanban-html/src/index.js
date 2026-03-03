@@ -20,10 +20,13 @@ const URGENCY_COLORS = {
     orange: '#e65100',
     amber: '#ff8f00',
     yellow: '#f9a825',
-    pink: '#ad1457'
+    green: '#2e7d32',
+    blue: '#1565c0'
 };
 const URGENCY_ICON_IDS = Object.keys(URGENCY_ICONS);
 const URGENCY_COLOR_IDS = Object.keys(URGENCY_COLORS);
+
+const BUG_ICON_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" class="cardtype-icon-svg"><path d="M19 8h-1.81a5.98 5.98 0 0 0-1.82-2.43l1.92-1.92-1.41-1.41-2.2 2.2a5.9 5.9 0 0 0-1.68-.44V2h-2v2a5.9 5.9 0 0 0-1.68.44l-2.2-2.2-1.41 1.41 1.92 1.92A5.98 5.98 0 0 0 6.81 8H5v2h1.09a5.96 5.96 0 0 0 0 2H5v2h1.81c.45.83 1.07 1.54 1.82 2.08L7 17.71l1.41 1.41 1.38-1.38c.5.18 1.03.26 1.59.26h1.24c.56 0 1.09-.08 1.59-.26l1.38 1.38 1.41-1.41-1.63-1.63c.75-.54 1.37-1.25 1.82-2.08H19v-2h-1.09a5.96 5.96 0 0 0 0-2H19V8zm-7 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>';
 
 // Общая функция применения настроек доски (для sendResponse и board-settings)
 const applyBoardSettingsFromData = (data) => {
@@ -54,10 +57,17 @@ const applyBoardSettingsFromData = (data) => {
         boardSettings.urgencyLevels = data.urgencylevels;
     }
     if (data.urgencysettings !== undefined && typeof data.urgencysettings === 'object') {
+        const changed = JSON.stringify(boardSettings.urgencySettings) !== JSON.stringify(data.urgencysettings);
         boardSettings.urgencySettings = data.urgencysettings;
+        if (changed && window.refreshUrgencyIconsOnCards) {
+            window.refreshUrgencyIconsOnCards();
+        }
     }
     if (data.urgencyfilter !== undefined && window.setSelectedUrgencies) {
         window.setSelectedUrgencies(data.urgencyfilter);
+    }
+    if (data.cardtypefilter !== undefined && window.setSelectedCardTypes) {
+        window.setSelectedCardTypes(data.cardtypefilter);
     }
     if (window.applyExecutorFilter) {
         window.applyExecutorFilter();
@@ -95,6 +105,10 @@ const getSelectedUrgencies = () => {
     return window.selectedUrgenciesSet ? Array.from(window.selectedUrgenciesSet) : [];
 };
 
+const getSelectedCardTypes = () => {
+    return window.selectedCardTypesSet ? Array.from(window.selectedCardTypesSet) : [];
+};
+
 // ========== ФУНКЦИИ ОБРАБОТКИ ЗАДАЧ ==========
 
 // HTML иконки срочности по urgencyId (из boardSettings.urgencySettings) или пустая строка
@@ -108,7 +122,7 @@ const getUrgencyIconHtml = (urgencyId) => {
 
 // Обновление классов карточки (проект, исполнитель, срочность)
 // ОПТИМИЗАЦИЯ: меняем классы только если они реально изменились
-const updateCardClasses = (card, project, user, user_name, urgencyId) => {
+const updateCardClasses = (card, project, user, user_name, urgencyId, isBug) => {
     
     // ===== ШАГ 1: Получаем текущие классы карточки =====
     // Преобразуем classList в обычный массив для удобства поиска
@@ -128,13 +142,17 @@ const updateCardClasses = (card, project, user, user_name, urgencyId) => {
     // ===== ШАГ 2: Обновляем проект только если он изменился =====
     // Проверяем: передан ли новый проект И отличается ли он от текущего
     if (project !== undefined && project !== currentProject) {
-        // Удаляем старый класс проекта (если был)
         if (currentProject) {
             card.classList.remove(currentProject);
         }
-        // Добавляем новый класс проекта (если не пустой)
         if (project) {
             card.classList.add(project);
+        }
+        const tagTask = card.querySelector('.tag_task');
+        if (tagTask) {
+            const pd = project && window.projectsList ? window.projectsList.find(p => p.id === project) : null;
+            tagTask.title = pd ? pd.name : '';
+            if (pd && pd.color) tagTask.style.setProperty('--project-color', pd.color);
         }
     }
     
@@ -168,7 +186,6 @@ const updateCardClasses = (card, project, user, user_name, urgencyId) => {
     
     // ===== ШАГ 5: Срочность — класс и иконка =====
     if (urgencyId !== undefined) {
-        const urgencyClass = card.classList.contains('urgency-' + urgencyId);
         const currentUrgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-')) || '';
         const newUrgencyClass = urgencyId ? 'urgency-' + urgencyId : '';
         if (newUrgencyClass !== currentUrgencyClass) {
@@ -177,22 +194,45 @@ const updateCardClasses = (card, project, user, user_name, urgencyId) => {
         }
         let urgencyEl = card.querySelector('.card__urgency-wrap');
         const iconHtml = getUrgencyIconHtml(urgencyId);
+        const urgencyLevel = urgencyId && boardSettings.urgencyLevels
+            ? boardSettings.urgencyLevels.find(l => l.id === urgencyId) : null;
+        const urgencyTitle = urgencyLevel ? urgencyLevel.name : '';
         if (iconHtml) {
             if (!urgencyEl) {
                 urgencyEl = document.createElement('div');
                 urgencyEl.className = 'card__urgency-wrap';
-                const header = card.querySelector('.card__header');
-                const tagTask = header ? header.querySelector('.tag_task') : null;
-                if (header) {
-                    if (tagTask) header.insertBefore(urgencyEl, tagTask.nextSibling);
-                    else header.prepend(urgencyEl);
+                const indicators = card.querySelector('.card__indicators');
+                const tagTask = indicators ? indicators.querySelector('.tag_task') : null;
+                if (indicators) {
+                    if (tagTask) indicators.insertBefore(urgencyEl, tagTask.nextSibling);
+                    else indicators.prepend(urgencyEl);
                 }
             }
             urgencyEl.innerHTML = iconHtml;
+            urgencyEl.title = urgencyTitle;
             urgencyEl.style.display = '';
         } else if (urgencyEl) {
             urgencyEl.innerHTML = '';
             urgencyEl.style.display = 'none';
+        }
+    }
+    
+    // ===== ШАГ 6: Тип карточки (task/bug) =====
+    if (isBug !== undefined) {
+        card.classList.toggle('card-type-bug', !!isBug);
+        let bugIcon = card.querySelector('.card__bug-icon');
+        if (isBug) {
+            if (!bugIcon) {
+                bugIcon = document.createElement('span');
+                bugIcon.className = 'card__bug-icon';
+                bugIcon.title = 'Ошибка';
+                bugIcon.innerHTML = BUG_ICON_SVG;
+                const indicators = card.querySelector('.card__indicators');
+                if (indicators) indicators.appendChild(bugIcon);
+            }
+            bugIcon.style.display = '';
+        } else if (bugIcon) {
+            bugIcon.style.display = 'none';
         }
     }
 };
@@ -224,9 +264,10 @@ const updateCardContent = (card, linkHref, linkName, photoSrc, altText, textCont
         if (photoSrc !== undefined && photo.src !== photoSrc) {
             photo.src = photoSrc;
         }
-        // Обновляем alt фото только если он изменился
+        // Обновляем alt и title фото только если они изменились
         if (altText !== undefined && photo.alt !== altText) {
             photo.alt = altText;
+            photo.title = altText;
         }
     }
     
@@ -311,14 +352,31 @@ const createCardFromData = (data) => {
     const urgencyIconHtml = getUrgencyIconHtml(data.urgencyId);
     if (urgencyClass) card.classList.add(urgencyClass);
     
+    // Тип карточки (isBug — булево из 1С)
+    const isBug = !!data.isBug;
+    if (isBug) card.classList.add('card-type-bug');
+    const bugIconHtml = isBug ? `<span class="card__bug-icon" title="Ошибка">${BUG_ICON_SVG}</span>` : '';
+    
+    // Подсказки (title)
+    const projectTitle = (data.project && window.projectsList)
+        ? (window.projectsList.find(p => p.id === data.project) || {}).name || ''
+        : '';
+    const urgencyTitle = (data.urgencyId && boardSettings.urgencyLevels)
+        ? (boardSettings.urgencyLevels.find(l => l.id === data.urgencyId) || {}).name || ''
+        : '';
+    const executorTitle = data.alt || '';
+    
     card.innerHTML = `
         <div class="card__header">
-            <div class="tag_task" ${projectColorStyle}></div>
-            ${urgencyIconHtml ? `<div class="card__urgency-wrap">${urgencyIconHtml}</div>` : ''}
             <a class="card__link" href="${data.card__link_href || '#'}">${data.card__link_name || ''}</a>
-            <img class="card__photo" alt="${data.alt || ''}" src="${data.card__photo || ''}">
+            <img class="card__photo" alt="${data.alt || ''}" title="${executorTitle}" src="${data.card__photo || ''}">
         </div>
         <div class="card__text"><span>${data.card__text || ''}</span></div>
+        <div class="card__indicators">
+            <div class="tag_task" ${projectColorStyle} title="${projectTitle}"></div>
+            ${urgencyIconHtml ? `<div class="card__urgency-wrap" title="${urgencyTitle}">${urgencyIconHtml}</div>` : ''}
+            ${bugIconHtml}
+        </div>
     `;
     return card;
 };
@@ -396,7 +454,7 @@ const processTask = (taskData) => {
     // 2. Обновить карточку в DOM (если отображается)
     const cardInDOM = document.getElementById(idTask);
     if (cardInDOM) {
-        updateCardClasses(cardInDOM, taskData.project, taskData.user, taskData.user_name, taskData.urgencyId);
+        updateCardClasses(cardInDOM, taskData.project, taskData.user, taskData.user_name, taskData.urgencyId, taskData.isBug);
         updateCardContent(cardInDOM, taskData.card__link_href, taskData.card__link_name, 
                           taskData.card__photo, taskData.alt, taskData.card__text, taskData.fullnameobjecttask);
         if (status) moveCardToStatus(cardInDOM, status);
@@ -428,6 +486,8 @@ window['V8Proxy'] = {
         V8_request.setAttribute('executorfilter', JSON.stringify(getSelectedExecutors()));
         V8_request.setAttribute('projectfilter', JSON.stringify(getSelectedProjects()));
         V8_request.setAttribute('urgencyfilter', JSON.stringify(getSelectedUrgencies()));
+        V8_request.setAttribute('cardtypefilter', JSON.stringify(getSelectedCardTypes()));
+        V8_request.setAttribute('urgencysettings', JSON.stringify(boardSettings.urgencySettings));
         V8_request.setAttribute('task', JSON.stringify(params));
                 
         V8_request.click();
@@ -458,6 +518,7 @@ window['V8Proxy'] = {
         //         {
         //             idTask, status, project, user, user_name,
         //             urgencyId: 'urgent_1',  // опционально; представление только в urgencylevels
+        //             isBug: true|false,       // булево: true = ошибка, false/undefined = задача
         //             fullnameobjecttask, card__link_href, card__link_name,
         //             card__photo, alt, card__text
         //         },
@@ -512,6 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.project_picker'),
             document.querySelector('.executor_dropdown'),
             document.querySelector('.urgency_dropdown'),
+            document.querySelector('.cardtype_dropdown'),
             document.querySelector('.grouping_dropdown')
         ];
         dropdowns.forEach(dropdown => {
@@ -634,7 +696,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     projects.forEach(p => { p.checked = shouldSelect; });
                     const wasOpen = picker.classList.contains('open');
                     updateDisplay();
-                    if (wasOpen) picker.classList.add('open');
                     
                     if (window.applyExecutorFilter) {
                         window.applyExecutorFilter();
@@ -642,6 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         RecalculateKanbanBlock();
                     }
                     window.V8Proxy.fetch('settingsChanged', {});
+                    if (wasOpen) picker.classList.add('open');
                 });
                 grid.appendChild(selectAllItem);
             }
@@ -654,7 +716,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const wasOpen = picker.classList.contains('open');
             project.checked = !project.checked;
             updateDisplay();
-            if (wasOpen) picker.classList.add('open');
             
             if (window.applyExecutorFilter) {
                 window.applyExecutorFilter();
@@ -667,6 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             window.V8Proxy.fetch('settingsChanged', {});
+            if (wasOpen) picker.classList.add('open');
         };
         
         toggle.addEventListener('click', (e) => {
@@ -692,6 +754,25 @@ document.addEventListener('DOMContentLoaded', () => {
         window.updateProjectPicker = updateDisplay;
         window.collectProjectsFromCheckboxes = collectProjectsFromData;
         window.projectsList = projects;
+        
+        // Фильтрация по клику на кружок проекта в карточке
+        window.filterByProject = (projectId) => {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            const onlyThisSelected = projects.filter(p => p.checked).length === 1 && project.checked;
+            if (onlyThisSelected) {
+                projects.forEach(p => { p.checked = true; });
+            } else {
+                projects.forEach(p => { p.checked = p.id === projectId; });
+            }
+            updateDisplay();
+            if (window.applyExecutorFilter) {
+                window.applyExecutorFilter();
+            } else {
+                RecalculateKanbanBlock();
+            }
+            window.V8Proxy.fetch('settingsChanged', {});
+        };
         
         window.setSelectedProjects = (projectIds) => {
             if (!projectIds || !Array.isArray(projectIds)) return;
@@ -856,6 +937,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         card.classList.add('card__inactive');
                     }
                 }
+                
+                // Фильтр по типу карточки (задача/ошибка)
+                const selCardTypes = window.selectedCardTypesSet || new Set();
+                if (selCardTypes.size > 0 && !card.classList.contains('card__inactive')) {
+                    const cType = card.classList.contains('card-type-bug') ? 'bug' : 'task';
+                    if (!selCardTypes.has(cType)) {
+                        card.classList.add('card__inactive');
+                    }
+                }
             });
             
             RecalculateKanbanBlock();
@@ -927,6 +1017,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Экспортируем selectedExecutors для получения состояния
         window.selectedExecutorsSet = selectedExecutors;
         
+        // Фильтрация по клику на фото исполнителя в карточке
+        window.filterByExecutor = (userId) => {
+            if (selectedExecutors.size === 1 && selectedExecutors.has(userId)) {
+                selectedExecutors.clear();
+            } else {
+                selectedExecutors.clear();
+                selectedExecutors.add(userId);
+            }
+            populateMenu();
+            updateLabel();
+            updateHasSelected();
+            applyFilter();
+            window.V8Proxy.fetch('settingsChanged', {});
+        };
+        
         // Функция для установки выбранных исполнителей из sendResponse
         window.setSelectedExecutors = (executorIds) => {
             if (!executorIds || !Array.isArray(executorIds)) return;
@@ -968,6 +1073,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 option.className = 'urgency_option';
                 option.setAttribute('data-value', id);
                 if (selectedUrgencies.has(id)) option.classList.add('selected');
+                const iconHtml = getUrgencyIconHtml(id);
+                if (iconHtml) {
+                    const preview = document.createElement('span');
+                    preview.className = 'urgency_option_preview';
+                    preview.innerHTML = iconHtml;
+                    option.appendChild(preview);
+                }
                 const label = document.createElement('span');
                 label.className = 'urgency_option_label';
                 label.textContent = name || id;
@@ -981,7 +1093,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 option.appendChild(settingsBtn);
                 settingsBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (window.openUrgencySettingsModal) window.openUrgencySettingsModal(id, name || id);
+                    if (window.openUrgencySettingsPopover) window.openUrgencySettingsPopover(id, name || id, settingsBtn);
                 });
                 menu.appendChild(option);
             });
@@ -1042,6 +1154,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         window.selectedUrgenciesSet = selectedUrgencies;
+        
+        // Фильтрация по клику на иконку срочности в карточке
+        window.filterByUrgency = (urgencyId) => {
+            if (selectedUrgencies.size === 1 && selectedUrgencies.has(urgencyId)) {
+                selectedUrgencies.clear();
+            } else {
+                selectedUrgencies.clear();
+                selectedUrgencies.add(urgencyId);
+            }
+            populateMenu();
+            updateLabel();
+            updateHasSelected();
+            if (window.applyExecutorFilter) window.applyExecutorFilter();
+            window.V8Proxy.fetch('settingsChanged', {});
+        };
+        
         window.setSelectedUrgencies = (urgencyIds) => {
             if (!urgencyIds || !Array.isArray(urgencyIds)) return;
             selectedUrgencies.clear();
@@ -1055,6 +1183,123 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     initUrgencyFilter();
+
+    // ========== CARD TYPE FILTER (Задача / Ошибка) ==========
+    let selectedCardTypes = new Set();
+    
+    const initCardTypeFilter = () => {
+        const dropdown = document.querySelector('.cardtype_dropdown');
+        const toggle = document.getElementById('cardtype_toggle');
+        const menu = document.getElementById('cardtype_menu');
+        const label = document.getElementById('cardtype_label');
+        const cardtypeClear = document.getElementById('cardtype_clear');
+        
+        if (!dropdown || !toggle || !menu) return;
+        
+        const CARD_TYPES = [
+            { id: 'task', name: 'Задача' },
+            { id: 'bug', name: 'Ошибка' }
+        ];
+        
+        const updateHasSelected = () => {
+            if (selectedCardTypes.size > 0) dropdown.classList.add('has-selected');
+            else dropdown.classList.remove('has-selected');
+        };
+        
+        const populateMenu = () => {
+            menu.innerHTML = '';
+            CARD_TYPES.forEach(({ id, name }) => {
+                const option = document.createElement('div');
+                option.className = 'cardtype_option';
+                option.setAttribute('data-value', id);
+                if (selectedCardTypes.has(id)) option.classList.add('selected');
+                option.textContent = name;
+                menu.appendChild(option);
+            });
+        };
+        
+        const updateLabel = () => {
+            if (selectedCardTypes.size === 0) {
+                label.textContent = 'Тип';
+            } else if (selectedCardTypes.size === 1) {
+                const id = Array.from(selectedCardTypes)[0];
+                const t = CARD_TYPES.find(ct => ct.id === id);
+                label.textContent = t ? t.name : id;
+            } else {
+                label.textContent = 'Тип (' + selectedCardTypes.size + ')';
+            }
+        };
+        
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeAllDropdowns(dropdown);
+            populateMenu();
+            dropdown.classList.toggle('open');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+        });
+        
+        menu.addEventListener('click', (e) => {
+            const option = e.target.closest('.cardtype_option');
+            if (!option) return;
+            e.stopPropagation();
+            const value = option.getAttribute('data-value');
+            if (selectedCardTypes.has(value)) {
+                selectedCardTypes.delete(value);
+                option.classList.remove('selected');
+            } else {
+                selectedCardTypes.add(value);
+                option.classList.add('selected');
+            }
+            updateLabel();
+            updateHasSelected();
+            if (window.applyExecutorFilter) window.applyExecutorFilter();
+            window.V8Proxy.fetch('settingsChanged', {});
+        });
+        
+        if (cardtypeClear) {
+            cardtypeClear.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectedCardTypes.clear();
+                updateLabel();
+                updateHasSelected();
+                populateMenu();
+                if (window.applyExecutorFilter) window.applyExecutorFilter();
+                window.V8Proxy.fetch('settingsChanged', {});
+            });
+        }
+        
+        window.selectedCardTypesSet = selectedCardTypes;
+        
+        // Фильтрация по клику на иконку ошибки в карточке
+        window.filterByCardType = (typeId) => {
+            if (selectedCardTypes.size === 1 && selectedCardTypes.has(typeId)) {
+                selectedCardTypes.clear();
+            } else {
+                selectedCardTypes.clear();
+                selectedCardTypes.add(typeId);
+            }
+            populateMenu();
+            updateLabel();
+            updateHasSelected();
+            if (window.applyExecutorFilter) window.applyExecutorFilter();
+            window.V8Proxy.fetch('settingsChanged', {});
+        };
+        
+        window.setSelectedCardTypes = (typeIds) => {
+            if (!typeIds || !Array.isArray(typeIds)) return;
+            selectedCardTypes.clear();
+            typeIds.forEach(id => selectedCardTypes.add(id));
+            populateMenu();
+            updateLabel();
+            updateHasSelected();
+            if (window.applyExecutorFilter) window.applyExecutorFilter();
+        };
+    };
+    
+    initCardTypeFilter();
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     
@@ -1082,15 +1327,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const link = card.querySelector('.card__link');
             const photo = card.querySelector('.card__photo');
             const textSpan = card.querySelector('.card__text span');
-            const urgencyClass = classList.find(c => c.startsWith('urgency-'));
-            const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : '';
             
-            tasksData.set(card.id, {
+            const urgencyId = card.getAttribute('urgencyId') || undefined;
+            const isBugAttr = card.getAttribute('isBug');
+            const isBug = isBugAttr === 'Да' || isBugAttr === 'true' || isBugAttr === '1';
+            
+            const taskData = {
                 idTask: card.id,
                 project: classList.find(c => c.startsWith('project')) || '',
                 user: classList.find(c => c.startsWith('user')) || '',
                 user_name: classList.find(c => c.startsWith('user_name')) || '',
-                urgencyId: urgencyId || undefined,
+                urgencyId,
+                isBug,
                 fullnameobjecttask: card.getAttribute('fullNameObjectTask') || '',
                 card__link_href: link ? link.getAttribute('href') : '',
                 card__link_name: link ? link.textContent : '',
@@ -1098,7 +1346,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 alt: photo ? photo.alt : '',
                 card__text: textSpan ? textSpan.textContent : '',
                 status: statusBlock ? statusBlock.id : null
-            });
+            };
+            tasksData.set(card.id, taskData);
+            
+            updateCardClasses(card, undefined, undefined, undefined, urgencyId, isBug);
         });
     };
     
@@ -1572,6 +1823,61 @@ document.addEventListener('DOMContentLoaded', () => {
     initDragDrop();
     initCardDrag();
 
+    // Клик по фото исполнителя — фильтр по этому исполнителю
+    document.addEventListener('click', (e) => {
+        const photo = e.target.closest('.card__photo');
+        if (!photo) return;
+        const card = photo.closest('.card');
+        if (!card) return;
+        let userId = null;
+        for (const cls of card.className.split(' ')) {
+            if (cls.startsWith('user')) userId = cls;
+        }
+        if (!userId || !window.filterByExecutor) return;
+        e.preventDefault();
+        e.stopPropagation();
+        window.filterByExecutor(userId);
+    });
+
+    // Клик по кружку проекта — фильтр по этому проекту
+    document.addEventListener('click', (e) => {
+        const tag = e.target.closest('.tag_task');
+        if (!tag) return;
+        const card = tag.closest('.card');
+        if (!card) return;
+        const projectId = Array.from(card.classList).find(cls => cls.startsWith('project'));
+        if (!projectId || !window.filterByProject) return;
+        e.preventDefault();
+        e.stopPropagation();
+        window.filterByProject(projectId);
+    });
+
+    // Клик по иконке срочности — фильтр по этому уровню срочности
+    document.addEventListener('click', (e) => {
+        const wrap = e.target.closest('.card__urgency-wrap');
+        if (!wrap) return;
+        const card = wrap.closest('.card');
+        if (!card) return;
+        const urgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-'));
+        const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : null;
+        if (!urgencyId || !window.filterByUrgency) return;
+        e.preventDefault();
+        e.stopPropagation();
+        window.filterByUrgency(urgencyId);
+    });
+
+    // Клик по иконке ошибки — фильтр по типу "Ошибка"
+    document.addEventListener('click', (e) => {
+        const bugIcon = e.target.closest('.card__bug-icon');
+        if (!bugIcon) return;
+        const card = bugIcon.closest('.card');
+        if (!card) return;
+        if (!window.filterByCardType) return;
+        e.preventDefault();
+        e.stopPropagation();
+        window.filterByCardType('bug');
+    });
+
     // ========== ПОИСК ПО ЗАДАЧАМ ==========
     const initSearch = () => {
         const searchInput = document.getElementById('search_input');
@@ -1702,20 +2008,22 @@ document.addEventListener('DOMContentLoaded', () => {
     initUpdateButton();
 
     // Обновить иконки срочности на всех карточках (после смены настроек)
-    const refreshUrgencyIconsOnCards = () => {
+    window.refreshUrgencyIconsOnCards = () => {
         document.querySelectorAll('.card').forEach(card => {
             const urgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-'));
             const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : null;
             if (urgencyId) {
-                const header = card.querySelector('.card__header');
+                const indicators = card.querySelector('.card__indicators');
                 let wrap = card.querySelector('.card__urgency-wrap');
                 const iconHtml = getUrgencyIconHtml(urgencyId);
                 if (iconHtml) {
                     if (!wrap) {
                         wrap = document.createElement('div');
                         wrap.className = 'card__urgency-wrap';
-                        const tagTask = header.querySelector('.tag_task');
-                        header.insertBefore(wrap, tagTask ? tagTask.nextSibling : header.firstChild);
+                        if (indicators) {
+                            const tagTask = indicators.querySelector('.tag_task');
+                            indicators.insertBefore(wrap, tagTask ? tagTask.nextSibling : indicators.firstChild);
+                        }
                     }
                     wrap.innerHTML = iconHtml;
                     wrap.style.display = '';
@@ -1727,20 +2035,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Модальное окно настроек срочности (иконка + цвет для одного уровня — открывается из фильтра по кнопке у строки)
-    const initSettingsModal = () => {
-        const modal = document.getElementById('settings_modal');
-        const backdrop = modal ? modal.querySelector('.settings_modal_backdrop') : null;
-        const closeBtn = document.getElementById('settings_modal_close');
+    // Popover настроек срочности (иконка + цвет для одного уровня)
+    const initSettingsPopover = () => {
+        const popover = document.getElementById('urgency_settings_popover');
         const listEl = document.getElementById('urgency_settings_list');
-        const titleEl = modal ? modal.querySelector('.settings_modal_title') : null;
-        const hintEl = modal ? modal.querySelector('.settings_modal_hint') : null;
+        const titleEl = popover ? popover.querySelector('.urgency-popover__title') : null;
+        const saveBtn = document.getElementById('urgency_popover_save');
+        const cancelBtn = document.getElementById('urgency_popover_cancel');
         
-        if (!modal || !listEl) return;
+        if (!popover || !listEl) return;
         
-        const renderSingleUrgencySettings = (urgencyId, name) => {
+        let settingsSnapshot = null;
+        let currentEditId = null;
+        let draftSettings = {};
+        
+        const renderSingleUrgencySettings = (urgencyId) => {
             listEl.innerHTML = '';
-            const s = boardSettings.urgencySettings[urgencyId] || {};
+            const s = draftSettings[urgencyId] || {};
             const iconId = s.iconId || 'fire';
             const colorId = s.colorId || 'red';
             const row = document.createElement('div');
@@ -1762,8 +2073,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.addEventListener('click', () => {
                     const wrap = btn.closest('.urgency_setting_icons');
                     const id = wrap.getAttribute('data-urgency-id');
-                    if (!boardSettings.urgencySettings[id]) boardSettings.urgencySettings[id] = {};
-                    boardSettings.urgencySettings[id].iconId = btn.getAttribute('data-icon');
+                    if (!draftSettings[id]) draftSettings[id] = {};
+                    draftSettings[id].iconId = btn.getAttribute('data-icon');
                     wrap.querySelectorAll('.urgency_icon_btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                 });
@@ -1772,38 +2083,76 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.addEventListener('click', () => {
                     const wrap = btn.closest('.urgency_setting_colors');
                     const id = wrap.getAttribute('data-urgency-id');
-                    if (!boardSettings.urgencySettings[id]) boardSettings.urgencySettings[id] = {};
-                    boardSettings.urgencySettings[id].colorId = btn.getAttribute('data-color');
+                    if (!draftSettings[id]) draftSettings[id] = {};
+                    draftSettings[id].colorId = btn.getAttribute('data-color');
                     wrap.querySelectorAll('.urgency_color_btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                 });
             });
         };
         
-        const closeModal = () => {
-            modal.classList.remove('open');
-            modal.setAttribute('aria-hidden', 'true');
-            window.V8Proxy.fetch('settingsChanged', {});
-            refreshUrgencyIconsOnCards();
+        const positionPopover = (anchorEl) => {
+            const rect = anchorEl.getBoundingClientRect();
+            const popW = 300;
+            let left = rect.right + 8;
+            let top = rect.top;
+            if (left + popW > window.innerWidth) {
+                left = rect.left - popW - 8;
+            }
+            if (left < 4) left = 4;
+            if (top + 300 > window.innerHeight) {
+                top = Math.max(4, window.innerHeight - 340);
+            }
+            popover.style.left = left + 'px';
+            popover.style.top = top + 'px';
         };
         
-        window.openUrgencySettingsModal = (urgencyId, name) => {
+        const closePopover = (applyChanges) => {
+            if (applyChanges) {
+                boardSettings.urgencySettings = JSON.parse(JSON.stringify(draftSettings));
+                window.V8Proxy.fetch('settingsChanged', {});
+                window.refreshUrgencyIconsOnCards();
+                if (window.populateUrgencyMenu) window.populateUrgencyMenu();
+            } else if (settingsSnapshot) {
+                boardSettings.urgencySettings = JSON.parse(settingsSnapshot);
+            }
+            popover.classList.remove('open');
+            popover.setAttribute('aria-hidden', 'true');
+            settingsSnapshot = null;
+            currentEditId = null;
+        };
+        
+        window.openUrgencySettingsPopover = (urgencyId, name, anchorEl) => {
             closeAllDropdowns();
+            if (popover.classList.contains('open') && currentEditId === urgencyId) {
+                closePopover(false);
+                return;
+            }
+            settingsSnapshot = JSON.stringify(boardSettings.urgencySettings);
+            draftSettings = JSON.parse(JSON.stringify(boardSettings.urgencySettings));
+            currentEditId = urgencyId;
             if (titleEl) titleEl.textContent = 'Настройка: ' + (name || urgencyId);
-            if (hintEl) hintEl.style.display = '';
-            renderSingleUrgencySettings(urgencyId, name);
-            modal.classList.add('open');
-            modal.setAttribute('aria-hidden', 'false');
+            renderSingleUrgencySettings(urgencyId);
+            positionPopover(anchorEl);
+            popover.classList.add('open');
+            popover.setAttribute('aria-hidden', 'false');
         };
         
-        if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        if (backdrop) backdrop.addEventListener('click', closeModal);
-        modal.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
+        if (saveBtn) saveBtn.addEventListener('click', () => closePopover(true));
+        if (cancelBtn) cancelBtn.addEventListener('click', () => closePopover(false));
+        
+        document.addEventListener('mousedown', (e) => {
+            if (!popover.classList.contains('open')) return;
+            if (popover.contains(e.target)) return;
+            closePopover(false);
+        });
+        
+        popover.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closePopover(false);
         });
     };
     
-    initSettingsModal();
+    initSettingsPopover();
 
     // document.querySelectorAll('.add_task').forEach(button => {
     //     button.addEventListener('click', (event) => {

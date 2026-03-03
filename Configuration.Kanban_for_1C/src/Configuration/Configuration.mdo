@@ -65,6 +65,7 @@
   <definedTypes>DefinedType.канбан_Ошибки</definedTypes>
   <definedTypes>DefinedType.канбан_Пользователь</definedTypes>
   <definedTypes>DefinedType.канбан_Проекты</definedTypes>
+  <definedTypes>DefinedType.канбан_СрочностьИсправления</definedTypes>
   <definedTypes>DefinedType.канбан_СтатусыЗадач</definedTypes>
   <definedTypes>DefinedType.канбан_СтатусыОшибок</definedTypes>
   <commonCommands>CommonCommand.канбан_Задачи</commonCommands>
@@ -80,6 +81,7 @@
   <catalogs>Catalog.канбан_СтатусыЗадач</catalogs>
   <catalogs>Catalog.канбан_СтатусыОшибок</catalogs>
   <catalogs>Catalog.Пользователи</catalogs>
+  <enums>Enum.канбан_СрочностьИсправления</enums>
   <dataProcessors>DataProcessor.Канбан_Доска_HTML</dataProcessors>
   <dataProcessors>DataProcessor.канбан_ТехПоддержка</dataProcessors>
   <informationRegisters>InformationRegister.канбан_ИспользуемыеПроектыДоски</informationRegisters>

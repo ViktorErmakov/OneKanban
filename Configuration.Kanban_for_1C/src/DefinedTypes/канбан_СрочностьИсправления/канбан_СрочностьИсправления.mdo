@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:DefinedType xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="8f0550db-2fd9-49c6-b775-5d9f1131f8b9">
+  <producedTypes>
+    <containerType typeId="7d6c5b7c-d0b8-44e5-9503-71b78b400bed" valueTypeId="1b2c69c8-c1c2-45df-aeb0-92014fcbedf5"/>
+  </producedTypes>
+  <name>канбан_СрочностьИсправления</name>
+  <synonym>
+    <key>ru</key>
+    <value>Срочность исправления</value>
+  </synonym>
+  <type>
+    <types>EnumRef.канбан_СрочностьИсправления</types>
+  </type>
+</mdclass:DefinedType>

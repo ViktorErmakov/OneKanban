@@ -224,6 +224,21 @@
     <fullTextSearch>Use</fullTextSearch>
     <dataHistory>Use</dataHistory>
   </attributes>
+  <attributes uuid="8933d2e0-0de7-409a-9b5a-fe1b4fcd4392">
+    <name>СрочностьИсправления</name>
+    <synonym>
+      <key>ru</key>
+      <value>Срочность исправления</value>
+    </synonym>
+    <type>
+      <types>DefinedType.канбан_СрочностьИсправления</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fillValue xsi:type="core:UndefinedValue"/>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+  </attributes>
   <forms uuid="9a066aae-60a1-419b-bcc3-4028d5ec4b2f">
     <name>ФормаЭлемента</name>
     <synonym>

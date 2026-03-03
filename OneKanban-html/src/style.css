@@ -263,6 +263,12 @@ body {
     border-radius: 50%;
     background-color: var(--project-color, transparent);
     flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.tag_task:hover {
+    transform: scale(1.4);
 }
 
 /* Иконка срочности (рядом с кружком проекта, визуально отдельно) */
@@ -271,6 +277,12 @@ body {
     align-items: center;
     flex-shrink: 0;
     margin-left: 0.4rem;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.card__urgency-wrap:hover {
+    transform: scale(1.3);
 }
 
 .card__urgency {
@@ -283,6 +295,30 @@ body {
 }
 
 .card__urgency .urgency-icon-svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    fill: currentColor;
+}
+
+/* Иконка типа «ошибка» (жук) */
+.card__bug-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    color: #c62828;
+    flex-shrink: 0;
+    margin-left: 0.2rem;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.card__bug-icon:hover {
+    transform: scale(1.3);
+}
+
+.card__bug-icon .cardtype-icon-svg {
     width: 1.4rem;
     height: 1.4rem;
     fill: currentColor;
@@ -579,6 +615,14 @@ label {
     align-items: start;
 }
 
+.card__indicators {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+    min-height: 1.6rem;
+}
+
 .card__link {
     color: var(--link-color);
     text-decoration: none;
@@ -596,6 +640,7 @@ label {
     border: 1px solid var(--border-color);
     background-color: var(--bg-secondary);
     transition: background-color 0.3s ease;
+    cursor: pointer;
 }
 
 .card__photo:hover {
@@ -1178,6 +1223,21 @@ label {
     position: relative;
 }
 
+.urgency_option_preview {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+.urgency_option_preview .urgency-icon-svg {
+    width: 1rem;
+    height: 1rem;
+}
+
 .urgency_option_label {
     flex: 1;
     min-width: 0;
@@ -1220,53 +1280,171 @@ label {
     font-size: 1.2rem;
 }
 
-/* ========== SETTINGS MODAL (срочность) ========== */
-.settings_modal {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
+/* ========== CARD TYPE FILTER (Тип: Задача / Ошибка) ========== */
+.cardtype_dropdown {
+    position: relative;
+    display: inline-block;
+    margin-right: 0.3rem;
 }
 
-.settings_modal.open {
+.cardtype_toggle {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 1rem;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1.6rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-family: 'Arial', sans-serif;
+    transition: all 0.3s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.cardtype_toggle > * {
+    margin-left: 0.6rem;
+}
+
+.cardtype_toggle > *:first-child {
+    margin-left: 0;
+}
+
+.cardtype_toggle:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.cardtype_clear {
+    font-size: 1.6rem;
+    opacity: 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    margin-left: 0.4rem;
+}
+
+.cardtype_dropdown.has-selected .cardtype_clear {
+    opacity: 0.6;
+    pointer-events: auto;
+}
+
+.cardtype_dropdown.open .cardtype_menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.cardtype_menu {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    min-width: 12rem;
+    max-height: 28rem;
+    overflow-y: auto;
+    background-color: var(--command-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    transition: all 0.2s ease;
+    z-index: 200;
+}
+
+.cardtype_option {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 2.5rem 0.6rem 1.2rem;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.cardtype_option:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.cardtype_option.selected::after {
+    content: "✓";
+    position: absolute;
+    right: 1rem;
+    font-size: 1.2rem;
+}
+
+/* ========== SETTINGS MODAL (срочность) ========== */
+.urgency-popover {
+    position: absolute;
+    z-index: 1000;
+    background-color: var(--command-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.6rem;
+    width: 30rem;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.urgency-popover.open {
     opacity: 1;
     visibility: visible;
 }
 
-.settings_modal_backdrop {
-    position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
-}
-
-.settings_modal_content {
-    position: relative;
-    background-color: var(--command-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
-    padding: 2rem;
-    max-width: 36rem;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.settings_modal_title {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.8rem;
+.urgency-popover__title {
+    margin: 0 0 0.4rem 0;
+    font-size: 1.6rem;
     color: var(--text-primary);
 }
 
-.settings_modal_hint {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.3rem;
+.urgency-popover__hint {
+    margin: 0 0 1.2rem 0;
+    font-size: 1.2rem;
     color: var(--text-secondary);
+}
+
+.urgency-popover__actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    justify-content: flex-end;
+}
+
+.urgency-popover__btn {
+    padding: 0.45rem 1.2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.6rem;
+    cursor: pointer;
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.urgency-popover__btn--save {
+    background-color: var(--link-color);
+    color: #fff;
+    border-color: var(--link-color);
+}
+
+.urgency-popover__btn--save:hover {
+    filter: brightness(1.15);
+}
+
+.urgency-popover__btn--cancel {
+    background-color: var(--button-bg);
+}
+
+.urgency-popover__btn--cancel:hover {
+    background-color: var(--bg-tertiary);
 }
 
 .urgency_settings_list {
@@ -1361,24 +1539,6 @@ label {
     box-shadow: 0 0 0 1px var(--border-color);
 }
 
-.settings_modal_actions {
-    margin-top: 1rem;
-}
-
-.settings_modal_close {
-    padding: 0.5rem 1.2rem;
-    background-color: var(--button-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 0.8rem;
-    cursor: pointer;
-    font-size: 1.4rem;
-    color: var(--text-primary);
-    transition: background 0.2s;
-}
-
-.settings_modal_close:hover {
-    background-color: var(--bg-tertiary);
-}
 
 /* ========== SEARCH ========== */
 .search_container {

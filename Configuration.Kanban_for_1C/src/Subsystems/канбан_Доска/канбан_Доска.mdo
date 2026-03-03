@@ -38,4 +38,6 @@
   <content>DefinedType.канбан_Ошибки</content>
   <content>Catalog.канбан_Ошибки</content>
   <content>CommonModule.канбан_КанбанДоскаКлиентСервер</content>
+  <content>DefinedType.канбан_СрочностьИсправления</content>
+  <content>Enum.канбан_СрочностьИсправления</content>
 </mdclass:Subsystem>
