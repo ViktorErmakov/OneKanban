@@ -263,6 +263,7 @@ body {
     border-radius: 50%;
     background-color: var(--project-color, transparent);
     flex-shrink: 0;
+    margin-left: 0.3rem;
     cursor: pointer;
     transition: transform 0.15s ease;
 }
@@ -271,12 +272,17 @@ body {
     transform: scale(1.4);
 }
 
-/* Иконка срочности (рядом с кружком проекта, визуально отдельно) */
+/* Иконка срочности (слева в строке текста) */
 .card__urgency-wrap {
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    margin-left: 0.4rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    margin-top: 0.2rem;
+    margin-left: 0;
+    margin-right: 0.6rem;
     cursor: pointer;
     transition: transform 0.15s ease;
 }
@@ -285,43 +291,15 @@ body {
     transform: scale(1.3);
 }
 
-.card__urgency {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.card__urgency-wrap .urgency-icon-svg {
     width: 1.6rem;
     height: 1.6rem;
-    color: var(--urgency-color, #c62828);
-}
-
-.card__urgency .urgency-icon-svg {
-    width: 1.4rem;
-    height: 1.4rem;
     fill: currentColor;
 }
 
-/* Иконка типа «ошибка» (жук) */
-.card__bug-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.6rem;
-    height: 1.6rem;
-    color: #c62828;
-    flex-shrink: 0;
-    margin-left: 0.2rem;
-    cursor: pointer;
-    transition: transform 0.15s ease;
-}
-
-.card__bug-icon:hover {
-    transform: scale(1.3);
-}
-
-.card__bug-icon .cardtype-icon-svg {
-    width: 1.4rem;
-    height: 1.4rem;
-    fill: currentColor;
+/* Карточка-ошибка — красная полоска слева */
+.card.card-type-bug {
+    border-left: 3px solid #c62828;
 }
 
 /* ========== PROJECT PICKER (Tag-picker с dropdown) ========== */
@@ -611,22 +589,20 @@ label {
 .card__header {
     display: flex;
     width: 100%;
-    justify-content: space-between;
-    align-items: start;
+    align-items: center;
 }
 
-.card__indicators {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.4rem;
-    min-height: 1.6rem;
+.card__header > * + * {
+    margin-left: 0.4rem;
 }
 
 .card__link {
     color: var(--link-color);
     text-decoration: none;
     transition: color 0.3s ease;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
 }
 
 .card__link:hover {
@@ -653,6 +629,7 @@ label {
 
 .card__text {
     display: flex;
+    align-items: flex-start;
     width: 100%;
     color: var(--text-primary);
 }
@@ -804,6 +781,26 @@ label {
 .theme_toggle.active::before {
     transform: translateX(2.6rem);
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234A7BA7" stroke="%234A7BA7" width="16" height="16"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>');
+}
+
+/* Логотип-ссылка */
+.logo_link {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.75;
+    transition: opacity 0.2s ease;
+    text-decoration: none;
+}
+
+.logo_link img {
+    max-height: 2.8rem;
+    object-fit: contain;
+}
+
+.logo_link:hover {
+    opacity: 1;
 }
 
 /* кнопка добавления задач +++ */
@@ -1414,9 +1411,12 @@ label {
 
 .urgency-popover__actions {
     display: flex;
-    gap: 0.6rem;
     margin-top: 1rem;
     justify-content: flex-end;
+}
+
+.urgency-popover__actions > * + * {
+    margin-left: 0.6rem;
 }
 
 .urgency-popover__btn {
@@ -1461,7 +1461,6 @@ label {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.8rem;
     margin-bottom: 1.2rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border-color);
@@ -1484,8 +1483,13 @@ label {
 .urgency_setting_icons,
 .urgency_setting_colors {
     display: flex;
-    gap: 0.4rem;
     align-items: center;
+    margin-right: 0.8rem;
+}
+
+.urgency_icon_btn + .urgency_icon_btn,
+.urgency_color_btn + .urgency_color_btn {
+    margin-left: 0.4rem;
 }
 
 .urgency_icon_btn {

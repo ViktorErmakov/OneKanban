@@ -19,4 +19,13 @@
     <commandParameterType/>
     <representation>Auto</representation>
   </commands>
+  <commands uuid="2e233d83-da50-4b8a-8eb9-3ae2b5e19deb">
+    <name>СтраницаДокументации</name>
+    <synonym>
+      <key>ru</key>
+      <value>Страница документации</value>
+    </synonym>
+    <group>CommandGroup.канбан_Информация</group>
+    <representation>Auto</representation>
+  </commands>
 </mdclass:DataProcessor>

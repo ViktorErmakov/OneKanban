@@ -5,13 +5,16 @@ const boardSettings = {
     currentUserId: null,      // ID текущего пользователя (например: 'user123')
     currentUserName: null,    // Имя текущего пользователя (например: 'Иванов Иван')
     urgencyLevels: [],        // [{ id: 'urgent_1', name: 'Критично' }, ...] — из 1С
-    urgencySettings: {},     // { 'urgent_1': { iconId: 'fire', colorId: 'red' }, ... }
+    urgencySettings: {},     // { 'urgent_1': { iconId: 'arrowUp', colorId: 'red' }, ... }
 };
 
 // Встроенные иконки и цвета для срочности
 const URGENCY_ICONS = {
+    arrowDoubleUp: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M6 17.59L7.41 19 12 14.42 16.59 19 18 17.59l-6-6z"/><path d="M6 11l1.41 1.41L12 7.83l4.59 4.58L18 11l-6-6z"/></svg>',
+    arrowUp: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8z"/></svg>',
+    equals: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M4 9h16v2H4zm0 4h16v2H4z"/></svg>',
+    arrowDown: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8z"/></svg>',
     flag: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>',
-    fire: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M12 23c3.31 0 6-2.69 6-6 0-2-1-4-2.5-5.5l-.5.5c.87.87 1.5 2.11 1.5 3.5 0 2.76-2.24 5-5 5-2.76 0-5-2.24-5-5 0-1.39.63-2.63 1.5-3.5L10 10c-1.5 1.5-2.5 3.5-2.5 5.5 0 3.31 2.69 6 6 6z"/></svg>',
     lightning: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>',
     exclamation: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>'
 };
@@ -26,7 +29,6 @@ const URGENCY_COLORS = {
 const URGENCY_ICON_IDS = Object.keys(URGENCY_ICONS);
 const URGENCY_COLOR_IDS = Object.keys(URGENCY_COLORS);
 
-const BUG_ICON_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" class="cardtype-icon-svg"><path d="M19 8h-1.81a5.98 5.98 0 0 0-1.82-2.43l1.92-1.92-1.41-1.41-2.2 2.2a5.9 5.9 0 0 0-1.68-.44V2h-2v2a5.9 5.9 0 0 0-1.68.44l-2.2-2.2-1.41 1.41 1.92 1.92A5.98 5.98 0 0 0 6.81 8H5v2h1.09a5.96 5.96 0 0 0 0 2H5v2h1.81c.45.83 1.07 1.54 1.82 2.08L7 17.71l1.41 1.41 1.38-1.38c.5.18 1.03.26 1.59.26h1.24c.56 0 1.09-.08 1.59-.26l1.38 1.38 1.41-1.41-1.63-1.63c.75-.54 1.37-1.25 1.82-2.08H19v-2h-1.09a5.96 5.96 0 0 0 0-2H19V8zm-7 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>';
 
 // Общая функция применения настроек доски (для sendResponse и board-settings)
 const applyBoardSettingsFromData = (data) => {
@@ -115,9 +117,9 @@ const getSelectedCardTypes = () => {
 const getUrgencyIconHtml = (urgencyId) => {
     if (!urgencyId || !boardSettings.urgencySettings[urgencyId]) return '';
     const { iconId, colorId } = boardSettings.urgencySettings[urgencyId];
-    const icon = URGENCY_ICON_IDS.includes(iconId) ? URGENCY_ICONS[iconId] : URGENCY_ICONS.fire;
+    const icon = URGENCY_ICON_IDS.includes(iconId) ? URGENCY_ICONS[iconId] : URGENCY_ICONS[URGENCY_ICON_IDS[0]];
     const color = URGENCY_COLOR_IDS.includes(colorId) ? URGENCY_COLORS[colorId] : URGENCY_COLORS.red;
-    return `<span class="card__urgency" style="--urgency-color: ${color}" title="${urgencyId}">${icon}</span>`;
+    return { svg: icon, color };
 };
 
 // Обновление классов карточки (проект, исполнитель, срочность)
@@ -184,7 +186,7 @@ const updateCardClasses = (card, project, user, user_name, urgencyId, isBug) => 
         }
     }
     
-    // ===== ШАГ 5: Срочность — класс и иконка =====
+    // ===== ШАГ 5: Срочность — класс и иконка (размещается в .card__text перед <span>) =====
     if (urgencyId !== undefined) {
         const currentUrgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-')) || '';
         const newUrgencyClass = urgencyId ? 'urgency-' + urgencyId : '';
@@ -193,22 +195,19 @@ const updateCardClasses = (card, project, user, user_name, urgencyId, isBug) => 
             if (newUrgencyClass) card.classList.add(newUrgencyClass);
         }
         let urgencyEl = card.querySelector('.card__urgency-wrap');
-        const iconHtml = getUrgencyIconHtml(urgencyId);
+        const iconData = getUrgencyIconHtml(urgencyId);
         const urgencyLevel = urgencyId && boardSettings.urgencyLevels
             ? boardSettings.urgencyLevels.find(l => l.id === urgencyId) : null;
         const urgencyTitle = urgencyLevel ? urgencyLevel.name : '';
-        if (iconHtml) {
+        if (iconData) {
             if (!urgencyEl) {
                 urgencyEl = document.createElement('div');
                 urgencyEl.className = 'card__urgency-wrap';
-                const indicators = card.querySelector('.card__indicators');
-                const tagTask = indicators ? indicators.querySelector('.tag_task') : null;
-                if (indicators) {
-                    if (tagTask) indicators.insertBefore(urgencyEl, tagTask.nextSibling);
-                    else indicators.prepend(urgencyEl);
-                }
+                const textEl = card.querySelector('.card__text');
+                if (textEl) textEl.insertBefore(urgencyEl, textEl.firstChild);
             }
-            urgencyEl.innerHTML = iconHtml;
+            urgencyEl.innerHTML = iconData.svg;
+            urgencyEl.style.color = iconData.color;
             urgencyEl.title = urgencyTitle;
             urgencyEl.style.display = '';
         } else if (urgencyEl) {
@@ -217,23 +216,9 @@ const updateCardClasses = (card, project, user, user_name, urgencyId, isBug) => 
         }
     }
     
-    // ===== ШАГ 6: Тип карточки (task/bug) =====
+    // ===== ШАГ 6: Тип карточки (task/bug) — красная полоска слева через CSS-класс =====
     if (isBug !== undefined) {
         card.classList.toggle('card-type-bug', !!isBug);
-        let bugIcon = card.querySelector('.card__bug-icon');
-        if (isBug) {
-            if (!bugIcon) {
-                bugIcon = document.createElement('span');
-                bugIcon.className = 'card__bug-icon';
-                bugIcon.title = 'Ошибка';
-                bugIcon.innerHTML = BUG_ICON_SVG;
-                const indicators = card.querySelector('.card__indicators');
-                if (indicators) indicators.appendChild(bugIcon);
-            }
-            bugIcon.style.display = '';
-        } else if (bugIcon) {
-            bugIcon.style.display = 'none';
-        }
     }
 };
 
@@ -349,13 +334,12 @@ const createCardFromData = (data) => {
     
     // Класс и иконка срочности (отдельно от проекта — иконка справа от кружка)
     const urgencyClass = data.urgencyId ? 'urgency-' + data.urgencyId : '';
-    const urgencyIconHtml = getUrgencyIconHtml(data.urgencyId);
+    const urgencyIconData = getUrgencyIconHtml(data.urgencyId);
     if (urgencyClass) card.classList.add(urgencyClass);
     
     // Тип карточки (isBug — булево из 1С)
     const isBug = !!data.isBug;
     if (isBug) card.classList.add('card-type-bug');
-    const bugIconHtml = isBug ? `<span class="card__bug-icon" title="Ошибка">${BUG_ICON_SVG}</span>` : '';
     
     // Подсказки (title)
     const projectTitle = (data.project && window.projectsList)
@@ -366,17 +350,17 @@ const createCardFromData = (data) => {
         : '';
     const executorTitle = data.alt || '';
     
+    const urgencyWrapHtml = urgencyIconData
+        ? `<div class="card__urgency-wrap" title="${urgencyTitle}" style="color: ${urgencyIconData.color}">${urgencyIconData.svg}</div>`
+        : '';
+    
     card.innerHTML = `
         <div class="card__header">
+            <div class="tag_task" ${projectColorStyle} title="${projectTitle}"></div>
             <a class="card__link" href="${data.card__link_href || '#'}">${data.card__link_name || ''}</a>
             <img class="card__photo" alt="${data.alt || ''}" title="${executorTitle}" src="${data.card__photo || ''}">
         </div>
-        <div class="card__text"><span>${data.card__text || ''}</span></div>
-        <div class="card__indicators">
-            <div class="tag_task" ${projectColorStyle} title="${projectTitle}"></div>
-            ${urgencyIconHtml ? `<div class="card__urgency-wrap" title="${urgencyTitle}">${urgencyIconHtml}</div>` : ''}
-            ${bugIconHtml}
-        </div>
+        <div class="card__text">${urgencyWrapHtml}<span>${data.card__text || ''}</span></div>
     `;
     return card;
 };
@@ -512,7 +496,7 @@ window['V8Proxy'] = {
         //     theme: 'light'|'dark', grouping: 'none'|'executor'|'project',
         //     executorfilter: [], projectfilter: [], urgencyfilter: [],
         //     urgencylevels: [{ id: 'urgent_1', name: 'Критично' }, ...],  // для фильтра и настроек
-        //     urgencysettings: { 'urgent_1': { iconId: 'fire', colorId: 'red' }, ... },
+        //     urgencysettings: { 'urgent_1': { iconId: 'arrowUp', colorId: 'red' }, ... },
         //     search: '...',
         //     tasks: [
         //         {
@@ -1073,11 +1057,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 option.className = 'urgency_option';
                 option.setAttribute('data-value', id);
                 if (selectedUrgencies.has(id)) option.classList.add('selected');
-                const iconHtml = getUrgencyIconHtml(id);
-                if (iconHtml) {
+                const iconData = getUrgencyIconHtml(id);
+                if (iconData) {
                     const preview = document.createElement('span');
                     preview.className = 'urgency_option_preview';
-                    preview.innerHTML = iconHtml;
+                    preview.style.color = iconData.color;
+                    preview.innerHTML = iconData.svg;
                     option.appendChild(preview);
                 }
                 const label = document.createElement('span');
@@ -1866,18 +1851,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.filterByUrgency(urgencyId);
     });
 
-    // Клик по иконке ошибки — фильтр по типу "Ошибка"
-    document.addEventListener('click', (e) => {
-        const bugIcon = e.target.closest('.card__bug-icon');
-        if (!bugIcon) return;
-        const card = bugIcon.closest('.card');
-        if (!card) return;
-        if (!window.filterByCardType) return;
-        e.preventDefault();
-        e.stopPropagation();
-        window.filterByCardType('bug');
-    });
-
     // ========== ПОИСК ПО ЗАДАЧАМ ==========
     const initSearch = () => {
         const searchInput = document.getElementById('search_input');
@@ -2013,19 +1986,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const urgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-'));
             const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : null;
             if (urgencyId) {
-                const indicators = card.querySelector('.card__indicators');
+                const textEl = card.querySelector('.card__text');
                 let wrap = card.querySelector('.card__urgency-wrap');
-                const iconHtml = getUrgencyIconHtml(urgencyId);
-                if (iconHtml) {
+                const iconData = getUrgencyIconHtml(urgencyId);
+                if (iconData) {
                     if (!wrap) {
                         wrap = document.createElement('div');
                         wrap.className = 'card__urgency-wrap';
-                        if (indicators) {
-                            const tagTask = indicators.querySelector('.tag_task');
-                            indicators.insertBefore(wrap, tagTask ? tagTask.nextSibling : indicators.firstChild);
-                        }
+                        if (textEl) textEl.insertBefore(wrap, textEl.firstChild);
                     }
-                    wrap.innerHTML = iconHtml;
+                    wrap.innerHTML = iconData.svg;
+                    wrap.style.color = iconData.color;
                     wrap.style.display = '';
                 } else if (wrap) {
                     wrap.innerHTML = '';
@@ -2052,7 +2023,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const renderSingleUrgencySettings = (urgencyId) => {
             listEl.innerHTML = '';
             const s = draftSettings[urgencyId] || {};
-            const iconId = s.iconId || 'fire';
+            const iconId = s.iconId || URGENCY_ICON_IDS[0];
             const colorId = s.colorId || 'red';
             const row = document.createElement('div');
             row.className = 'urgency_setting_row';
