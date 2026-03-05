@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 60" width="248" height="48">
+  <defs>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="iconBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+
+  <text x="0" y="46" font-family="'Segoe UI', Arial, sans-serif"
+        font-size="50" font-weight="700" fill="#f59e0b">One</text>
+
+  <g transform="translate(103, 0)">
+    <rect width="60" height="60" rx="14" fill="url(#iconBg)"/>
+    <rect x="14" y="12" width="9" height="36" rx="3" fill="white"/>
+    <rect x="26" y="12" width="9" height="14" rx="3" fill="#facc15"/>
+    <rect x="36" y="12" width="9" height="9" rx="3" fill="#facc15" opacity="0.9"/>
+    <rect x="26" y="34" width="9" height="14" rx="3" fill="#4ade80"/>
+    <rect x="36" y="39" width="9" height="9" rx="3" fill="#4ade80" opacity="0.9"/>
+    <circle cx="28" cy="30" r="3" fill="white"/>
+  </g>
+
+  <text x="166" y="46" font-family="'Segoe UI', Arial, sans-serif"
+        font-size="50" font-weight="700" fill="url(#textGrad)">anban</text>
+</svg>
