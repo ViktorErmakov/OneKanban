@@ -144,17 +144,6 @@
 		</right>
 	</object>
 	<object>
-		<name>DataProcessor.канбан_ТехПоддержка</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>DataProcessor.Канбан_Доска_HTML</name>
 		<right>
 			<name>Use</name>

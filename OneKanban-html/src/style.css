@@ -46,8 +46,8 @@ html {
 body {
     margin: 0;
     font-size: 1.7rem;
-    overflow: auto;
-    height: 100vh;
+    overflow: hidden;
+    min-height: 100vh;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -114,6 +114,7 @@ body {
     display: flex;
     width: 100%;
     flex: 1;
+    height: 100vh;
 }
 
 /* Плейсхолдер "Выберите проект" в project_picker */
@@ -165,7 +166,7 @@ body {
 }
 
 .kanban-block {
-    margin-top: 1.5rem;
+    /* margin-top: 0; */
     background-color: var(--bg-secondary);
     transition: background-color 0.3s ease;
     display: flex;
@@ -1634,8 +1635,12 @@ label {
 }
 
 /* Первая группа - отступ сверху для sticky заголовка */
+#kanban-board.grouped {
+    padding-top: 12.8rem;
+}
+
 .group:first-child {
-    margin-top: 12.8rem;
+    margin-top: 0;
 }
 
 .group-header {
@@ -1741,8 +1746,12 @@ label {
     flex-direction: row;
 }
 
+#kanban-board:not(.grouped) {
+    padding-top: 11.8rem;
+}
+
 #kanban-board:not(.grouped) .kanban-block {
-    margin-top: 11.8rem;
+    margin-top: 0;
     min-height: calc(100vh - 11.8rem);
 }
 

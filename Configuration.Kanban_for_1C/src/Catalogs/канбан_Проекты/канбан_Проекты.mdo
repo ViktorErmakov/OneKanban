@@ -10,7 +10,7 @@
   <name>канбан_Проекты</name>
   <synonym>
     <key>ru</key>
-    <value>Проекты (по умолчанию)</value>
+    <value>Проекты (OneKanban)</value>
   </synonym>
   <useStandardCommands>true</useStandardCommands>
   <inputByString>Catalog.канбан_Проекты.StandardAttribute.Code</inputByString>

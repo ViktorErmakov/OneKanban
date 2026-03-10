@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:CommonTemplate xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="7e092767-f815-4f6c-9da7-899ab1e8cf02">
+  <name>канбан_ТекстHTML_ЧетыреПроекта_Срочность_Немедленно</name>
+  <synonym>
+    <key>ru</key>
+    <value>Канбан текст HTML четыре проекта срочность немедленно</value>
+  </synonym>
+  <templateType>TextDocument</templateType>
+</mdclass:CommonTemplate>

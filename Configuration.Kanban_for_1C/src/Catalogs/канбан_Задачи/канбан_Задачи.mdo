@@ -10,7 +10,7 @@
   <name>канбан_Задачи</name>
   <synonym>
     <key>ru</key>
-    <value>Задачи (по умолчанию)</value>
+    <value>Задачи (OneKanban)</value>
   </synonym>
   <useStandardCommands>true</useStandardCommands>
   <inputByString>Catalog.канбан_Задачи.StandardAttribute.Code</inputByString>

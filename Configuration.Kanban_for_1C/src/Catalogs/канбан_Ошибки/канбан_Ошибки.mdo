@@ -10,7 +10,7 @@
   <name>канбан_Ошибки</name>
   <synonym>
     <key>ru</key>
-    <value>Ошибки</value>
+    <value>Ошибки (OneKanban)</value>
   </synonym>
   <useStandardCommands>true</useStandardCommands>
   <inputByString>Catalog.канбан_Ошибки.StandardAttribute.Code</inputByString>
@@ -26,7 +26,6 @@
   <foldersOnTop>true</foldersOnTop>
   <codeLength>11</codeLength>
   <descriptionLength>150</descriptionLength>
-  <codeType>String</codeType>
   <codeAllowedLength>Variable</codeAllowedLength>
   <checkUnique>true</checkUnique>
   <autonumbering>true</autonumbering>
@@ -89,6 +88,21 @@
     </synonym>
     <type>
       <types>DefinedType.канбан_СрочностьИсправления</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fillValue xsi:type="core:UndefinedValue"/>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+  </attributes>
+  <attributes uuid="f7f0ff3b-bb97-4921-bd43-5b06dc73f6d9">
+    <name>Содержание</name>
+    <synonym>
+      <key>ru</key>
+      <value>Содержание</value>
+    </synonym>
+    <type>
+      <types>ValueStorage</types>
     </type>
     <minValue xsi:type="core:UndefinedValue"/>
     <maxValue xsi:type="core:UndefinedValue"/>

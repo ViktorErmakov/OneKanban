@@ -83,7 +83,6 @@
   <catalogs>Catalog.Пользователи</catalogs>
   <enums>Enum.канбан_СрочностьИсправления</enums>
   <dataProcessors>DataProcessor.Канбан_Доска_HTML</dataProcessors>
-  <dataProcessors>DataProcessor.канбан_ТехПоддержка</dataProcessors>
   <informationRegisters>InformationRegister.канбан_ИспользуемыеПроектыДоски</informationRegisters>
   <informationRegisters>InformationRegister.канбан_ИспользуемыеСтатусыДоски</informationRegisters>
   <informationRegisters>InformationRegister.канбан_СопоставлениеСтатусов</informationRegisters>

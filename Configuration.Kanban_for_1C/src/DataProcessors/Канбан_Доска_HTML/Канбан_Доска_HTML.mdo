@@ -69,10 +69,19 @@
     <name>ОткрытьСтраницуРазработки</name>
     <synonym>
       <key>ru</key>
-      <value>Страница разработки</value>
+      <value>Страница разработки (OneKanban)</value>
     </synonym>
     <group>ActionsPanelTools</group>
     <commandParameterType/>
+    <representation>Auto</representation>
+  </commands>
+  <commands uuid="f75211cd-4a10-4981-a103-ee8e57f1d8b8">
+    <name>СтраницаДокументации</name>
+    <synonym>
+      <key>ru</key>
+      <value>Страница документации (OneKanban)</value>
+    </synonym>
+    <group>CommandGroup.канбан_Информация</group>
     <representation>Auto</representation>
   </commands>
 </mdclass:DataProcessor>

@@ -20,7 +20,6 @@
   </picture>
   <content>DataProcessor.Канбан_Доска_HTML</content>
   <content>CommandGroup.канбан_Информация</content>
-  <content>DataProcessor.канбан_ТехПоддержка</content>
   <content>Catalog.канбан_Задачи</content>
   <content>Catalog.канбан_Проекты</content>
   <content>Catalog.канбан_СтатусыЗадач</content>

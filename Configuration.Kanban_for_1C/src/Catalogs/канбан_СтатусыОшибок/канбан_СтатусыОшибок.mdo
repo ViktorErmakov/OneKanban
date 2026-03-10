@@ -10,7 +10,7 @@
   <name>канбан_СтатусыОшибок</name>
   <synonym>
     <key>ru</key>
-    <value>Статусы ошибок</value>
+    <value>Статусы ошибок (OneKanban)</value>
   </synonym>
   <useStandardCommands>true</useStandardCommands>
   <inputByString>Catalog.канбан_СтатусыОшибок.StandardAttribute.Code</inputByString>

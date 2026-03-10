@@ -16,7 +16,6 @@
   <content>CommonModule.канбан_КанбанДоскаВызовСервера</content>
   <content>DefinedType.канбан_СтатусыЗадач</content>
   <content>CommonPicture.канбан_ФотоПоУмолчанию</content>
-  <content>DataProcessor.канбан_ТехПоддержка</content>
   <content>CommonModule.канбан_КанбанДоскаКлиентПереопределяемый</content>
   <content>DefinedType.канбан_Пользователь</content>
   <content>Catalog.канбан_Проекты</content>

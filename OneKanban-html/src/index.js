@@ -8,6 +8,8 @@ const boardSettings = {
     urgencySettings: {},     // { 'urgent_1': { iconId: 'arrowUp', colorId: 'red' }, ... }
 };
 
+window.boardSettings = boardSettings;
+
 // Встроенные иконки и цвета для срочности
 const URGENCY_ICONS = {
     arrowDoubleUp: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M6 17.59L7.41 19 12 14.42 16.59 19 18 17.59l-6-6z"/><path d="M6 11l1.41 1.41L12 7.83l4.59 4.58L18 11l-6-6z"/></svg>',
