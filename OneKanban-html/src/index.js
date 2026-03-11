@@ -1,16 +1,20 @@
 import './style.css';
 
-// ========== ГЛОБАЛЬНЫЕ НАСТРОЙКИ ДОСКИ ==========
+// ============================================================
+// СЕКЦИЯ 1: КОНСТАНТЫ
+// Настройки доски, иконки/цвета срочности, типы карточек.
+// ============================================================
+
+// Глобальные настройки доски, заполняются из 1С через sendResponse
 const boardSettings = {
-    currentUserId: null,      // ID текущего пользователя (например: 'user123')
-    currentUserName: null,    // Имя текущего пользователя (например: 'Иванов Иван')
-    urgencyLevels: [],        // [{ id: 'urgent_1', name: 'Критично' }, ...] — из 1С
-    urgencySettings: {},     // { 'urgent_1': { iconId: 'arrowUp', colorId: 'red' }, ... }
+    currentUserId: null,
+    currentUserName: null,
+    urgencyLevels: [],
+    urgencySettings: {},
 };
 
 window.boardSettings = boardSettings;
 
-// Встроенные иконки и цвета для срочности
 const URGENCY_ICONS = {
     arrowDoubleUp: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M6 17.59L7.41 19 12 14.42 16.59 19 18 17.59l-6-6z"/><path d="M6 11l1.41 1.41L12 7.83l4.59 4.58L18 11l-6-6z"/></svg>',
     arrowUp: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8z"/></svg>',
@@ -18,104 +22,51 @@ const URGENCY_ICONS = {
     arrowDown: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8z"/></svg>',
     flag: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>',
     lightning: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>',
-    exclamation: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>'
+    exclamation: '<svg viewBox="0 0 24 24" fill="currentColor" class="urgency-icon-svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>',
 };
+
 const URGENCY_COLORS = {
     red: '#c62828',
     orange: '#e65100',
     amber: '#ff8f00',
     yellow: '#f9a825',
     green: '#2e7d32',
-    blue: '#1565c0'
+    blue: '#1565c0',
 };
+
 const URGENCY_ICON_IDS = Object.keys(URGENCY_ICONS);
 const URGENCY_COLOR_IDS = Object.keys(URGENCY_COLORS);
+const MAX_VISIBLE_PROJECTS = 3;
 
+const CARD_TYPES = [
+    { id: 'task', name: 'Задача' },
+    { id: 'bug', name: 'Ошибка' },
+];
 
-// Общая функция применения настроек доски (для sendResponse и board-settings)
-const applyBoardSettingsFromData = (data) => {
-    if (!data || typeof data !== 'object') return;
-    
-    if (data.currentuserid !== undefined) {
-        boardSettings.currentUserId = data.currentuserid;
-    }
-    if (data.currentusername !== undefined) {
-        boardSettings.currentUserName = data.currentusername;
-    }
-    if (data.theme !== undefined && window.applyTheme) {
-        window.applyTheme(data.theme);
-    }
-    if (data.grouping !== undefined && window.applyGroupingByValue) {
-        window.applyGroupingByValue(data.grouping);
-    }
-    if (data.executorfilter !== undefined && window.setSelectedExecutors) {
-        window.setSelectedExecutors(data.executorfilter);
-    }
-    if (data.projectfilter !== undefined && window.setSelectedProjects) {
-        window.setSelectedProjects(data.projectfilter);
-    }
-    if (data.search !== undefined && window.setSearchQuery) {
-        window.setSearchQuery(data.search);
-    }
-    if (data.urgencylevels !== undefined && Array.isArray(data.urgencylevels)) {
-        boardSettings.urgencyLevels = data.urgencylevels;
-    }
-    if (data.urgencysettings !== undefined && typeof data.urgencysettings === 'object') {
-        const changed = JSON.stringify(boardSettings.urgencySettings) !== JSON.stringify(data.urgencysettings);
-        boardSettings.urgencySettings = data.urgencysettings;
-        if (changed && window.refreshUrgencyIconsOnCards) {
-            window.refreshUrgencyIconsOnCards();
-        }
-    }
-    if (data.urgencyfilter !== undefined && window.setSelectedUrgencies) {
-        window.setSelectedUrgencies(data.urgencyfilter);
-    }
-    if (data.cardtypefilter !== undefined && window.setSelectedCardTypes) {
-        window.setSelectedCardTypes(data.cardtypefilter);
-    }
-    if (window.applyExecutorFilter) {
-        window.applyExecutorFilter();
-    }
-    if (window.applyCurrentSearch) {
-        window.applyCurrentSearch();
-    }
-    if (typeof RecalculateKanbanBlock === 'function') {
-        RecalculateKanbanBlock();
-    }
-};
+// ============================================================
+// СЕКЦИЯ 2: СОСТОЯНИЕ
+// Все мутабельные данные приложения в одном месте.
+// ============================================================
 
-// Глобальная переменная для хранения текущего типа группировки
-let currentGroupingType = 'none';
+// Хранилище задач: idTask → { idTask, status, project, user, ... }
+const tasksData = new Map();
+window.tasksData = tasksData;
 
-// Вспомогательные функции для получения состояния UI
-const getCurrentTheme = () => {
-    const wrapper = document.getElementById('wrapper');
-    return wrapper && wrapper.classList.contains('dark-theme') ? 'dark' : 'light';
-};
+const expandedBlocks = new Set();          // Колонки, где пользователь нажал «Ещё N» (снят лимит карточек)
+let currentGroupingType = 'none';          // Текущая группировка: 'none' | 'executor' | 'project'
+let statusBlocksData = null;               // Снимок структуры статусов (колонок) при первой группировке
+let selectedExecutorsSet = new Set();      // Выбранные исполнители в фильтре
+let selectedUrgenciesSet = new Set();      // Выбранные уровни срочности в фильтре
+let selectedCardTypesSet = new Set();      // Выбранные типы карточек (задача/ошибка) в фильтре
+let projectsList = [];                     // Список проектов из 1С: [{ id, name, color, checked }]
+let draggingCardProjectId = null;          // ID проекта перетаскиваемой карточки (для запрета переноса между проектами)
 
-const getCurrentGrouping = () => {
-    return currentGroupingType;
-};
+// ============================================================
+// СЕКЦИЯ 3: ЧИСТЫЕ ФУНКЦИИ
+// Не зависят от DOM-замыканий, можно вызывать в любой момент.
+// ============================================================
 
-const getSelectedExecutors = () => {
-    return window.selectedExecutorsSet ? Array.from(window.selectedExecutorsSet) : [];
-};
-
-const getSelectedProjects = () => {
-    return window.projectsList ? window.projectsList.filter(p => p.checked).map(p => p.id) : [];
-};
-
-const getSelectedUrgencies = () => {
-    return window.selectedUrgenciesSet ? Array.from(window.selectedUrgenciesSet) : [];
-};
-
-const getSelectedCardTypes = () => {
-    return window.selectedCardTypesSet ? Array.from(window.selectedCardTypesSet) : [];
-};
-
-// ========== ФУНКЦИИ ОБРАБОТКИ ЗАДАЧ ==========
-
-// HTML иконки срочности по urgencyId (из boardSettings.urgencySettings) или пустая строка
+// Возвращает { svg, color } для иконки срочности или '' если не задана
 const getUrgencyIconHtml = (urgencyId) => {
     if (!urgencyId || !boardSettings.urgencySettings[urgencyId]) return '';
     const { iconId, colorId } = boardSettings.urgencySettings[urgencyId];
@@ -124,71 +75,177 @@ const getUrgencyIconHtml = (urgencyId) => {
     return { svg: icon, color };
 };
 
-// Обновление классов карточки (проект, исполнитель, срочность)
-// ОПТИМИЗАЦИЯ: меняем классы только если они реально изменились
+// Показывает/скрывает карточки по тексту поиска (CSS-класс card__search_hidden)
+const filterCardsBySearch = (searchText) => {
+    document.querySelectorAll('.card').forEach(card => {
+        const cardTextSpan = card.querySelector('.card__text span');
+        const text = cardTextSpan ? cardTextSpan.textContent.toLowerCase() : '';
+
+        if (searchText === '' || text.includes(searchText)) {
+            card.classList.remove('card__search_hidden');
+        } else {
+            card.classList.add('card__search_hidden');
+        }
+    });
+};
+
+// Уникальный ключ колонки с учётом группы (для хранения состояния «развёрнутости»)
+const getBlockKey = (block) => {
+    const group = block.closest('.group');
+    if (group) {
+        return (group.getAttribute('data-executor-id') || group.getAttribute('data-project-id') || '') + '|' + block.id;
+    }
+    return block.id;
+};
+
+// Ограничивает количество видимых карточек в колонке по высоте экрана.
+// Если карточки не помещаются — скрывает лишние и показывает ссылку «Ещё N».
+const limitBlockCards = (block, availableHeight, linkReserve) => {
+    if (expandedBlocks.has(getBlockKey(block))) return;
+
+    const visibleCards = Array.from(
+        block.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)')
+    );
+    if (visibleCards.length === 0) return;
+
+    let totalHeight = 0;
+    let limitIndex = visibleCards.length;
+
+    for (let i = 0; i < visibleCards.length; i++) {
+        const cs = getComputedStyle(visibleCards[i]);
+        const cardH = visibleCards[i].offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
+        const isLast = i === visibleCards.length - 1;
+        const reserve = isLast ? 0 : linkReserve;
+
+        if (totalHeight + cardH + reserve > availableHeight) {
+            limitIndex = i;
+            break;
+        }
+        totalHeight += cardH;
+    }
+
+    if (limitIndex >= visibleCards.length) {
+        const existingLink = block.querySelector('.show-more-link');
+        if (existingLink) existingLink.remove();
+        return;
+    }
+
+    for (let i = limitIndex; i < visibleCards.length; i++) {
+        visibleCards[i].style.display = 'none';
+    }
+
+    const hiddenCount = visibleCards.length - limitIndex;
+    let link = block.querySelector('.show-more-link');
+    if (!link) {
+        link = document.createElement('a');
+        link.className = 'show-more-link';
+        link.href = '#';
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            expandedBlocks.add(getBlockKey(block));
+            applyCardLimits();
+        });
+        block.appendChild(link);
+    }
+    link.textContent = 'Ещё ' + hiddenCount;
+    link.style.display = '';
+};
+
+// Пересчитывает лимиты карточек для всех колонок доски
+function applyCardLimits() {
+    document.querySelectorAll('.kanban-block').forEach(block => {
+        block.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)').forEach(c => {
+            c.style.display = '';
+        });
+        const link = block.querySelector('.show-more-link');
+        if (link) link.style.display = 'none';
+    });
+
+    const board = document.getElementById('kanban-board');
+    if (!board) return;
+    const boardRect = board.getBoundingClientRect();
+    const maxH = window.innerHeight - boardRect.top - 16;
+    if (maxH <= 0) return;
+
+    document.querySelectorAll('.kanban-block').forEach(block => {
+        limitBlockCards(block, maxH, 28);
+    });
+}
+
+// Пересчитывает счётчики карточек в заголовках колонок и групп, затем применяет лимиты
+function RecalculateKanbanBlock() {
+    const kanbanBoard = document.getElementById('kanban-board');
+    const isGrouped = kanbanBoard && kanbanBoard.classList.contains('grouped');
+    const blockHeaders = document.querySelectorAll('.block_header');
+
+    if (isGrouped) {
+        blockHeaders.forEach((header, index) => {
+            let count = 0;
+            document.querySelectorAll('.group').forEach(group => {
+                const groupBlocks = group.querySelectorAll('.kanban-block');
+                if (groupBlocks[index]) {
+                    count += groupBlocks[index].querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)').length;
+                }
+            });
+            const number = header.querySelector('.kanban-block__number');
+            if (number) number.textContent = count;
+        });
+    } else {
+        document.querySelectorAll('.kanban-block').forEach((kanbanBlock, index) => {
+            const tasks = kanbanBlock.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)');
+            const header = blockHeaders[index];
+            if (header) {
+                const number = header.querySelector('.kanban-block__number');
+                if (number) number.textContent = tasks.length;
+            }
+        });
+    }
+
+    document.querySelectorAll('.group').forEach(group => {
+        const groupCount = group.querySelector('.group-count');
+        if (groupCount) {
+            groupCount.textContent = group.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)').length;
+        }
+    });
+
+    applyCardLimits();
+}
+
+// ============================================================
+// СЕКЦИЯ 4: DOM-ФУНКЦИИ (карточки, группировка, drag & drop)
+// Создание, обновление и перемещение карточек; Drag & Drop.
+// ============================================================
+
+// Обновляет CSS-классы и иконку срочности на карточке.
+// Передаётся undefined для полей, которые не нужно менять.
 const updateCardClasses = (card, project, user, user_name, urgencyId, isBug) => {
-    
-    // ===== ШАГ 1: Получаем текущие классы карточки =====
-    // Преобразуем classList в обычный массив для удобства поиска
     const classList = Array.from(card.classList);
-    
-    // Находим текущий класс проекта (начинается с 'project')
-    // Например: 'project-abc-123' или пустая строка если нет
     const currentProject = classList.find(cls => cls.startsWith('project')) || '';
-    
-    // Находим текущий класс исполнителя (начинается с 'user')
     const currentUser = classList.find(cls => cls.startsWith('user') && !cls.startsWith('user_name')) || '';
-    
-    // Находим текущий класс имени исполнителя (начинается с 'user_name')
-    // Например: 'user_nameИванов_Иван' или пустая строка если нет
     const currentUserNameClass = classList.find(cls => cls.startsWith('user_name')) || '';
-    
-    // ===== ШАГ 2: Обновляем проект только если он изменился =====
-    // Проверяем: передан ли новый проект И отличается ли он от текущего
+
     if (project !== undefined && project !== currentProject) {
-        if (currentProject) {
-            card.classList.remove(currentProject);
-        }
-        if (project) {
-            card.classList.add(project);
-        }
+        if (currentProject) card.classList.remove(currentProject);
+        if (project) card.classList.add(project);
         const tagTask = card.querySelector('.tag_task');
         if (tagTask) {
-            const pd = project && window.projectsList ? window.projectsList.find(p => p.id === project) : null;
+            const pd = project ? projectsList.find(p => p.id === project) : null;
             tagTask.title = pd ? pd.name : '';
             if (pd && pd.color) tagTask.style.setProperty('--project-color', pd.color);
         }
     }
-    
-    // ===== ШАГ 3: Обновляем исполнителя только если он изменился =====
+
     if (user !== undefined && user !== currentUser) {
-        // Удаляем старый класс исполнителя (если был)
-        if (currentUser) {
-            card.classList.remove(currentUser);
-        }
-        // Добавляем новый класс исполнителя (если не пустой)
-        if (user) {
-            card.classList.add(user);
-        }
+        if (currentUser) card.classList.remove(currentUser);
+        if (user) card.classList.add(user);
     }
-    
-    // ===== ШАГ 4: Обновляем имя исполнителя только если оно изменилось =====
-    // Из 1С user_name приходит уже с префиксом "user_name" (например: "user_nameИванов_Иван")
-    // Только заменяем пробелы на подчёркивания (на случай если в имени есть пробелы)
+
     const newUserNameClass = user_name ? user_name.split(' ').join('_') : '';
-    
     if (user_name !== undefined && newUserNameClass !== currentUserNameClass) {
-        // Удаляем старый класс имени (если был)
-        if (currentUserNameClass) {
-            card.classList.remove(currentUserNameClass);
-        }
-        // Добавляем новый класс имени (если не пустой)
-        if (newUserNameClass) {
-            card.classList.add(newUserNameClass);
-        }
+        if (currentUserNameClass) card.classList.remove(currentUserNameClass);
+        if (newUserNameClass) card.classList.add(newUserNameClass);
     }
-    
-    // ===== ШАГ 5: Срочность — класс и иконка (размещается в .card__text перед <span>) =====
+
     if (urgencyId !== undefined) {
         const currentUrgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-')) || '';
         const newUrgencyClass = urgencyId ? 'urgency-' + urgencyId : '';
@@ -217,235 +274,177 @@ const updateCardClasses = (card, project, user, user_name, urgencyId, isBug) => 
             urgencyEl.style.display = 'none';
         }
     }
-    
-    // ===== ШАГ 6: Тип карточки (task/bug) — красная полоска слева через CSS-класс =====
+
     if (isBug !== undefined) {
         card.classList.toggle('card-type-bug', !!isBug);
     }
 };
 
-// Обновление содержимого карточки
-// ОПТИМИЗАЦИЯ: меняем содержимое только если оно реально изменилось
+// Обновляет содержимое карточки: ссылку, фото, текст, полное имя объекта
 const updateCardContent = (card, linkHref, linkName, photoSrc, altText, textContent, fullnameobjecttask) => {
-    
-    // ===== Обновляем ссылку на задачу =====
     const link = card.querySelector('.card__link');
     if (link) {
-        // Обновляем URL ссылки (href) только если он изменился
         if (linkHref !== undefined) {
             const currentHref = link.getAttribute('href') || '';
-            if (currentHref !== linkHref) {
-                link.setAttribute('href', linkHref);
-            }
+            if (currentHref !== linkHref) link.setAttribute('href', linkHref);
         }
-        // Обновляем текст ссылки только если он изменился
         if (linkName !== undefined && link.textContent !== linkName) {
             link.textContent = linkName;
         }
     }
-    
-    // ===== Обновляем фото =====
+
     const photo = card.querySelector('.card__photo');
     if (photo) {
-        // Обновляем src фото только если он изменился
-        if (photoSrc !== undefined && photo.src !== photoSrc) {
-            photo.src = photoSrc;
-        }
-        // Обновляем alt и title фото только если они изменились
+        if (photoSrc !== undefined && photo.src !== photoSrc) photo.src = photoSrc;
         if (altText !== undefined && photo.alt !== altText) {
             photo.alt = altText;
             photo.title = altText;
         }
     }
-    
-    // ===== Обновляем текст карточки =====
+
     const textSpan = card.querySelector('.card__text span');
-    if (textSpan && textContent !== undefined) {
-        // Сравниваем текущий текст с новым
-        if (textSpan.textContent !== textContent) {
-            textSpan.textContent = textContent;
-        }
+    if (textSpan && textContent !== undefined && textSpan.textContent !== textContent) {
+        textSpan.textContent = textContent;
     }
-    
-    // ===== Обновляем атрибут fullNameObjectTask =====
+
     if (fullnameobjecttask !== undefined) {
-        // Получаем текущее значение атрибута
         const currentAttr = card.getAttribute('fullNameObjectTask') || '';
-        // Меняем только если значение отличается
-        if (currentAttr !== fullnameobjecttask) {
-            card.setAttribute('fullNameObjectTask', fullnameobjecttask);
-        }
+        if (currentAttr !== fullnameobjecttask) card.setAttribute('fullNameObjectTask', fullnameobjecttask);
     }
 };
 
-// Перемещение карточки в статус
-// При группировке ищем блок на основе классов карточки (user/project), а не текущего положения в DOM
+// Перемещает карточку в нужную колонку (статус), учитывая текущую группировку
 const moveCardToStatus = (card, statusId) => {
     let targetBlock = null;
-    
+
     if (currentGroupingType === 'executor') {
-        // Группировка по исполнителям — ищем группу по классу user карточки
         const userClass = Array.from(card.classList).find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
         if (userClass) {
-            const group = document.querySelector(`.group[data-executor-id="${userClass}"]`);
-            if (group) {
-                targetBlock = group.querySelector(`.kanban-block[id="${statusId}"]`);
-            }
+            const group = document.querySelector('.group[data-executor-id="' + userClass + '"]');
+            if (group) targetBlock = group.querySelector('.kanban-block[id="' + statusId + '"]');
         }
     } else if (currentGroupingType === 'project') {
-        // Группировка по проектам — ищем группу по классу project карточки
         const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
         if (projectClass) {
-            const group = document.querySelector(`.group[data-project-id="${projectClass}"]`);
-            if (group) {
-                targetBlock = group.querySelector(`.kanban-block[id="${statusId}"]`);
-            }
+            const group = document.querySelector('.group[data-project-id="' + projectClass + '"]');
+            if (group) targetBlock = group.querySelector('.kanban-block[id="' + statusId + '"]');
         }
     } else {
         targetBlock = document.getElementById(statusId);
     }
-    
+
     if (targetBlock && card.parentElement !== targetBlock) {
         targetBlock.appendChild(card);
-        // Обновляем статус в хранилище данных
         const taskData = tasksData.get(card.id);
         if (taskData) taskData.status = statusId;
     }
 };
 
-// Создание карточки из данных
+// Создаёт DOM-элемент карточки из объекта данных
 const createCardFromData = (data) => {
     const card = document.createElement('div');
-    // user_name приходит с префиксом "user_name", заменяем пробелы на подчёркивания
     const userNameClass = data.user_name ? data.user_name.split(' ').join('_') : '';
-    card.className = `card ${data.project || ''} ${data.user || ''} ${userNameClass}`.trim();
+    card.className = ('card ' + (data.project || '') + ' ' + (data.user || '') + ' ' + userNameClass).trim();
     card.id = data.idTask;
     card.draggable = true;
     if (data.fullnameobjecttask) {
         card.setAttribute('fullNameObjectTask', data.fullnameobjecttask);
     }
-    
-    // Получаем цвет проекта из projectsList для отображения кружочка
+
     let projectColorStyle = '';
-    if (data.project && window.projectsList) {
-        const project = window.projectsList.find(p => p.id === data.project);
+    if (data.project && projectsList.length > 0) {
+        const project = projectsList.find(p => p.id === data.project);
         if (project && project.color) {
-            projectColorStyle = `style="--project-color: ${project.color}"`;
+            projectColorStyle = 'style="--project-color: ' + project.color + '"';
         }
     }
-    
-    // Класс и иконка срочности (отдельно от проекта — иконка справа от кружка)
+
     const urgencyClass = data.urgencyId ? 'urgency-' + data.urgencyId : '';
     const urgencyIconData = getUrgencyIconHtml(data.urgencyId);
     if (urgencyClass) card.classList.add(urgencyClass);
-    
-    // Тип карточки (isBug — булево из 1С)
-    const isBug = !!data.isBug;
-    if (isBug) card.classList.add('card-type-bug');
-    
-    // Подсказки (title)
-    const projectTitle = (data.project && window.projectsList)
-        ? (window.projectsList.find(p => p.id === data.project) || {}).name || ''
+
+    if (data.isBug) card.classList.add('card-type-bug');
+
+    const projectTitle = (data.project && projectsList.length > 0)
+        ? (projectsList.find(p => p.id === data.project) || {}).name || ''
         : '';
     const urgencyTitle = (data.urgencyId && boardSettings.urgencyLevels)
         ? (boardSettings.urgencyLevels.find(l => l.id === data.urgencyId) || {}).name || ''
         : '';
     const executorTitle = data.alt || '';
-    
+
     const urgencyWrapHtml = urgencyIconData
-        ? `<div class="card__urgency-wrap" title="${urgencyTitle}" style="color: ${urgencyIconData.color}">${urgencyIconData.svg}</div>`
+        ? '<div class="card__urgency-wrap" title="' + urgencyTitle + '" style="color: ' + urgencyIconData.color + '">' + urgencyIconData.svg + '</div>'
         : '';
-    
-    card.innerHTML = `
-        <div class="card__header">
-            <div class="tag_task" ${projectColorStyle} title="${projectTitle}"></div>
-            <a class="card__link" href="${data.card__link_href || '#'}">${data.card__link_name || ''}</a>
-            <img class="card__photo" alt="${data.alt || ''}" title="${executorTitle}" src="${data.card__photo || ''}">
-        </div>
-        <div class="card__text">${urgencyWrapHtml}<span>${data.card__text || ''}</span></div>
-    `;
+
+    card.innerHTML =
+        '<div class="card__header">' +
+            '<div class="tag_task" ' + projectColorStyle + ' title="' + projectTitle + '"></div>' +
+            '<a class="card__link" href="' + (data.card__link_href || '#') + '">' + (data.card__link_name || '') + '</a>' +
+            '<img class="card__photo" alt="' + (data.alt || '') + '" title="' + executorTitle + '" src="' + (data.card__photo || '') + '">' +
+        '</div>' +
+        '<div class="card__text">' + urgencyWrapHtml + '<span>' + (data.card__text || '') + '</span></div>';
+
     return card;
 };
 
-// Инициализация drag для карточки
+// Навешивает обработчики dragstart/dragend на карточку
 const initCardDragEvents = (card) => {
     card.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData("text", e.target.id);
-        // Сохраняем projectId для проверки в dragover (только при группировке по проектам)
+        e.dataTransfer.setData('text', e.target.id);
         const projectClass = Array.from(e.target.classList).find(cls => cls.startsWith('project'));
-        window.draggingCardProjectId = projectClass || null;
+        draggingCardProjectId = projectClass || null;
     });
-    
+
     card.addEventListener('dragend', () => {
-        // Очищаем сохранённый projectId
-        window.draggingCardProjectId = null;
-        // Убираем все классы подсветки с блоков
+        draggingCardProjectId = null;
         document.querySelectorAll('.kanban-block--drop-forbidden').forEach(block => {
             block.classList.remove('kanban-block--drop-forbidden');
         });
     });
 };
 
-// Найти подходящий блок для новой карточки в режиме группировки
-// На основе классов карточки определяем, в какую группу она должна попасть
+// Находит колонку для новой карточки с учётом группировки
 const findTargetBlockForNewCard = (card, statusId) => {
-    // Получаем текущий тип группировки
-    const groupingType = getCurrentGrouping();
-    
-    if (groupingType === 'executor') {
-        // Группировка по исполнителям — ищем группу по классу user
+    if (currentGroupingType === 'executor') {
         const userClass = Array.from(card.classList).find(cls => cls.startsWith('user'));
         if (userClass) {
-            // Ищем группу с таким data-executor-id
-            const group = document.querySelector(`.group[data-executor-id="${userClass}"]`);
-            if (group) {
-                // Внутри группы ищем блок с нужным статусом
-                return group.querySelector(`.kanban-block[id="${statusId}"]`);
-            }
+            const group = document.querySelector('.group[data-executor-id="' + userClass + '"]');
+            if (group) return group.querySelector('.kanban-block[id="' + statusId + '"]');
         }
-    } else if (groupingType === 'project') {
-        // Группировка по проектам — ищем группу по классу project
+    } else if (currentGroupingType === 'project') {
         const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
         if (projectClass) {
-            // Ищем группу с таким data-project-id
-            const group = document.querySelector(`.group[data-project-id="${projectClass}"]`);
-            if (group) {
-                // Внутри группы ищем блок с нужным статусом
-                return group.querySelector(`.kanban-block[id="${statusId}"]`);
-            }
+            const group = document.querySelector('.group[data-project-id="' + projectClass + '"]');
+            if (group) return group.querySelector('.kanban-block[id="' + statusId + '"]');
         }
     }
-    
-    // Fallback — первый блок с таким ID статуса (может быть в любой группе)
-    return document.querySelector(`.kanban-block[id="${statusId}"]`);
+
+    return document.querySelector('.kanban-block[id="' + statusId + '"]');
 };
 
-// Обработка задачи из 1С
+// Обрабатывает одну задачу из 1С: обновляет данные в Map и DOM.
+// Если карточка уже есть — обновляет поля, если нет — создаёт новую.
 const processTask = (taskData) => {
     const { idTask, status } = taskData;
     if (!idTask) return;
-    
-    // 1. Обновить данные в хранилище
+
     const existing = tasksData.get(idTask);
     if (existing) {
-        // Обновить только переданные поля
         Object.keys(taskData).forEach(key => {
             if (taskData[key] !== undefined) existing[key] = taskData[key];
         });
     } else {
-        // Новая задача
-        tasksData.set(idTask, { ...taskData });
+        tasksData.set(idTask, Object.assign({}, taskData));
     }
-    
-    // 2. Обновить карточку в DOM (если отображается)
+
     const cardInDOM = document.getElementById(idTask);
     if (cardInDOM) {
         updateCardClasses(cardInDOM, taskData.project, taskData.user, taskData.user_name, taskData.urgencyId, taskData.isBug);
-        updateCardContent(cardInDOM, taskData.card__link_href, taskData.card__link_name, 
-                          taskData.card__photo, taskData.alt, taskData.card__text, taskData.fullnameobjecttask);
+        updateCardContent(cardInDOM, taskData.card__link_href, taskData.card__link_name,
+            taskData.card__photo, taskData.alt, taskData.card__text, taskData.fullnameobjecttask);
         if (status) moveCardToStatus(cardInDOM, status);
     } else if (status) {
-        // Новая карточка — добавить в DOM
         const card = createCardFromData(tasksData.get(idTask));
         const targetBlock = findTargetBlockForNewCard(card, status);
         if (targetBlock) {
@@ -455,170 +454,290 @@ const processTask = (taskData) => {
     }
 };
 
-// ===== ХРАНИЛИЩЕ ДАННЫХ ЗАДАЧ =====
-const tasksData = new Map();
-window.tasksData = tasksData;
+// Сохраняет начальную структуру колонок (статусов) для восстановления при снятии группировки
+const saveStatusBlocks = () => {
+    if (statusBlocksData) return;
+    statusBlocksData = [];
+    document.querySelectorAll('#kanban-board .kanban-block').forEach(block => {
+        statusBlocksData.push({
+            id: block.id,
+            fullName: block.getAttribute('fullNameObjectStatus'),
+            className: block.className,
+        });
+    });
+};
 
-window['V8Proxy'] = {
+// Считывает данные всех карточек из DOM в Map tasksData (начальный сбор при загрузке)
+const collectCardsData = () => {
+    document.querySelectorAll('.card').forEach(card => {
+        const statusBlock = card.closest('.kanban-block');
+        const classList = Array.from(card.classList);
+        const link = card.querySelector('.card__link');
+        const photo = card.querySelector('.card__photo');
+        const textSpan = card.querySelector('.card__text span');
 
-    // Для запроса из JS в 1С
-    fetch: (eventName, params = {}) => {
-        const V8_request = document.querySelector('#V8_request');
-        V8_request.value = eventName;
-        
-        // Общие параметры состояния UI (передаются всегда)
-        V8_request.setAttribute('theme', getCurrentTheme());
-        V8_request.setAttribute('grouping', getCurrentGrouping());
-        V8_request.setAttribute('executorfilter', JSON.stringify(getSelectedExecutors()));
-        V8_request.setAttribute('projectfilter', JSON.stringify(getSelectedProjects()));
-        V8_request.setAttribute('urgencyfilter', JSON.stringify(getSelectedUrgencies()));
-        V8_request.setAttribute('cardtypefilter', JSON.stringify(getSelectedCardTypes()));
-        V8_request.setAttribute('urgencysettings', JSON.stringify(boardSettings.urgencySettings));
-        V8_request.setAttribute('task', JSON.stringify(params));
-                
-        V8_request.click();
-    },
-    
-    // Для отправки из 1С в JS
-    sendResponse: (eventName, data) => {
-        
-        // Если data - строка JSON, парсим в объект
-        if (typeof data === 'string') {
-            try {
-                data = JSON.parse(data);
-            } catch (e) {
-                console.error('sendResponse: Failed to parse JSON:', e);
-                return;
+        const urgencyId = card.getAttribute('urgencyId') || undefined;
+        const isBugAttr = card.getAttribute('isBug');
+        const isBug = isBugAttr === 'Да' || isBugAttr === 'true' || isBugAttr === '1';
+
+        tasksData.set(card.id, {
+            idTask: card.id,
+            project: classList.find(c => c.startsWith('project')) || '',
+            user: classList.find(c => c.startsWith('user')) || '',
+            user_name: classList.find(c => c.startsWith('user_name')) || '',
+            urgencyId,
+            isBug,
+            fullnameobjecttask: card.getAttribute('fullNameObjectTask') || '',
+            card__link_href: link ? link.getAttribute('href') : '',
+            card__link_name: link ? link.textContent : '',
+            card__photo: photo ? photo.src : '',
+            alt: photo ? photo.alt : '',
+            card__text: textSpan ? textSpan.textContent : '',
+            status: statusBlock ? statusBlock.id : null,
+        });
+
+        updateCardClasses(card, undefined, undefined, undefined, urgencyId, isBug);
+    });
+};
+
+// Создаёт колонки (по шаблону statusBlocksData) внутри контейнера группы и раскладывает задачи
+const buildGroupBlocks = (content, tasks) => {
+    statusBlocksData.forEach(blockData => {
+        const block = document.createElement('div');
+        block.className = 'kanban-block';
+        block.id = blockData.id;
+        block.setAttribute('fullNameObjectStatus', blockData.fullName);
+
+        tasks.filter(t => t.status === blockData.id).forEach(td => {
+            block.appendChild(createCardFromData(td));
+        });
+
+        content.appendChild(block);
+    });
+};
+
+// Drag & Drop для режима группировки: запрещает перенос между группами-проектами,
+// разрешает перенос между исполнителями с обновлением карточки
+const setupDragDropForGroups = () => {
+    document.querySelectorAll('.group-content .kanban-block').forEach(block => {
+        block.addEventListener('dragover', (e) => {
+            e.preventDefault();
+
+            if (currentGroupingType === 'project' && draggingCardProjectId) {
+                const targetGroup = block.closest('.group');
+                const targetProjectId = targetGroup ? targetGroup.getAttribute('data-project-id') : null;
+
+                if (targetProjectId && draggingCardProjectId !== targetProjectId) {
+                    block.classList.remove('kanban-block--dragover');
+                    block.classList.add('kanban-block--drop-forbidden');
+                    e.dataTransfer.dropEffect = 'none';
+                    return;
+                }
             }
-        }
-        
-        // data содержит:
-        // {
-        //     currentuserid: '...', currentusername: '...',
-        //     theme: 'light'|'dark', grouping: 'none'|'executor'|'project',
-        //     executorfilter: [], projectfilter: [], urgencyfilter: [],
-        //     urgencylevels: [{ id: 'urgent_1', name: 'Критично' }, ...],  // для фильтра и настроек
-        //     urgencysettings: { 'urgent_1': { iconId: 'arrowUp', colorId: 'red' }, ... },
-        //     search: '...',
-        //     tasks: [
-        //         {
-        //             idTask, status, project, user, user_name,
-        //             urgencyId: 'urgent_1',  // опционально; представление только в urgencylevels
-        //             isBug: true|false,       // булево: true = ошибка, false/undefined = задача
-        //             fullnameobjecttask, card__link_href, card__link_name,
-        //             card__photo, alt, card__text
-        //         },
-        //     ]
-        // }
-        
-        expandedBlocks.clear();
-        
-        // ========== 1. СНАЧАЛА ОБРАБАТЫВАЕМ ЗАДАЧИ ==========
-        if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) {
-            data.tasks.forEach(taskData => {
-                processTask(taskData);
-            });
-        }
-        
-        // ========== 2. ПРИМЕНЯЕМ НАСТРОЙКИ UI ==========
-        applyBoardSettingsFromData(data);
-    }
-}
+
+            block.classList.remove('kanban-block--drop-forbidden');
+            block.classList.add('kanban-block--dragover');
+        });
+
+        block.addEventListener('dragleave', (e) => {
+            if (!block.contains(e.relatedTarget)) {
+                block.classList.remove('kanban-block--dragover');
+                block.classList.remove('kanban-block--drop-forbidden');
+            }
+        });
+
+        block.addEventListener('drop', (e) => {
+            e.preventDefault();
+            block.classList.remove('kanban-block--dragover');
+            block.classList.remove('kanban-block--drop-forbidden');
+
+            const idTask = e.dataTransfer.getData('text');
+            const draggedElement = document.getElementById(idTask);
+            if (!draggedElement) return;
+
+            const fullNameObjectTask = draggedElement.getAttribute('fullNameObjectTask');
+            const lastStatus = draggedElement.parentElement;
+            if (block === lastStatus) return;
+
+            const sourceGroup = lastStatus.closest('.group');
+            const targetGroup = block.closest('.group');
+
+            if (currentGroupingType === 'project' && sourceGroup && targetGroup) {
+                if (sourceGroup.getAttribute('data-project-id') !== targetGroup.getAttribute('data-project-id')) {
+                    return;
+                }
+            }
+
+            block.appendChild(draggedElement);
+
+            const idNewStatus = block.id;
+            const fullNameObjectStatus = block.getAttribute('fullNameObjectStatus');
+            const taskData = tasksData.get(idTask);
+            if (taskData) taskData.status = idNewStatus;
+
+            const params = { idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus };
+
+            // При группировке по исполнителям: перенос карточки в другую группу
+            // меняет исполнителя задачи (обновляет CSS-классы и данные в Map)
+            if (currentGroupingType === 'executor' && targetGroup) {
+                const idNewExecutor = targetGroup.getAttribute('data-executor-id');
+                const newExecutorName = targetGroup.getAttribute('data-executor-name');
+
+                if (idNewExecutor) {
+                    params.idNewExecutor = idNewExecutor;
+
+                    const cl = Array.from(draggedElement.classList);
+                    const oldUserClass = cl.find(c => c.startsWith('user') && !c.startsWith('user_name'));
+                    const oldUserNameClass = cl.find(c => c.startsWith('user_name'));
+
+                    if (oldUserClass) draggedElement.classList.remove(oldUserClass);
+                    if (oldUserNameClass) draggedElement.classList.remove(oldUserNameClass);
+
+                    draggedElement.classList.add(idNewExecutor);
+                    const newUserNameClass = 'user_name' + newExecutorName.replace(/ /g, '_');
+                    draggedElement.classList.add(newUserNameClass);
+
+                    if (taskData) {
+                        taskData.user = idNewExecutor;
+                        taskData.user_name = newUserNameClass;
+                    }
+                }
+            } else if (currentGroupingType === 'project') {
+                const idNewExecutor = Array.from(draggedElement.classList).find(c => c.startsWith('user') && !c.startsWith('user_name'));
+                if (idNewExecutor) params.idNewExecutor = idNewExecutor;
+            }
+
+            RecalculateKanbanBlock();
+            window.V8Proxy.fetch('changeStatus', params);
+        });
+    });
+
+    document.querySelectorAll('.group-content .card').forEach(card => initCardDragEvents(card));
+};
+
+// Drag & Drop для обычного режима (без группировки): перетаскивание карточки между колонками
+const setupDragDrop = () => {
+    document.querySelectorAll('.kanban-block').forEach(block => {
+        block.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            block.classList.add('kanban-block--dragover');
+        });
+
+        block.addEventListener('dragleave', (e) => {
+            if (!block.contains(e.relatedTarget)) {
+                block.classList.remove('kanban-block--dragover');
+            }
+        });
+
+        block.addEventListener('drop', (e) => {
+            e.preventDefault();
+            block.classList.remove('kanban-block--dragover');
+
+            const idTask = e.dataTransfer.getData('text');
+            const draggedElement = document.getElementById(idTask);
+            if (!draggedElement) return;
+
+            const fullNameObjectTask = draggedElement.getAttribute('fullNameObjectTask');
+            const lastStatus = draggedElement.parentElement;
+            if (block === lastStatus) return;
+
+            block.appendChild(draggedElement);
+
+            const idNewStatus = block.id;
+            const fullNameObjectStatus = block.getAttribute('fullNameObjectStatus');
+            const taskData = tasksData.get(idTask);
+            if (taskData) taskData.status = idNewStatus;
+
+            const idNewExecutor = Array.from(draggedElement.classList).find(c => c.startsWith('user') && !c.startsWith('user_name'));
+
+            RecalculateKanbanBlock();
+            window.V8Proxy.fetch('changeStatus', { idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus, idNewExecutor });
+        });
+    });
+};
+
+// Инициализация событий dragstart/dragend для всех существующих карточек
+const setupCardDrag = () => {
+    document.querySelectorAll('.card').forEach(card => initCardDragEvents(card));
+};
+
+// ============================================================
+// СЕКЦИЯ 5: ИНИЦИАЛИЗАЦИЯ (DOMContentLoaded)
+// Здесь создаются все UI-контроллеры (тема, фильтры, группировка,
+// поиск и т.д.), а в конце определяется V8Proxy для связи с 1С.
+// ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    saveStatusBlocks();
+    collectCardsData();
 
-    // Инициализация темы
+    // Закрывает все выпадающие меню, кроме переданного (except)
+    const closeAllDropdowns = (except) => {
+        ['.project_picker', '.executor_dropdown', '.urgency_dropdown', '.cardtype_dropdown', '.grouping_dropdown']
+            .forEach(sel => {
+                const el = document.querySelector(sel);
+                if (el && el !== except) el.classList.remove('open');
+            });
+    };
+
+    // Переключатель светлой/тёмной темы.
+    // Возвращает контроллер: apply(theme), getCurrent()
     const initTheme = () => {
-        const themeToggle = document.getElementById('theme_toggle');
+        const toggle = document.getElementById('theme_toggle');
         const wrapper = document.getElementById('wrapper');
-        
-        themeToggle.addEventListener('click', () => {
+
+        toggle.addEventListener('click', () => {
             wrapper.classList.toggle('dark-theme');
-            themeToggle.classList.toggle('active');
-            // Уведомляем 1С об изменении настроек
+            toggle.classList.toggle('active');
             window.V8Proxy.fetch('settingsChanged', {});
         });
-        
-        // Экспортируем функцию для применения темы из sendResponse
-        window.applyTheme = (theme) => {
-            if (theme === 'dark') {
-                wrapper.classList.add('dark-theme');
-                themeToggle.classList.add('active');
-            } else {
-                wrapper.classList.remove('dark-theme');
-                themeToggle.classList.remove('active');
-            }
+
+        return {
+            apply: (theme) => {
+                wrapper.classList.toggle('dark-theme', theme === 'dark');
+                toggle.classList.toggle('active', theme === 'dark');
+            },
+            getCurrent: () => wrapper.classList.contains('dark-theme') ? 'dark' : 'light',
         };
     };
 
-    initTheme();
-
-    // ========== ЗАКРЫТИЕ ВСЕХ DROPDOWN ==========
-    const closeAllDropdowns = (except = null) => {
-        const dropdowns = [
-            document.querySelector('.project_picker'),
-            document.querySelector('.executor_dropdown'),
-            document.querySelector('.urgency_dropdown'),
-            document.querySelector('.cardtype_dropdown'),
-            document.querySelector('.grouping_dropdown')
-        ];
-        dropdowns.forEach(dropdown => {
-            if (dropdown && dropdown !== except) {
-                dropdown.classList.remove('open');
-            }
-        });
-    };
-
-    // ========== PROJECT PICKER (Tag-picker с dropdown) ==========
-    const MAX_VISIBLE_PROJECTS = 3; // Максимум видимых pills
-    
-    // Хранилище проектов (глобальное для функций)
-    let projects = [];
-    
+    // Выбор проектов: выпадающий список с чекбоксами, «пилюли» выбранных проектов.
+    // Возвращает контроллер: updateDisplay(), parseProjects(), filterByProject(id), setSelected(ids)
     const initProjectPicker = () => {
         const picker = document.querySelector('.project_picker');
         const toggle = document.getElementById('project_picker_toggle');
-        const dropdown = document.getElementById('project_picker_dropdown');
         const selectedContainer = document.getElementById('project_picker_selected');
         const grid = document.getElementById('project_picker_grid');
         const moreCounter = document.getElementById('project_picker_more');
-        
-        if (!picker || !toggle) return;
-        
-        // Собираем проекты из script#projects-data (генерируется 1С)
-        const collectProjectsFromData = () => {
+
+        if (!picker || !toggle) return null;
+
+        const parseProjects = () => {
             const scriptEl = document.getElementById('projects-data');
-            if (!scriptEl) {
-                projects = [];
-                return;
-            }
+            if (!scriptEl) { projectsList = []; return; }
             try {
                 const data = JSON.parse(scriptEl.textContent || '[]');
-                projects = Array.isArray(data) ? data.map(p => ({
-                    id: p.id || '',
-                    name: p.name || '',
-                    color: p.color || null,
-                    checked: false
+                projectsList = Array.isArray(data) ? data.map(p => ({
+                    id: p.id || '', name: p.name || '', color: p.color || null, checked: false,
                 })) : [];
             } catch (e) {
                 console.error('projects-data: Failed to parse JSON:', e);
-                projects = [];
+                projectsList = [];
             }
-            projects.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+            projectsList.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
         };
-        
-        collectProjectsFromData();
-        
-        // Функция обновления отображения
+
+        parseProjects();
+
         const updateDisplay = () => {
             selectedContainer.innerHTML = '';
             grid.innerHTML = '';
-            
-            const selectedProjects = projects.filter(p => p.checked);
-            const visibleProjects = selectedProjects.slice(0, MAX_VISIBLE_PROJECTS);
-            const hiddenCount = selectedProjects.length - MAX_VISIBLE_PROJECTS;
-            
-            if (selectedProjects.length === 0 && projects.length > 0) {
+
+            const selected = projectsList.filter(p => p.checked);
+            const visible = selected.slice(0, MAX_VISIBLE_PROJECTS);
+            const hiddenCount = selected.length - MAX_VISIBLE_PROJECTS;
+
+            if (selected.length === 0 && projectsList.length > 0) {
                 const placeholder = document.createElement('span');
                 placeholder.className = 'project_picker_placeholder';
                 placeholder.textContent = 'Выберите проект';
@@ -626,223 +745,130 @@ document.addEventListener('DOMContentLoaded', () => {
                 picker.classList.add('no-selection');
             } else {
                 picker.classList.remove('no-selection');
-                
-                visibleProjects.forEach(project => {
+                visible.forEach(project => {
                     const pill = document.createElement('div');
                     pill.className = 'project_pill';
                     pill.setAttribute('data-project-id', project.id);
-                    if (project.color) {
-                        pill.style.setProperty('--project-color', project.color);
-                    }
-                    pill.innerHTML = `
-                        <span class="project_pill_name">${project.name}</span>
-                        <span class="project_pill_close">×</span>
-                    `;
-                    pill.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        toggleProject(project.id);
-                    });
+                    if (project.color) pill.style.setProperty('--project-color', project.color);
+                    pill.innerHTML =
+                        '<span class="project_pill_name">' + project.name + '</span>' +
+                        '<span class="project_pill_close">\u00d7</span>';
+                    pill.addEventListener('click', (e) => { e.stopPropagation(); toggleProject(project.id); });
                     selectedContainer.appendChild(pill);
                 });
             }
-            
-            if (hiddenCount > 0) {
-                moreCounter.textContent = '+' + hiddenCount;
-            } else {
-                moreCounter.textContent = '';
-            }
-            
-            projects.forEach(project => {
+
+            moreCounter.textContent = hiddenCount > 0 ? '+' + hiddenCount : '';
+
+            projectsList.forEach(project => {
                 const item = document.createElement('div');
                 item.className = 'project_grid_item' + (project.checked ? ' selected' : '');
                 item.setAttribute('data-project-id', project.id);
-                if (project.color) {
-                    item.style.setProperty('--project-color', project.color);
-                }
+                if (project.color) item.style.setProperty('--project-color', project.color);
                 item.textContent = project.name;
-                item.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleProject(project.id);
-                });
+                item.addEventListener('click', (e) => { e.stopPropagation(); toggleProject(project.id); });
                 grid.appendChild(item);
             });
-            
-            if (projects.length > 1) {
+
+            if (projectsList.length > 1) {
                 const separator = document.createElement('div');
                 separator.className = 'project_grid_separator';
                 grid.appendChild(separator);
-                
-                const allSelected = projects.every(p => p.checked);
+
+                const allSelected = projectsList.every(p => p.checked);
                 const selectAllItem = document.createElement('div');
                 selectAllItem.className = 'project_grid_item project_grid_item_all' + (allSelected ? ' selected' : '');
                 selectAllItem.textContent = 'Выбрать все';
                 selectAllItem.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const shouldSelect = !projects.every(p => p.checked);
-                    projects.forEach(p => { p.checked = shouldSelect; });
+                    const shouldSelect = !projectsList.every(p => p.checked);
+                    projectsList.forEach(p => { p.checked = shouldSelect; });
                     const wasOpen = picker.classList.contains('open');
                     updateDisplay();
-                    
-                    if (window.applyExecutorFilter) {
-                        window.applyExecutorFilter();
-                    } else {
-                        RecalculateKanbanBlock();
-                    }
+                    executorCtrl.applyFilter();
                     window.V8Proxy.fetch('settingsChanged', {});
                     if (wasOpen) picker.classList.add('open');
                 });
                 grid.appendChild(selectAllItem);
             }
         };
-        
+
         const toggleProject = (projectId) => {
-            const project = projects.find(p => p.id === projectId);
+            const project = projectsList.find(p => p.id === projectId);
             if (!project) return;
-            
             const wasOpen = picker.classList.contains('open');
             project.checked = !project.checked;
             updateDisplay();
-            
-            if (window.applyExecutorFilter) {
-                window.applyExecutorFilter();
-            } else {
-                const cards = document.querySelectorAll(`.card.${projectId}`);
-                cards.forEach(card => {
-                    card.classList.toggle('card__inactive', !project.checked);
-                });
-                RecalculateKanbanBlock();
-            }
-            
+            executorCtrl.applyFilter();
             window.V8Proxy.fetch('settingsChanged', {});
             if (wasOpen) picker.classList.add('open');
         };
-        
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeAllDropdowns(picker);
-            picker.classList.toggle('open');
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (!picker.contains(e.target)) {
-                picker.classList.remove('open');
-            }
-        });
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && picker.classList.contains('open')) {
-                picker.classList.remove('open');
-            }
-        });
-        
+
+        toggle.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(picker); picker.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if (!picker.contains(e.target)) picker.classList.remove('open'); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && picker.classList.contains('open')) picker.classList.remove('open'); });
+
         updateDisplay();
-        
-        window.updateProjectPicker = updateDisplay;
-        window.collectProjectsFromCheckboxes = collectProjectsFromData;
-        window.projectsList = projects;
-        
-        // Фильтрация по клику на кружок проекта в карточке
-        window.filterByProject = (projectId) => {
-            const project = projects.find(p => p.id === projectId);
-            if (!project) return;
-            const onlyThisSelected = projects.filter(p => p.checked).length === 1 && project.checked;
-            if (onlyThisSelected) {
-                projects.forEach(p => { p.checked = true; });
-            } else {
-                projects.forEach(p => { p.checked = p.id === projectId; });
-            }
-            updateDisplay();
-            if (window.applyExecutorFilter) {
-                window.applyExecutorFilter();
-            } else {
-                RecalculateKanbanBlock();
-            }
-            window.V8Proxy.fetch('settingsChanged', {});
-        };
-        
-        window.setSelectedProjects = (projectIds) => {
-            if (!projectIds || !Array.isArray(projectIds)) return;
-            
-            projects.forEach(project => {
-                project.checked = projectIds.includes(project.id);
-            });
-            
-            updateDisplay();
-            
-            if (window.applyExecutorFilter) {
-                window.applyExecutorFilter();
-            }
+
+        return {
+            updateDisplay,
+            parseProjects,
+            filterByProject: (projectId) => {
+                const project = projectsList.find(p => p.id === projectId);
+                if (!project) return;
+                const onlyThis = projectsList.filter(p => p.checked).length === 1 && project.checked;
+                projectsList.forEach(p => { p.checked = onlyThis ? true : p.id === projectId; });
+                updateDisplay();
+                executorCtrl.applyFilter();
+                window.V8Proxy.fetch('settingsChanged', {});
+            },
+            setSelected: (ids) => {
+                if (!ids || !Array.isArray(ids)) return;
+                projectsList.forEach(p => { p.checked = ids.includes(p.id); });
+                updateDisplay();
+                executorCtrl.applyFilter();
+            },
         };
     };
-    
-    initProjectPicker();
 
-    // ========== EXECUTOR FILTER (Фильтр по исполнителям) ==========
-    let selectedExecutors = new Set(); // Выбранные исполнители
-    
+    // Фильтр по исполнителям: выпадающий список, множественный выбор.
+    // Также содержит applyFilter() — центральную функцию фильтрации карточек
+    // по проекту, исполнителю, срочности и типу одновременно.
+    // Возвращает контроллер: applyFilter(), populateMenu(), filterByExecutor(id), setSelected(ids)
     const initExecutorFilter = () => {
         const dropdown = document.querySelector('.executor_dropdown');
         const toggle = document.getElementById('executor_toggle');
         const menu = document.getElementById('executor_menu');
         const label = document.getElementById('executor_label');
-        const executorClear = document.getElementById('executor_clear');
-        
-        if (!dropdown || !toggle || !menu) return;
-        
-        // Обновление класса has-selected
-        const updateHasSelected = () => {
-            if (selectedExecutors.size > 0) {
-                dropdown.classList.add('has-selected');
-            } else {
-                dropdown.classList.remove('has-selected');
-            }
-        };
-        
-        // Собираем исполнителей с доски
+        const clearBtn = document.getElementById('executor_clear');
+
+        if (!dropdown || !toggle || !menu) return null;
+
+        const updateHasSelected = () => { dropdown.classList.toggle('has-selected', selectedExecutorsSet.size > 0); };
+
         const collectExecutors = () => {
-            const executorsMap = new Map(); // userId -> { name, photo }
-            const cards = document.querySelectorAll('.card');
-            
-            cards.forEach(card => {
-                // Ищем класс user... (ID пользователя)
-                const classList = card.className.split(' ');
-                let userId = null;
-                let userName = null;
-                
-                for (const cls of classList) {
-                    if (cls.startsWith('user')) {
-                        userId = cls;
-                    }
-                    if (cls.startsWith('user_name')) {
-                        userName = cls.substring('user_name'.length);
-                    }
+            const map = new Map();
+            document.querySelectorAll('.card').forEach(card => {
+                const cl = card.className.split(' ');
+                let userId = null, userName = null;
+                for (const cls of cl) {
+                    if (cls.startsWith('user')) userId = cls;
+                    if (cls.startsWith('user_name')) userName = cls.substring('user_name'.length);
                 }
-                
-                if (userId && userName && !executorsMap.has(userId)) {
+                if (userId && userName && !map.has(userId)) {
                     const photo = card.querySelector('.card__photo');
-                    executorsMap.set(userId, {
-                        name: userName,
-                        photo: photo ? photo.src : null
-                    });
+                    map.set(userId, { name: userName, photo: photo ? photo.src : null });
                 }
             });
-            
-            return executorsMap;
+            return map;
         };
-        
-        // Заполняем меню исполнителями
+
         const populateMenu = () => {
-            // Очищаем меню
             menu.innerHTML = '';
-            
-            // Добавляем исполнителей
-            const executors = collectExecutors();
-            executors.forEach((data, userId) => {
+            collectExecutors().forEach((data, userId) => {
                 const option = document.createElement('div');
                 option.className = 'executor_option';
                 option.setAttribute('data-value', userId);
-                
-                // Добавляем фото если есть
                 if (data.photo) {
                     const img = document.createElement('img');
                     img.className = 'executor_option_photo';
@@ -850,215 +876,119 @@ document.addEventListener('DOMContentLoaded', () => {
                     img.alt = data.name;
                     option.appendChild(img);
                 }
-                
-                // Добавляем имя (заменяем _ на пробел для отображения)
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = data.name.replace(/_/g, ' ');
                 option.appendChild(nameSpan);
-                
-                if (selectedExecutors.has(userId)) {
-                    option.classList.add('selected');
-                }
-                
+                if (selectedExecutorsSet.has(userId)) option.classList.add('selected');
                 menu.appendChild(option);
             });
         };
-        
-        // Обновление текста кнопки
+
         const updateLabel = () => {
-            if (selectedExecutors.size === 0) {
+            if (selectedExecutorsSet.size === 0) {
                 label.textContent = 'Исполнитель';
-            } else if (selectedExecutors.size === 1) {
-                const value = Array.from(selectedExecutors)[0];
-                const option = menu.querySelector(`[data-value="${value}"]`);
-                // Берём текст из span внутри option (или textContent если span нет)
-                const nameSpan = option ? option.querySelector('span') : null;
-                label.textContent = nameSpan ? nameSpan.textContent : (option ? option.textContent : 'Исполнитель');
+            } else if (selectedExecutorsSet.size === 1) {
+                const val = Array.from(selectedExecutorsSet)[0];
+                const opt = menu.querySelector('[data-value="' + val + '"]');
+                const ns = opt ? opt.querySelector('span') : null;
+                label.textContent = ns ? ns.textContent : 'Исполнитель';
             } else {
-                label.textContent = `Исполнитель (${selectedExecutors.size})`;
+                label.textContent = 'Исполнитель (' + selectedExecutorsSet.size + ')';
             }
         };
-        
-        // Применение фильтрации по исполнителям
+
+        // Каскадная фильтрация: проект → исполнитель → срочность → тип.
+        // Карточка скрывается (card__inactive), если не проходит хотя бы один фильтр.
         const applyFilter = () => {
-            const cards = document.querySelectorAll('.card');
-            
-            cards.forEach(card => {
-                // Проверяем, активен ли проект карточки (из projectsList)
+            document.querySelectorAll('.card').forEach(card => {
                 const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
-                const projectData = projectClass && window.projectsList 
-                    ? window.projectsList.find(p => p.id === projectClass) 
-                    : null;
-                const projectInactive = projectData && !projectData.checked;
-                
-                if (projectInactive) {
-                    // Проект неактивен — карточка скрыта
-                    card.classList.add('card__inactive');
-                    return;
-                }
-                
-                if (selectedExecutors.size === 0) {
-                    // Нет фильтра по исполнителям — показываем всё (с учётом проектов)
+                const pd = projectClass ? projectsList.find(p => p.id === projectClass) : null;
+
+                if (pd && !pd.checked) { card.classList.add('card__inactive'); return; }
+
+                if (selectedExecutorsSet.size === 0) {
                     card.classList.remove('card__inactive');
                 } else {
-                    // Есть фильтр — проверяем исполнителя
-                    let shouldShow = false;
-                    
-                    // Проверяем исполнителей
-                    selectedExecutors.forEach(executorId => {
-                        if (card.classList.contains(executorId)) {
-                            shouldShow = true;
-                        }
-                    });
-                    
-                    card.classList.toggle('card__inactive', !shouldShow);
+                    let show = false;
+                    selectedExecutorsSet.forEach(id => { if (card.classList.contains(id)) show = true; });
+                    card.classList.toggle('card__inactive', !show);
                 }
-                
-                // Фильтр по срочности: если выбран хотя бы один уровень — показываем только карточки с этим уровнем
-                const selectedUrgencies = window.selectedUrgenciesSet || new Set();
-                if (selectedUrgencies.size > 0 && !card.classList.contains('card__inactive')) {
-                    const urgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-'));
-                    const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : null;
-                    if (!urgencyId || !selectedUrgencies.has(urgencyId)) {
-                        card.classList.add('card__inactive');
-                    }
+
+                if (selectedUrgenciesSet.size > 0 && !card.classList.contains('card__inactive')) {
+                    const uc = Array.from(card.classList).find(c => c.startsWith('urgency-'));
+                    const uid = uc ? uc.replace('urgency-', '') : null;
+                    if (!uid || !selectedUrgenciesSet.has(uid)) card.classList.add('card__inactive');
                 }
-                
-                // Фильтр по типу карточки (задача/ошибка)
-                const selCardTypes = window.selectedCardTypesSet || new Set();
-                if (selCardTypes.size > 0 && !card.classList.contains('card__inactive')) {
-                    const cType = card.classList.contains('card-type-bug') ? 'bug' : 'task';
-                    if (!selCardTypes.has(cType)) {
-                        card.classList.add('card__inactive');
-                    }
+
+                if (selectedCardTypesSet.size > 0 && !card.classList.contains('card__inactive')) {
+                    const ct = card.classList.contains('card-type-bug') ? 'bug' : 'task';
+                    if (!selectedCardTypesSet.has(ct)) card.classList.add('card__inactive');
                 }
             });
-            
             RecalculateKanbanBlock();
         };
-        
-        // Обработчик клика на опцию
-        const handleOptionClick = (option) => {
-            const value = option.getAttribute('data-value');
-            
-            if (selectedExecutors.has(value)) {
-                selectedExecutors.delete(value);
-                option.classList.remove('selected');
-            } else {
-                selectedExecutors.add(value);
-                option.classList.add('selected');
-            }
-            
-            updateLabel();
-            updateHasSelected();
-            applyFilter();
-            
-            // Уведомляем 1С об изменении настроек
-            window.V8Proxy.fetch('settingsChanged', {});
-        };
-        
-        // Делегирование событий для опций
+
         menu.addEventListener('click', (e) => {
             const option = e.target.closest('.executor_option');
-            if (option) {
-                e.stopPropagation(); // <-- Это останавливает всплытие события!
-                handleOptionClick(option);
-            }
+            if (!option) return;
+            e.stopPropagation();
+            const value = option.getAttribute('data-value');
+            if (selectedExecutorsSet.has(value)) { selectedExecutorsSet.delete(value); option.classList.remove('selected'); }
+            else { selectedExecutorsSet.add(value); option.classList.add('selected'); }
+            updateLabel(); updateHasSelected(); applyFilter();
+            window.V8Proxy.fetch('settingsChanged', {});
         });
-        
-        // Открытие/закрытие dropdown
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation(); // <-- Это останавливает всплытие события!
-            closeAllDropdowns(dropdown);
-            populateMenu(); // Обновляем список при открытии
-            dropdown.classList.toggle('open');
-        });
-        
-        // Закрытие при клике вне
-        document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.remove('open');
-            }
-        });
-        
-        // Очистка по клику на крестик
-        if (executorClear) {
-            executorClear.addEventListener('click', (e) => {
-                e.stopPropagation(); // <-- Это останавливает всплытие события! // Не открывать dropdown
-                selectedExecutors.clear();
-                updateLabel();
-                updateHasSelected();
-                populateMenu(); // Обновить визуальное состояние опций
-                applyFilter();
-                
-                // Уведомляем 1С об изменении настроек
+
+        toggle.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(dropdown); populateMenu(); dropdown.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if (!dropdown.contains(e.target)) dropdown.classList.remove('open'); });
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectedExecutorsSet.clear(); updateLabel(); updateHasSelected(); populateMenu(); applyFilter();
                 window.V8Proxy.fetch('settingsChanged', {});
             });
         }
-        
-        // Экспортируем для переинициализации
-        window.applyExecutorFilter = applyFilter;
-        window.populateExecutorMenu = populateMenu;
-        
-        // Экспортируем selectedExecutors для получения состояния
-        window.selectedExecutorsSet = selectedExecutors;
-        
-        // Фильтрация по клику на фото исполнителя в карточке
-        window.filterByExecutor = (userId) => {
-            if (selectedExecutors.size === 1 && selectedExecutors.has(userId)) {
-                selectedExecutors.clear();
-            } else {
-                selectedExecutors.clear();
-                selectedExecutors.add(userId);
-            }
-            populateMenu();
-            updateLabel();
-            updateHasSelected();
-            applyFilter();
-            window.V8Proxy.fetch('settingsChanged', {});
-        };
-        
-        // Функция для установки выбранных исполнителей из sendResponse
-        window.setSelectedExecutors = (executorIds) => {
-            if (!executorIds || !Array.isArray(executorIds)) return;
-            
-            selectedExecutors.clear();
-            executorIds.forEach(id => selectedExecutors.add(id));
-            
-            populateMenu();       // Сначала заполняем меню
-            updateLabel();        // Теперь опции существуют и label обновится корректно
-            updateHasSelected();
-            applyFilter();
+
+        return {
+            applyFilter,
+            populateMenu,
+            filterByExecutor: (userId) => {
+                if (selectedExecutorsSet.size === 1 && selectedExecutorsSet.has(userId)) selectedExecutorsSet.clear();
+                else { selectedExecutorsSet.clear(); selectedExecutorsSet.add(userId); }
+                populateMenu(); updateLabel(); updateHasSelected(); applyFilter();
+                window.V8Proxy.fetch('settingsChanged', {});
+            },
+            setSelected: (ids) => {
+                if (!ids || !Array.isArray(ids)) return;
+                selectedExecutorsSet.clear();
+                ids.forEach(id => selectedExecutorsSet.add(id));
+                populateMenu(); updateLabel(); updateHasSelected(); applyFilter();
+            },
         };
     };
-    
-    initExecutorFilter();
 
-    // ========== URGENCY FILTER ==========
-    let selectedUrgencies = new Set();
-    
+    // Фильтр по срочности: выпадающий список с иконками и кнопками настройки.
+    // Возвращает контроллер: populateMenu(), filterByUrgency(id), setSelected(ids)
     const initUrgencyFilter = () => {
         const dropdown = document.querySelector('.urgency_dropdown');
         const toggle = document.getElementById('urgency_toggle');
         const menu = document.getElementById('urgency_menu');
         const label = document.getElementById('urgency_label');
-        const urgencyClear = document.getElementById('urgency_clear');
-        
-        if (!dropdown || !toggle || !menu) return;
-        
-        const updateHasSelected = () => {
-            if (selectedUrgencies.size > 0) dropdown.classList.add('has-selected');
-            else dropdown.classList.remove('has-selected');
-        };
-        
+        const clearBtn = document.getElementById('urgency_clear');
+
+        if (!dropdown || !toggle || !menu) return null;
+
+        const updateHasSelected = () => { dropdown.classList.toggle('has-selected', selectedUrgenciesSet.size > 0); };
+
         const populateMenu = () => {
             menu.innerHTML = '';
-            const levels = boardSettings.urgencyLevels || [];
-            levels.forEach(({ id, name }) => {
+            (boardSettings.urgencyLevels || []).forEach(({ id, name }) => {
                 const option = document.createElement('div');
                 option.className = 'urgency_option';
                 option.setAttribute('data-value', id);
-                if (selectedUrgencies.has(id)) option.classList.add('selected');
+                if (selectedUrgenciesSet.has(id)) option.classList.add('selected');
+
                 const iconData = getUrgencyIconHtml(id);
                 if (iconData) {
                     const preview = document.createElement('span');
@@ -1067,536 +997,252 @@ document.addEventListener('DOMContentLoaded', () => {
                     preview.innerHTML = iconData.svg;
                     option.appendChild(preview);
                 }
-                const label = document.createElement('span');
-                label.className = 'urgency_option_label';
-                label.textContent = name || id;
-                option.appendChild(label);
+
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'urgency_option_label';
+                labelSpan.textContent = name || id;
+                option.appendChild(labelSpan);
+
                 const settingsBtn = document.createElement('button');
                 settingsBtn.type = 'button';
                 settingsBtn.className = 'urgency_option_settings';
                 settingsBtn.title = 'Настройка иконки и цвета';
                 settingsBtn.setAttribute('aria-label', 'Настройка');
-                settingsBtn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+                settingsBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
                 option.appendChild(settingsBtn);
-                settingsBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (window.openUrgencySettingsPopover) window.openUrgencySettingsPopover(id, name || id, settingsBtn);
-                });
+                settingsBtn.addEventListener('click', (e) => { e.stopPropagation(); settingsPopoverCtrl.open(id, name || id, settingsBtn); });
+
                 menu.appendChild(option);
             });
         };
-        
+
         const updateLabel = () => {
-            if (selectedUrgencies.size === 0) {
+            if (selectedUrgenciesSet.size === 0) {
                 label.textContent = 'Срочность';
-            } else if (selectedUrgencies.size === 1) {
-                const id = Array.from(selectedUrgencies)[0];
+            } else if (selectedUrgenciesSet.size === 1) {
+                const id = Array.from(selectedUrgenciesSet)[0];
                 const level = (boardSettings.urgencyLevels || []).find(l => l.id === id);
                 label.textContent = level ? level.name : id;
             } else {
-                label.textContent = `Срочность (${selectedUrgencies.size})`;
+                label.textContent = 'Срочность (' + selectedUrgenciesSet.size + ')';
             }
         };
-        
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeAllDropdowns(dropdown);
-            populateMenu();
-            dropdown.classList.toggle('open');
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
-        });
-        
+
+        toggle.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(dropdown); populateMenu(); dropdown.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if (!dropdown.contains(e.target)) dropdown.classList.remove('open'); });
+
         menu.addEventListener('click', (e) => {
             if (e.target.closest('.urgency_option_settings')) return;
             const option = e.target.closest('.urgency_option');
             if (!option) return;
             e.stopPropagation();
             const value = option.getAttribute('data-value');
-            if (selectedUrgencies.has(value)) {
-                selectedUrgencies.delete(value);
-                option.classList.remove('selected');
-            } else {
-                selectedUrgencies.add(value);
-                option.classList.add('selected');
-            }
-            updateLabel();
-            updateHasSelected();
-            if (window.applyExecutorFilter) window.applyExecutorFilter();
+            if (selectedUrgenciesSet.has(value)) { selectedUrgenciesSet.delete(value); option.classList.remove('selected'); }
+            else { selectedUrgenciesSet.add(value); option.classList.add('selected'); }
+            updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
             window.V8Proxy.fetch('settingsChanged', {});
         });
-        
-        if (urgencyClear) {
-            urgencyClear.addEventListener('click', (e) => {
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                selectedUrgencies.clear();
-                updateLabel();
-                updateHasSelected();
-                populateMenu();
-                if (window.applyExecutorFilter) window.applyExecutorFilter();
+                selectedUrgenciesSet.clear(); updateLabel(); updateHasSelected(); populateMenu(); executorCtrl.applyFilter();
                 window.V8Proxy.fetch('settingsChanged', {});
             });
         }
-        
-        window.selectedUrgenciesSet = selectedUrgencies;
-        
-        // Фильтрация по клику на иконку срочности в карточке
-        window.filterByUrgency = (urgencyId) => {
-            if (selectedUrgencies.size === 1 && selectedUrgencies.has(urgencyId)) {
-                selectedUrgencies.clear();
-            } else {
-                selectedUrgencies.clear();
-                selectedUrgencies.add(urgencyId);
-            }
-            populateMenu();
-            updateLabel();
-            updateHasSelected();
-            if (window.applyExecutorFilter) window.applyExecutorFilter();
-            window.V8Proxy.fetch('settingsChanged', {});
-        };
-        
-        window.setSelectedUrgencies = (urgencyIds) => {
-            if (!urgencyIds || !Array.isArray(urgencyIds)) return;
-            selectedUrgencies.clear();
-            urgencyIds.forEach(id => selectedUrgencies.add(id));
-            populateMenu();
-            updateLabel();
-            updateHasSelected();
-            if (window.applyExecutorFilter) window.applyExecutorFilter();
-        };
-        window.populateUrgencyMenu = populateMenu;
-    };
-    
-    initUrgencyFilter();
 
-    // ========== CARD TYPE FILTER (Задача / Ошибка) ==========
-    let selectedCardTypes = new Set();
-    
+        return {
+            populateMenu,
+            filterByUrgency: (urgencyId) => {
+                if (selectedUrgenciesSet.size === 1 && selectedUrgenciesSet.has(urgencyId)) selectedUrgenciesSet.clear();
+                else { selectedUrgenciesSet.clear(); selectedUrgenciesSet.add(urgencyId); }
+                populateMenu(); updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
+                window.V8Proxy.fetch('settingsChanged', {});
+            },
+            setSelected: (ids) => {
+                if (!ids || !Array.isArray(ids)) return;
+                selectedUrgenciesSet.clear();
+                ids.forEach(id => selectedUrgenciesSet.add(id));
+                populateMenu(); updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
+            },
+        };
+    };
+
+    // Фильтр по типу карточки (Задача / Ошибка).
+    // Возвращает контроллер: filterByCardType(typeId), setSelected(ids)
     const initCardTypeFilter = () => {
         const dropdown = document.querySelector('.cardtype_dropdown');
         const toggle = document.getElementById('cardtype_toggle');
         const menu = document.getElementById('cardtype_menu');
         const label = document.getElementById('cardtype_label');
-        const cardtypeClear = document.getElementById('cardtype_clear');
-        
-        if (!dropdown || !toggle || !menu) return;
-        
-        const CARD_TYPES = [
-            { id: 'task', name: 'Задача' },
-            { id: 'bug', name: 'Ошибка' }
-        ];
-        
-        const updateHasSelected = () => {
-            if (selectedCardTypes.size > 0) dropdown.classList.add('has-selected');
-            else dropdown.classList.remove('has-selected');
-        };
-        
+        const clearBtn = document.getElementById('cardtype_clear');
+
+        if (!dropdown || !toggle || !menu) return null;
+
+        const updateHasSelected = () => { dropdown.classList.toggle('has-selected', selectedCardTypesSet.size > 0); };
+
         const populateMenu = () => {
             menu.innerHTML = '';
             CARD_TYPES.forEach(({ id, name }) => {
                 const option = document.createElement('div');
                 option.className = 'cardtype_option';
                 option.setAttribute('data-value', id);
-                if (selectedCardTypes.has(id)) option.classList.add('selected');
+                if (selectedCardTypesSet.has(id)) option.classList.add('selected');
                 option.textContent = name;
                 menu.appendChild(option);
             });
         };
-        
+
         const updateLabel = () => {
-            if (selectedCardTypes.size === 0) {
-                label.textContent = 'Тип';
-            } else if (selectedCardTypes.size === 1) {
-                const id = Array.from(selectedCardTypes)[0];
-                const t = CARD_TYPES.find(ct => ct.id === id);
-                label.textContent = t ? t.name : id;
-            } else {
-                label.textContent = 'Тип (' + selectedCardTypes.size + ')';
-            }
+            if (selectedCardTypesSet.size === 0) label.textContent = 'Тип';
+            else if (selectedCardTypesSet.size === 1) {
+                const t = CARD_TYPES.find(ct => ct.id === Array.from(selectedCardTypesSet)[0]);
+                label.textContent = t ? t.name : 'Тип';
+            } else label.textContent = 'Тип (' + selectedCardTypesSet.size + ')';
         };
-        
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeAllDropdowns(dropdown);
-            populateMenu();
-            dropdown.classList.toggle('open');
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
-        });
-        
+
+        toggle.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(dropdown); populateMenu(); dropdown.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if (!dropdown.contains(e.target)) dropdown.classList.remove('open'); });
+
         menu.addEventListener('click', (e) => {
             const option = e.target.closest('.cardtype_option');
             if (!option) return;
             e.stopPropagation();
             const value = option.getAttribute('data-value');
-            if (selectedCardTypes.has(value)) {
-                selectedCardTypes.delete(value);
-                option.classList.remove('selected');
-            } else {
-                selectedCardTypes.add(value);
-                option.classList.add('selected');
-            }
-            updateLabel();
-            updateHasSelected();
-            if (window.applyExecutorFilter) window.applyExecutorFilter();
+            if (selectedCardTypesSet.has(value)) { selectedCardTypesSet.delete(value); option.classList.remove('selected'); }
+            else { selectedCardTypesSet.add(value); option.classList.add('selected'); }
+            updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
             window.V8Proxy.fetch('settingsChanged', {});
         });
-        
-        if (cardtypeClear) {
-            cardtypeClear.addEventListener('click', (e) => {
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                selectedCardTypes.clear();
-                updateLabel();
-                updateHasSelected();
-                populateMenu();
-                if (window.applyExecutorFilter) window.applyExecutorFilter();
+                selectedCardTypesSet.clear(); updateLabel(); updateHasSelected(); populateMenu(); executorCtrl.applyFilter();
                 window.V8Proxy.fetch('settingsChanged', {});
             });
         }
-        
-        window.selectedCardTypesSet = selectedCardTypes;
-        
-        // Фильтрация по клику на иконку ошибки в карточке
-        window.filterByCardType = (typeId) => {
-            if (selectedCardTypes.size === 1 && selectedCardTypes.has(typeId)) {
-                selectedCardTypes.clear();
-            } else {
-                selectedCardTypes.clear();
-                selectedCardTypes.add(typeId);
-            }
-            populateMenu();
-            updateLabel();
-            updateHasSelected();
-            if (window.applyExecutorFilter) window.applyExecutorFilter();
-            window.V8Proxy.fetch('settingsChanged', {});
-        };
-        
-        window.setSelectedCardTypes = (typeIds) => {
-            if (!typeIds || !Array.isArray(typeIds)) return;
-            selectedCardTypes.clear();
-            typeIds.forEach(id => selectedCardTypes.add(id));
-            populateMenu();
-            updateLabel();
-            updateHasSelected();
-            if (window.applyExecutorFilter) window.applyExecutorFilter();
-        };
-    };
-    
-    initCardTypeFilter();
 
-    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-    
-    // Структура статусов (сохраняется при первой группировке)
-    let statusBlocksData = null;
-    
-    // Сохранить структуру статусов
-    const saveStatusBlocks = () => {
-        if (statusBlocksData) return;
-        statusBlocksData = [];
-        document.querySelectorAll('#kanban-board .kanban-block').forEach(block => {
-            statusBlocksData.push({
-                id: block.id,
-                fullName: block.getAttribute('fullNameObjectStatus'),
-                className: block.className
-            });
-        });
-    };
-    
-    // Собрать данные карточек из DOM (при инициализации)
-    const collectCardsData = () => {
-        document.querySelectorAll('.card').forEach(card => {
-            const statusBlock = card.closest('.kanban-block');
-            const classList = Array.from(card.classList);
-            const link = card.querySelector('.card__link');
-            const photo = card.querySelector('.card__photo');
-            const textSpan = card.querySelector('.card__text span');
-            
-            const urgencyId = card.getAttribute('urgencyId') || undefined;
-            const isBugAttr = card.getAttribute('isBug');
-            const isBug = isBugAttr === 'Да' || isBugAttr === 'true' || isBugAttr === '1';
-            
-            const taskData = {
-                idTask: card.id,
-                project: classList.find(c => c.startsWith('project')) || '',
-                user: classList.find(c => c.startsWith('user')) || '',
-                user_name: classList.find(c => c.startsWith('user_name')) || '',
-                urgencyId,
-                isBug,
-                fullnameobjecttask: card.getAttribute('fullNameObjectTask') || '',
-                card__link_href: link ? link.getAttribute('href') : '',
-                card__link_name: link ? link.textContent : '',
-                card__photo: photo ? photo.src : '',
-                alt: photo ? photo.alt : '',
-                card__text: textSpan ? textSpan.textContent : '',
-                status: statusBlock ? statusBlock.id : null
-            };
-            tasksData.set(card.id, taskData);
-            
-            updateCardClasses(card, undefined, undefined, undefined, urgencyId, isBug);
-        });
-    };
-    
-    // Проверить, активна ли группировка
-    window.isGroupingActive = () => currentGroupingType !== 'none';
-
-    // ========== ГРУППИРОВКА ==========
-    const initGrouping = () => {
-        const groupingDropdown = document.querySelector('.grouping_dropdown');
-        const groupingToggle = document.getElementById('grouping_toggle');
-        const groupingMenu = document.getElementById('grouping_menu');
-        const groupingLabel = document.getElementById('grouping_label');
-        const kanbanBoard = document.getElementById('kanban-board');
-
-        if (!groupingToggle || !groupingMenu) return;
-
-        // Открытие/закрытие dropdown
-        groupingToggle.addEventListener('click', (e) => {
-            e.stopPropagation(); // <-- Это останавливает всплытие события!
-            closeAllDropdowns(groupingDropdown);
-            groupingDropdown.classList.toggle('open');
-        });
-
-        // Закрытие при клике вне dropdown
-        document.addEventListener('click', (e) => {
-            if (!groupingDropdown.contains(e.target)) {
-                groupingDropdown.classList.remove('open');
-            }
-        });
-
-        // Внутренняя функция применения группировки (без уведомления 1С)
-        const applyGroupingInternal = (value) => {
-            expandedBlocks.clear();
-            const option = document.querySelector(`.grouping_option[data-value="${value}"]`);
-            if (!option) return;
-            
-            const text = option.textContent;
-
-            // Обновляем активную опцию
-            document.querySelectorAll('.grouping_option').forEach(opt => {
-                opt.classList.remove('active');
-            });
-            option.classList.add('active');
-
-            // Обновляем текст кнопки
-            groupingLabel.textContent = text;
-
-            // Закрываем dropdown
-            groupingDropdown.classList.remove('open');
-
-            // Сохраняем текущий тип группировки
-            currentGroupingType = value;
-
-            // Применяем группировку (DOM строится из tasksData)
-            if (value === 'none') {
-                removeGrouping();
-            } else if (value === 'executor') {
-                applyGroupingByExecutor();
-            } else if (value === 'project') {
-                applyGroupingByProject();
-            }
-
-            // применить фильтры проектов и исполнителей
-            if (window.applyExecutorFilter) {
-                window.applyExecutorFilter();
-            }
-            
-            // Применяем текущий поиск к новым карточкам
-            if (window.applyCurrentSearch) {
-                window.applyCurrentSearch();
-            }
-
-            RecalculateKanbanBlock();
-        };
-        
-        // Выбор опции группировки (клик пользователя)
-        document.querySelectorAll('.grouping_option').forEach(option => {
-            option.addEventListener('click', () => {
-                const value = option.getAttribute('data-value');
-                applyGroupingInternal(value);
-                
-                // Уведомляем 1С об изменении настроек (только при клике пользователя)
+        return {
+            filterByCardType: (typeId) => {
+                if (selectedCardTypesSet.size === 1 && selectedCardTypesSet.has(typeId)) selectedCardTypesSet.clear();
+                else { selectedCardTypesSet.clear(); selectedCardTypesSet.add(typeId); }
+                populateMenu(); updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
                 window.V8Proxy.fetch('settingsChanged', {});
-            });
-        });
-        
-        // Экспортируем функцию для применения группировки из sendResponse (без уведомления 1С)
-        window.applyGroupingByValue = (value) => {
-            applyGroupingInternal(value);
+            },
+            setSelected: (ids) => {
+                if (!ids || !Array.isArray(ids)) return;
+                selectedCardTypesSet.clear();
+                ids.forEach(id => selectedCardTypesSet.add(id));
+                populateMenu(); updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
+            },
         };
     };
 
-    // Группировка по исполнителям — строим DOM из tasksData
+    // Обработчик сворачивания/разворачивания групп по клику на заголовок
+    const initGroupCollapse = () => {
+        document.querySelectorAll('.group-header').forEach(header => {
+            header.addEventListener('click', () => {
+                header.closest('.group').classList.toggle('collapsed');
+                RecalculateKanbanBlock();
+            });
+        });
+    };
+
+    // Группировка по исполнителям: пересоздаёт доску, разбивая карточки по user
     const applyGroupingByExecutor = () => {
         saveStatusBlocks();
         const kanbanBoard = document.getElementById('kanban-board');
-        
-        // Группируем данные по исполнителям
-        const executors = new Map(); // visibleName → { userId, photo, tasks: [] }
-        
+
+        const executors = new Map();
         tasksData.forEach((data) => {
             if (!data.user) return;
-            // Извлекаем отображаемое имя из класса user_name
-            const visibleName = data.user_name 
-                ? data.user_name.replace('user_name', '').replace(/_/g, ' ') 
+            const visibleName = data.user_name
+                ? data.user_name.replace('user_name', '').replace(/_/g, ' ')
                 : data.user;
-            
             if (!executors.has(visibleName)) {
-                executors.set(visibleName, { 
-                    userId: data.user, 
-                    photo: data.card__photo, 
-                    tasks: [] 
-                });
+                executors.set(visibleName, { userId: data.user, photo: data.card__photo, tasks: [] });
             }
             executors.get(visibleName).tasks.push(data);
         });
-        
-        // Строим DOM
+
         kanbanBoard.innerHTML = '';
         kanbanBoard.classList.add('grouped');
-        
+
         executors.forEach((exec, visibleName) => {
             const group = document.createElement('div');
             group.className = 'group';
             group.setAttribute('data-executor-id', exec.userId);
             group.setAttribute('data-executor-name', visibleName);
-            
-            // Заголовок группы
-            const photoHtml = exec.photo ? `<img class="group-photo" src="${exec.photo}" alt="${visibleName}">` : '';
-            group.innerHTML = `
-                <div class="group-header">
-                    <div class="group-toggle">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </div>
-                    ${photoHtml}
-                    <span class="group-name">${visibleName}</span>
-                    <span class="group-count">0</span>
-                </div>
-                <div class="group-content"></div>
-            `;
-            
-            const content = group.querySelector('.group-content');
-            
-            // Создаём блоки статусов
-            statusBlocksData.forEach(blockData => {
-                const block = document.createElement('div');
-                block.className = 'kanban-block';
-                block.id = blockData.id;
-                block.setAttribute('fullNameObjectStatus', blockData.fullName);
-                
-                // Добавляем карточки этого исполнителя для этого статуса
-                exec.tasks.filter(t => t.status === blockData.id).forEach(taskData => {
-                    const card = createCardFromData(taskData);
-                    block.appendChild(card);
-                });
-                
-                content.appendChild(block);
-            });
-            
+
+            const photoHtml = exec.photo ? '<img class="group-photo" src="' + exec.photo + '" alt="' + visibleName + '">' : '';
+            group.innerHTML =
+                '<div class="group-header">' +
+                    '<div class="group-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>' +
+                    photoHtml +
+                    '<span class="group-name">' + visibleName + '</span>' +
+                    '<span class="group-count">0</span>' +
+                '</div><div class="group-content"></div>';
+
+            buildGroupBlocks(group.querySelector('.group-content'), exec.tasks);
             kanbanBoard.appendChild(group);
         });
-        
+
         initGroupCollapse();
-        initDragDropForGroups();
+        setupDragDropForGroups();
     };
 
-    // Группировка по проектам — строим DOM из tasksData
+    // Группировка по проектам: пересоздаёт доску, разбивая карточки по project
     const applyGroupingByProject = () => {
         saveStatusBlocks();
         const kanbanBoard = document.getElementById('kanban-board');
-        
-        // Группируем данные по проектам
-        const projectsMap = new Map(); // projectId → { name, color, tasks: [] }
-        
+
+        const projectsMap = new Map();
         tasksData.forEach((data) => {
-            const projectClass = data.project;
-            if (!projectClass) return;
-            
-            if (!projectsMap.has(projectClass)) {
-                // Получаем данные проекта из projectsList
-                const projectData = window.projectsList 
-                    ? window.projectsList.find(p => p.id === projectClass) 
-                    : null;
-                const projectName = projectData ? projectData.name : projectClass;
-                const projectColor = projectData ? projectData.color : null;
-                
-                projectsMap.set(projectClass, {
-                    name: projectName,
-                    color: projectColor,
-                    tasks: []
-                });
+            if (!data.project) return;
+            if (!projectsMap.has(data.project)) {
+                const pd = projectsList.find(p => p.id === data.project);
+                projectsMap.set(data.project, { name: pd ? pd.name : data.project, color: pd ? pd.color : null, tasks: [] });
             }
-            projectsMap.get(projectClass).tasks.push(data);
+            projectsMap.get(data.project).tasks.push(data);
         });
-        
-        // Строим DOM
+
         kanbanBoard.innerHTML = '';
         kanbanBoard.classList.add('grouped');
-        
+
         projectsMap.forEach((proj, projectId) => {
             const group = document.createElement('div');
             group.className = 'group';
             group.setAttribute('data-project-id', projectId);
-            
-            const colorStyle = proj.color ? `background-color: ${proj.color};` : '';
-            group.innerHTML = `
-                <div class="group-header">
-                    <div class="group-toggle">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </div>
-                    <span class="group-project-color" style="${colorStyle}"></span>
-                    <span class="group-name">${proj.name}</span>
-                    <span class="group-count">0</span>
-                </div>
-                <div class="group-content"></div>
-            `;
-            
-            const content = group.querySelector('.group-content');
-            
-            // Создаём блоки статусов
-            statusBlocksData.forEach(blockData => {
-                const block = document.createElement('div');
-                block.className = 'kanban-block';
-                block.id = blockData.id;
-                block.setAttribute('fullNameObjectStatus', blockData.fullName);
-                
-                // Добавляем карточки этого проекта для этого статуса
-                proj.tasks.filter(t => t.status === blockData.id).forEach(taskData => {
-                    const card = createCardFromData(taskData);
-                    block.appendChild(card);
-                });
-                
-                content.appendChild(block);
-            });
-            
+
+            const colorStyle = proj.color ? 'background-color: ' + proj.color + ';' : '';
+            group.innerHTML =
+                '<div class="group-header">' +
+                    '<div class="group-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>' +
+                    '<span class="group-project-color" style="' + colorStyle + '"></span>' +
+                    '<span class="group-name">' + proj.name + '</span>' +
+                    '<span class="group-count">0</span>' +
+                '</div><div class="group-content"></div>';
+
+            buildGroupBlocks(group.querySelector('.group-content'), proj.tasks);
             kanbanBoard.appendChild(group);
         });
-        
+
         initGroupCollapse();
-        initDragDropForGroups();
+        setupDragDropForGroups();
     };
 
-    // Снятие группировки — строим плоскую доску из данных
+    // Снятие группировки: восстанавливает исходную структуру колонок из statusBlocksData
     const removeGrouping = () => {
         const kanbanBoard = document.getElementById('kanban-board');
         kanbanBoard.classList.remove('grouped');
         currentGroupingType = 'none';
-        
         if (!statusBlocksData) return;
-        
-        // Очищаем и строим заново с обёрткой kanban_body
+
         kanbanBoard.innerHTML = '';
         const kanbanBody = document.createElement('div');
         kanbanBody.className = 'kanban_body';
-        
-        // Создаём блоки статусов
+
         statusBlocksData.forEach(blockData => {
             const block = document.createElement('div');
             block.id = blockData.id;
@@ -1604,444 +1250,162 @@ document.addEventListener('DOMContentLoaded', () => {
             block.setAttribute('fullNameObjectStatus', blockData.fullName);
             kanbanBody.appendChild(block);
         });
-        
+
         kanbanBoard.appendChild(kanbanBody);
-        
-        // Добавляем карточки из данных
         tasksData.forEach((data) => {
-            const card = createCardFromData(data);
             const targetBlock = document.getElementById(data.status);
-            if (targetBlock) {
-                targetBlock.appendChild(card);
-            }
+            if (targetBlock) targetBlock.appendChild(createCardFromData(data));
         });
-        
-        initDragDrop();
-        initCardDrag();
+
+        setupDragDrop();
+        setupCardDrag();
     };
 
-    // Инициализация drag & drop для групп
-    // Drag & drop для сгруппированной доски
-    const initDragDropForGroups = () => {
-        document.querySelectorAll('.group-content .kanban-block').forEach(block => {
-            block.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                
-                // При группировке по проектам проверяем, можно ли бросить сюда
-                if (currentGroupingType === 'project' && window.draggingCardProjectId) {
-                    const targetGroup = block.closest('.group');
-                    const targetProjectId = targetGroup ? targetGroup.getAttribute('data-project-id') : null;
-                    
-                    if (targetProjectId && window.draggingCardProjectId !== targetProjectId) {
-                        // Запрещённая зона — другой проект
-                        block.classList.remove('kanban-block--dragover');
-                        block.classList.add('kanban-block--drop-forbidden');
-                        e.dataTransfer.dropEffect = 'none';
-                        return;
-                    }
-                }
-                
-                // Разрешённая зона
-                block.classList.remove('kanban-block--drop-forbidden');
-                block.classList.add('kanban-block--dragover');
-            });
+    // Управление группировкой: выпадающий список «Нет / Исполнитель / Проект».
+    // Возвращает контроллер: apply(value)
+    const initGrouping = () => {
+        const groupingDropdown = document.querySelector('.grouping_dropdown');
+        const groupingToggle = document.getElementById('grouping_toggle');
+        const groupingLabel = document.getElementById('grouping_label');
 
-            block.addEventListener('dragleave', (e) => {
-                if (!block.contains(e.relatedTarget)) {
-                    block.classList.remove('kanban-block--dragover');
-                    block.classList.remove('kanban-block--drop-forbidden');
-                }
-            });
+        if (!groupingToggle) return null;
 
-            block.addEventListener('drop', (e) => {
-                e.preventDefault();
-                block.classList.remove('kanban-block--dragover');
-                block.classList.remove('kanban-block--drop-forbidden');
+        groupingToggle.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(groupingDropdown); groupingDropdown.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if (!groupingDropdown.contains(e.target)) groupingDropdown.classList.remove('open'); });
 
-                const idTask = e.dataTransfer.getData("text");
-                const draggedElement = document.getElementById(idTask);
-                if (!draggedElement) return;
+        const applyInternal = (value) => {
+            expandedBlocks.clear();
+            const option = document.querySelector('.grouping_option[data-value="' + value + '"]');
+            if (!option) return;
 
-                const fullNameObjectTask = draggedElement.getAttribute('fullNameObjectTask');
-                const lastStatus = draggedElement.parentElement;
-                if (block === lastStatus) return;
-                
-                const sourceGroup = lastStatus.closest('.group');
-                const targetGroup = block.closest('.group');
-                
-                // При группировке по проектам запрещаем перенос между проектами
-                if (currentGroupingType === 'project' && sourceGroup && targetGroup) {
-                    if (sourceGroup.getAttribute('data-project-id') !== targetGroup.getAttribute('data-project-id')) {
-                        return;
-                    }
-                }
-                
-                block.appendChild(draggedElement);
-                
-                const idNewStatus = block.id;
-                const fullNameObjectStatus = block.getAttribute('fullNameObjectStatus');
-                
-                // Обновляем данные в хранилище
-                const taskData = tasksData.get(idTask);
-                if (taskData) {
-                    taskData.status = idNewStatus;
-                }
-                
-                const params = {
-                    idTask,
-                    fullNameObjectTask,
-                    idNewStatus,
-                    fullNameObjectStatus
-                };
-                
-                // При группировке по исполнителям — обновляем исполнителя
-                if (currentGroupingType === 'executor' && targetGroup) {
-                    const idNewExecutor = targetGroup.getAttribute('data-executor-id');
-                    const newExecutorName = targetGroup.getAttribute('data-executor-name');
-                    
-                    if (idNewExecutor) {
-                        params.idNewExecutor = idNewExecutor;
-                        
-                        // Обновляем классы на карточке в DOM
-                        const classList = Array.from(draggedElement.classList);
-                        const oldUserClass = classList.find(c => c.startsWith('user') && !c.startsWith('user_name'));
-                        const oldUserNameClass = classList.find(c => c.startsWith('user_name'));
-                        
-                        if (oldUserClass) draggedElement.classList.remove(oldUserClass);
-                        if (oldUserNameClass) draggedElement.classList.remove(oldUserNameClass);
-                        
-                        draggedElement.classList.add(idNewExecutor);
-                        const newUserNameClass = 'user_name' + newExecutorName.replace(/ /g, '_');
-                        draggedElement.classList.add(newUserNameClass);
-                        
-                        // Обновляем данные в хранилище
-                        if (taskData) {
-                            taskData.user = idNewExecutor;
-                            taskData.user_name = newUserNameClass;
-                        }
-                    }
-                } else if (currentGroupingType === 'project') {
-                    // При группировке по проектам — передаём текущего исполнителя (он не меняется)
-                    const idNewExecutor = Array.from(draggedElement.classList).find(c => c.startsWith('user') && !c.startsWith('user_name'));
-                    if (idNewExecutor) {
-                        params.idNewExecutor = idNewExecutor;
-                    }
-                }
-                
-                RecalculateKanbanBlock();
-                window.V8Proxy.fetch('changeStatus', params);
+            document.querySelectorAll('.grouping_option').forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+            groupingLabel.textContent = option.textContent;
+            groupingDropdown.classList.remove('open');
+            currentGroupingType = value;
+
+            if (value === 'none') removeGrouping();
+            else if (value === 'executor') applyGroupingByExecutor();
+            else if (value === 'project') applyGroupingByProject();
+
+            executorCtrl.applyFilter();
+            searchCtrl.applyCurrent();
+            RecalculateKanbanBlock();
+        };
+
+        document.querySelectorAll('.grouping_option').forEach(option => {
+            option.addEventListener('click', () => {
+                applyInternal(option.getAttribute('data-value'));
+                window.V8Proxy.fetch('settingsChanged', {});
             });
         });
 
-        document.querySelectorAll('.group-content .card').forEach(card => {
-            initCardDragEvents(card);
-        });
+        return { apply: applyInternal };
     };
 
-    // Drag & drop для плоской доски
-    const initDragDrop = () => {
-        document.querySelectorAll('.kanban-block').forEach(block => {
-            block.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                block.classList.add('kanban-block--dragover');
-            });
-
-            block.addEventListener('dragleave', (e) => {
-                if (!block.contains(e.relatedTarget)) {
-                    block.classList.remove('kanban-block--dragover');
-                }
-            });
-
-            block.addEventListener('drop', (e) => {
-                e.preventDefault();
-                block.classList.remove('kanban-block--dragover');
-
-                const idTask = e.dataTransfer.getData("text");
-                const draggedElement = document.getElementById(idTask);
-                if (!draggedElement) return;
-
-                const fullNameObjectTask = draggedElement.getAttribute('fullNameObjectTask');
-                const lastStatus = draggedElement.parentElement;
-                if (block === lastStatus) return;
-                
-                block.appendChild(draggedElement);
-                
-                const idNewStatus = block.id;
-                const fullNameObjectStatus = block.getAttribute('fullNameObjectStatus');
-                
-                // Обновляем данные в хранилище
-                const taskData = tasksData.get(idTask);
-                if (taskData) taskData.status = idNewStatus;
-                
-                // Получаем текущего исполнителя карточки (он не меняется в режиме без группировки)
-                const idNewExecutor = Array.from(draggedElement.classList).find(c => c.startsWith('user') && !c.startsWith('user_name'));
-                
-                RecalculateKanbanBlock();
-                window.V8Proxy.fetch('changeStatus', { idTask, fullNameObjectTask, idNewStatus, fullNameObjectStatus, idNewExecutor });
-            });
-        });
-    };
-
-    // Инициализация перетаскивания карточек
-    const initCardDrag = () => {
-        document.querySelectorAll('.card').forEach(card => initCardDragEvents(card));
-    };
-
-    // Собираем данные карточек и структуру статусов из DOM
-    saveStatusBlocks();
-    collectCardsData();
-    
-    initGrouping();
-
-    // ========== СВОРАЧИВАНИЕ ГРУПП ==========
-    const initGroupCollapse = () => {
-        document.querySelectorAll('.group-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const group = header.closest('.group');
-                group.classList.toggle('collapsed');
-                RecalculateKanbanBlock();
-            });
-        });
-    };
-
-    initGroupCollapse();
-
-    // Перетаскивание задач по статусам
-    initDragDrop();
-    initCardDrag();
-
-    // Клик по фото исполнителя — фильтр по этому исполнителю
-    document.addEventListener('click', (e) => {
-        const photo = e.target.closest('.card__photo');
-        if (!photo) return;
-        const card = photo.closest('.card');
-        if (!card) return;
-        let userId = null;
-        for (const cls of card.className.split(' ')) {
-            if (cls.startsWith('user')) userId = cls;
-        }
-        if (!userId || !window.filterByExecutor) return;
-        e.preventDefault();
-        e.stopPropagation();
-        window.filterByExecutor(userId);
-    });
-
-    // Клик по кружку проекта — фильтр по этому проекту
-    document.addEventListener('click', (e) => {
-        const tag = e.target.closest('.tag_task');
-        if (!tag) return;
-        const card = tag.closest('.card');
-        if (!card) return;
-        const projectId = Array.from(card.classList).find(cls => cls.startsWith('project'));
-        if (!projectId || !window.filterByProject) return;
-        e.preventDefault();
-        e.stopPropagation();
-        window.filterByProject(projectId);
-    });
-
-    // Клик по иконке срочности — фильтр по этому уровню срочности
-    document.addEventListener('click', (e) => {
-        const wrap = e.target.closest('.card__urgency-wrap');
-        if (!wrap) return;
-        const card = wrap.closest('.card');
-        if (!card) return;
-        const urgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-'));
-        const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : null;
-        if (!urgencyId || !window.filterByUrgency) return;
-        e.preventDefault();
-        e.stopPropagation();
-        window.filterByUrgency(urgencyId);
-    });
-
-    // ========== ПОИСК ПО ЗАДАЧАМ ==========
+    // Поиск по тексту карточек: фильтрует карточки по введённой строке.
+    // Возвращает контроллер: setQuery(query), applyCurrent()
     const initSearch = () => {
-        const searchInput = document.getElementById('search_input');
-        const searchClear = document.getElementById('search_clear');
-        const searchContainer = document.querySelector('.search_container');
-        if (!searchInput) return;
-        
-        searchInput.addEventListener('input', (e) => {
-            const searchText = e.target.value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.card');
-            
-            // Показать/скрыть крестик
-            if (e.target.value.trim()) {
-                searchContainer.classList.add('has-text');
-            } else {
-                searchContainer.classList.remove('has-text');
-            }
-            
-            cards.forEach(card => {
-                const cardTextSpan = card.querySelector('.card__text span');
-                const text = cardTextSpan ? cardTextSpan.textContent.toLowerCase() : '';
-                
-                if (searchText === '') {
-                    // Пустой поиск — убираем класс скрытия от поиска
-                    card.classList.remove('card__search_hidden');
-                } else if (text.includes(searchText)) {
-                    card.classList.remove('card__search_hidden');
-                } else {
-                    card.classList.add('card__search_hidden');
-                }
-            });
-            
-            // Применяем фильтры проектов и исполнителей поверх поиска
-            if (window.applyExecutorFilter) {
-                window.applyExecutorFilter();
-            }
+        const input = document.getElementById('search_input');
+        const clearBtn = document.getElementById('search_clear');
+        const container = document.querySelector('.search_container');
+        if (!input) return null;
+
+        input.addEventListener('input', (e) => {
+            const text = e.target.value.toLowerCase().trim();
+            container.classList.toggle('has-text', !!e.target.value.trim());
+            filterCardsBySearch(text);
+            executorCtrl.applyFilter();
             RecalculateKanbanBlock();
         });
-        
-        // Очистка по клику на крестик
-        if (searchClear) {
-            searchClear.addEventListener('click', () => {
-                searchInput.value = '';
-                searchContainer.classList.remove('has-text');
-                
-                // Убрать скрытие от поиска со всех карточек
-                document.querySelectorAll('.card').forEach(card => {
-                    card.classList.remove('card__search_hidden');
-                });
-                
-                // Применить остальные фильтры
-                if (window.applyExecutorFilter) {
-                    window.applyExecutorFilter();
-                }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                input.value = '';
+                container.classList.remove('has-text');
+                filterCardsBySearch('');
+                executorCtrl.applyFilter();
                 RecalculateKanbanBlock();
             });
         }
-        
-        // Экспортируем функцию для установки поиска из sendResponse
-        window.setSearchQuery = (query) => {
-            searchInput.value = query || '';
-            
-            // Показать/скрыть крестик
-            if (query && query.trim()) {
-                searchContainer.classList.add('has-text');
-            } else {
-                searchContainer.classList.remove('has-text');
-            }
-            
-            // Применяем поиск
-            const searchText = (query || '').toLowerCase().trim();
-            const cards = document.querySelectorAll('.card');
-            
-            cards.forEach(card => {
-                const cardTextSpan = card.querySelector('.card__text span');
-                const text = cardTextSpan ? cardTextSpan.textContent.toLowerCase() : '';
-                
-                if (searchText === '') {
-                    card.classList.remove('card__search_hidden');
-                } else if (text.includes(searchText)) {
-                    card.classList.remove('card__search_hidden');
-                } else {
-                    card.classList.add('card__search_hidden');
-                }
-            });
-            
-            // Применяем фильтры проектов и исполнителей
-            if (window.applyExecutorFilter) {
-                window.applyExecutorFilter();
-            }
-            RecalculateKanbanBlock();
-        };
-        
-        // Функция для повторного применения текущего поиска (вызывается после смены группировки)
-        window.applyCurrentSearch = () => {
-            const searchText = searchInput.value.toLowerCase().trim();
-            if (searchText === '') return; // Нет поиска — ничего не делаем
-            
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => {
-                const cardTextSpan = card.querySelector('.card__text span');
-                const text = cardTextSpan ? cardTextSpan.textContent.toLowerCase() : '';
-                
-                if (text.includes(searchText)) {
-                    card.classList.remove('card__search_hidden');
-                } else {
-                    card.classList.add('card__search_hidden');
-                }
-            });
+
+        return {
+            setQuery: (query) => {
+                input.value = query || '';
+                container.classList.toggle('has-text', !!(query && query.trim()));
+                filterCardsBySearch((query || '').toLowerCase().trim());
+                executorCtrl.applyFilter();
+                RecalculateKanbanBlock();
+            },
+            applyCurrent: () => {
+                const text = input.value.toLowerCase().trim();
+                if (text) filterCardsBySearch(text);
+            },
         };
     };
 
-    initSearch();
-
-    // ========== КНОПКА ОБНОВЛЕНИЯ ==========
-    const initUpdateButton = () => {
-        const updateButton = document.getElementById('update_svg');
-        if (!updateButton) return;
-        
-        updateButton.addEventListener('click', () => {
-            // Обращаемся к 1С с событием 'refresh'
-            // V8Proxy.fetch автоматически добавит все параметры состояния доски:
-            // theme, grouping, executorfilter, projectfilter
-            window.V8Proxy.fetch('refresh', {});
-        });
-    };
-
-    initUpdateButton();
-
-    // Обновить иконки срочности на всех карточках (после смены настроек)
-    window.refreshUrgencyIconsOnCards = () => {
+    // Перерисовывает иконки срочности на всех карточках (после смены настроек иконок/цветов)
+    const refreshUrgencyIcons = () => {
         document.querySelectorAll('.card').forEach(card => {
             const urgencyClass = Array.from(card.classList).find(c => c.startsWith('urgency-'));
             const urgencyId = urgencyClass ? urgencyClass.replace('urgency-', '') : null;
-            if (urgencyId) {
-                const textEl = card.querySelector('.card__text');
-                let wrap = card.querySelector('.card__urgency-wrap');
-                const iconData = getUrgencyIconHtml(urgencyId);
-                if (iconData) {
-                    if (!wrap) {
-                        wrap = document.createElement('div');
-                        wrap.className = 'card__urgency-wrap';
-                        if (textEl) textEl.insertBefore(wrap, textEl.firstChild);
-                    }
-                    wrap.innerHTML = iconData.svg;
-                    wrap.style.color = iconData.color;
-                    wrap.style.display = '';
-                } else if (wrap) {
-                    wrap.innerHTML = '';
-                    wrap.style.display = 'none';
+            if (!urgencyId) return;
+
+            const textEl = card.querySelector('.card__text');
+            let wrap = card.querySelector('.card__urgency-wrap');
+            const iconData = getUrgencyIconHtml(urgencyId);
+            if (iconData) {
+                if (!wrap) {
+                    wrap = document.createElement('div');
+                    wrap.className = 'card__urgency-wrap';
+                    if (textEl) textEl.insertBefore(wrap, textEl.firstChild);
                 }
+                wrap.innerHTML = iconData.svg;
+                wrap.style.color = iconData.color;
+                wrap.style.display = '';
+            } else if (wrap) {
+                wrap.innerHTML = '';
+                wrap.style.display = 'none';
             }
         });
     };
 
-    // Popover настроек срочности (иконка + цвет для одного уровня)
+    // Popover для настройки иконки и цвета уровня срочности.
+    // Позволяет выбрать иконку и цвет, сохранить или отменить изменения.
+    // Возвращает контроллер: open(urgencyId, name, anchorEl)
     const initSettingsPopover = () => {
         const popover = document.getElementById('urgency_settings_popover');
         const listEl = document.getElementById('urgency_settings_list');
         const titleEl = popover ? popover.querySelector('.urgency-popover__title') : null;
         const saveBtn = document.getElementById('urgency_popover_save');
         const cancelBtn = document.getElementById('urgency_popover_cancel');
-        
-        if (!popover || !listEl) return;
-        
+
+        if (!popover || !listEl) return { open: () => {} };
+
         let settingsSnapshot = null;
         let currentEditId = null;
         let draftSettings = {};
-        
-        const renderSingleUrgencySettings = (urgencyId) => {
+
+        const renderSettings = (urgencyId) => {
             listEl.innerHTML = '';
             const s = draftSettings[urgencyId] || {};
             const iconId = s.iconId || URGENCY_ICON_IDS[0];
             const colorId = s.colorId || 'red';
             const row = document.createElement('div');
             row.className = 'urgency_setting_row';
-            row.innerHTML = `
-                <div class="urgency_setting_icons" data-urgency-id="${urgencyId}">
-                    ${URGENCY_ICON_IDS.map(iid => `
-                        <button type="button" class="urgency_icon_btn ${iid === iconId ? 'selected' : ''}" data-icon="${iid}" title="${iid}">${URGENCY_ICONS[iid]}</button>
-                    `).join('')}
-                </div>
-                <div class="urgency_setting_colors" data-urgency-id="${urgencyId}">
-                    ${URGENCY_COLOR_IDS.map(cid => `
-                        <button type="button" class="urgency_color_btn ${cid === colorId ? 'selected' : ''}" data-color="${cid}" style="background-color: ${URGENCY_COLORS[cid]}" title="${cid}"></button>
-                    `).join('')}
-                </div>
-            `;
+            row.innerHTML =
+                '<div class="urgency_setting_icons" data-urgency-id="' + urgencyId + '">' +
+                    URGENCY_ICON_IDS.map(iid =>
+                        '<button type="button" class="urgency_icon_btn ' + (iid === iconId ? 'selected' : '') + '" data-icon="' + iid + '" title="' + iid + '">' + URGENCY_ICONS[iid] + '</button>'
+                    ).join('') +
+                '</div>' +
+                '<div class="urgency_setting_colors" data-urgency-id="' + urgencyId + '">' +
+                    URGENCY_COLOR_IDS.map(cid =>
+                        '<button type="button" class="urgency_color_btn ' + (cid === colorId ? 'selected' : '') + '" data-color="' + cid + '" style="background-color: ' + URGENCY_COLORS[cid] + '" title="' + cid + '"></button>'
+                    ).join('') +
+                '</div>';
             listEl.appendChild(row);
+
             listEl.querySelectorAll('.urgency_icon_btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const wrap = btn.closest('.urgency_setting_icons');
@@ -2063,29 +1427,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         };
-        
+
         const positionPopover = (anchorEl) => {
             const rect = anchorEl.getBoundingClientRect();
             const popW = 300;
             let left = rect.right + 8;
             let top = rect.top;
-            if (left + popW > window.innerWidth) {
-                left = rect.left - popW - 8;
-            }
+            if (left + popW > window.innerWidth) left = rect.left - popW - 8;
             if (left < 4) left = 4;
-            if (top + 300 > window.innerHeight) {
-                top = Math.max(4, window.innerHeight - 340);
-            }
+            if (top + 300 > window.innerHeight) top = Math.max(4, window.innerHeight - 340);
             popover.style.left = left + 'px';
             popover.style.top = top + 'px';
         };
-        
-        const closePopover = (applyChanges) => {
-            if (applyChanges) {
+
+        const closePopover = (apply) => {
+            if (apply) {
                 boardSettings.urgencySettings = JSON.parse(JSON.stringify(draftSettings));
                 window.V8Proxy.fetch('settingsChanged', {});
-                window.refreshUrgencyIconsOnCards();
-                if (window.populateUrgencyMenu) window.populateUrgencyMenu();
+                refreshUrgencyIcons();
+                urgencyCtrl.populateMenu();
             } else if (settingsSnapshot) {
                 boardSettings.urgencySettings = JSON.parse(settingsSnapshot);
             }
@@ -2094,234 +1454,188 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsSnapshot = null;
             currentEditId = null;
         };
-        
-        window.openUrgencySettingsPopover = (urgencyId, name, anchorEl) => {
-            closeAllDropdowns();
-            if (popover.classList.contains('open') && currentEditId === urgencyId) {
-                closePopover(false);
-                return;
-            }
-            settingsSnapshot = JSON.stringify(boardSettings.urgencySettings);
-            draftSettings = JSON.parse(JSON.stringify(boardSettings.urgencySettings));
-            currentEditId = urgencyId;
-            if (titleEl) titleEl.textContent = 'Настройка: ' + (name || urgencyId);
-            renderSingleUrgencySettings(urgencyId);
-            positionPopover(anchorEl);
-            popover.classList.add('open');
-            popover.setAttribute('aria-hidden', 'false');
-        };
-        
+
         if (saveBtn) saveBtn.addEventListener('click', () => closePopover(true));
         if (cancelBtn) cancelBtn.addEventListener('click', () => closePopover(false));
-        
-        document.addEventListener('mousedown', (e) => {
-            if (!popover.classList.contains('open')) return;
-            if (popover.contains(e.target)) return;
-            closePopover(false);
-        });
-        
-        popover.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closePopover(false);
-        });
+        document.addEventListener('mousedown', (e) => { if (popover.classList.contains('open') && !popover.contains(e.target)) closePopover(false); });
+        popover.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePopover(false); });
+
+        return {
+            open: (urgencyId, name, anchorEl) => {
+                closeAllDropdowns();
+                if (popover.classList.contains('open') && currentEditId === urgencyId) { closePopover(false); return; }
+                settingsSnapshot = JSON.stringify(boardSettings.urgencySettings);
+                draftSettings = JSON.parse(JSON.stringify(boardSettings.urgencySettings));
+                currentEditId = urgencyId;
+                if (titleEl) titleEl.textContent = 'Настройка: ' + (name || urgencyId);
+                renderSettings(urgencyId);
+                positionPopover(anchorEl);
+                popover.classList.add('open');
+                popover.setAttribute('aria-hidden', 'false');
+            },
+        };
     };
-    
-    initSettingsPopover();
 
-    // document.querySelectorAll('.add_task').forEach(button => {
-    //     button.addEventListener('click', (event) => {
-    //         // логика добавления задачи, возможно, с извлечением ID статуса из класса
-    //         // const statusClass = Array.from(event.currentTarget.classList).find(cls => cls.startsWith('status'));
-    //         // const statusId = statusClass ? statusClass.replace('status', '') : null;
-    //         // console.log('Добавить задачу в статус:', statusId);
+    // ---- Инициализация всех контроллеров ----
+    // Порядок важен: executorCtrl используется в projectCtrl, urgencyCtrl и cardTypeCtrl
 
-    //     });
-    // });
+    const themeCtrl = initTheme();
+    const projectCtrl = initProjectPicker();
+    const executorCtrl = initExecutorFilter();
+    const settingsPopoverCtrl = initSettingsPopover();
+    const urgencyCtrl = initUrgencyFilter();
+    const cardTypeCtrl = initCardTypeFilter();
+    const groupingCtrl = initGrouping();
+    const searchCtrl = initSearch();
 
-    // Подсветка блока под перетаскиваемыми задачами
-    const blockHeaders = document.querySelectorAll('.block_header');
-    const kanbanBlocks = document.querySelectorAll('.kanban-block');
-    kanbanBlocks.forEach((kanbanBlock, index) => {
-        const correspondingHeader = blockHeaders[index];
+    initGroupCollapse();
+    setupDragDrop();
+    setupCardDrag();
 
-        // Добавляем обработчик события 'mouseenter' (наведение курсора)
-        kanbanBlock.addEventListener('mouseenter', () => {
-            if (correspondingHeader) { // Проверяем, что заголовок существует
-                correspondingHeader.classList.add('block_header--hovered');
+    const updateBtn = document.getElementById('update_svg');
+    if (updateBtn) updateBtn.addEventListener('click', () => window.V8Proxy.fetch('refresh', {}));
+
+    // Делегированные клики по элементам карточки:
+    // фото → фильтр по исполнителю, метка проекта → фильтр по проекту,
+    // иконка срочности → фильтр по срочности
+    document.addEventListener('click', (e) => {
+        const photo = e.target.closest('.card__photo');
+        if (photo) {
+            const card = photo.closest('.card');
+            if (card) {
+                let userId = null;
+                for (const cls of card.className.split(' ')) { if (cls.startsWith('user')) userId = cls; }
+                if (userId && executorCtrl) { e.preventDefault(); e.stopPropagation(); executorCtrl.filterByExecutor(userId); return; }
             }
-        });
+        }
 
-        // Добавляем обработчик события 'mouseleave' (уход курсора)
-        kanbanBlock.addEventListener('mouseleave', () => {
-            if (correspondingHeader) {
-                correspondingHeader.classList.remove('block_header--hovered');
+        const tag = e.target.closest('.tag_task');
+        if (tag) {
+            const card = tag.closest('.card');
+            if (card) {
+                const pid = Array.from(card.classList).find(cls => cls.startsWith('project'));
+                if (pid && projectCtrl) { e.preventDefault(); e.stopPropagation(); projectCtrl.filterByProject(pid); return; }
             }
-        });
+        }
+
+        const wrap = e.target.closest('.card__urgency-wrap');
+        if (wrap) {
+            const card = wrap.closest('.card');
+            if (card) {
+                const uc = Array.from(card.classList).find(c => c.startsWith('urgency-'));
+                const uid = uc ? uc.replace('urgency-', '') : null;
+                if (uid && urgencyCtrl) { e.preventDefault(); e.stopPropagation(); urgencyCtrl.filterByUrgency(uid); return; }
+            }
+        }
     });
 
-    // Функция для повторной инициализации (вызывается из 1С после перерисовки)
-    window.reinitKanban = () => {
-        // Пересобираем проекты из чекбоксов (от 1С)
-        if (window.collectProjectsFromCheckboxes) {
-            window.collectProjectsFromCheckboxes();
-        }
-        if (window.updateProjectPicker) {
-            window.updateProjectPicker();
-        }
-        // Обновляем меню исполнителей и применяем фильтр
-        if (window.populateExecutorMenu) {
-            window.populateExecutorMenu();
-        }
-        if (window.populateUrgencyMenu) {
-            window.populateUrgencyMenu();
-        }
-        if (window.applyExecutorFilter) {
-            window.applyExecutorFilter();
-        }
-        initGroupCollapse();
-        RecalculateKanbanBlock();
-    };
+    // Подсветка заголовка колонки при наведении на саму колонку
+    const blockHeaders = document.querySelectorAll('.block_header');
+    document.querySelectorAll('.kanban-block').forEach((block, index) => {
+        const header = blockHeaders[index];
+        block.addEventListener('mouseenter', () => { if (header) header.classList.add('block_header--hovered'); });
+        block.addEventListener('mouseleave', () => { if (header) header.classList.remove('block_header--hovered'); });
+    });
 
-    // Пересчёт лимита карточек при изменении размера окна
+    // Пересчёт лимитов карточек при изменении размера окна (debounce 150ms)
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            RecalculateKanbanBlock();
-        }, 150);
+        resizeTimer = setTimeout(() => RecalculateKanbanBlock(), 150);
     });
 
-    // Применяем начальные настройки доски из script#board-settings (генерируется 1С при построении страницы)
+    // ============================================================
+    // ИНТЕГРАЦИЯ С 1С
+    // Определяется последней — все контроллеры уже инициализированы.
+    // V8Proxy.fetch — отправка запроса в 1С.
+    // V8Proxy.sendResponse — приём ответа из 1С (вызывается платформой).
+    // V8Proxy.reinitKanban — полная переинициализация (после замены HTML).
+    // ============================================================
+
+    // Применяет пакет настроек из 1С: тема, группировка, фильтры, уровни срочности
+    const applyBoardSettings = (data) => {
+        if (!data || typeof data !== 'object') return;
+
+        if (data.currentuserid !== undefined) boardSettings.currentUserId = data.currentuserid;
+        if (data.currentusername !== undefined) boardSettings.currentUserName = data.currentusername;
+        if (data.theme !== undefined && themeCtrl) themeCtrl.apply(data.theme);
+        if (data.grouping !== undefined && groupingCtrl) groupingCtrl.apply(data.grouping);
+        if (data.executorfilter !== undefined && executorCtrl) executorCtrl.setSelected(data.executorfilter);
+        if (data.projectfilter !== undefined && projectCtrl) projectCtrl.setSelected(data.projectfilter);
+        if (data.search !== undefined && searchCtrl) searchCtrl.setQuery(data.search);
+
+        if (data.urgencylevels !== undefined && Array.isArray(data.urgencylevels)) {
+            boardSettings.urgencyLevels = data.urgencylevels;
+        }
+        if (data.urgencysettings !== undefined && typeof data.urgencysettings === 'object') {
+            const changed = JSON.stringify(boardSettings.urgencySettings) !== JSON.stringify(data.urgencysettings);
+            boardSettings.urgencySettings = data.urgencysettings;
+            if (changed) refreshUrgencyIcons();
+        }
+        if (data.urgencyfilter !== undefined && urgencyCtrl) urgencyCtrl.setSelected(data.urgencyfilter);
+        if (data.cardtypefilter !== undefined && cardTypeCtrl) cardTypeCtrl.setSelected(data.cardtypefilter);
+
+        if (executorCtrl) executorCtrl.applyFilter();
+        if (searchCtrl) searchCtrl.applyCurrent();
+        RecalculateKanbanBlock();
+    };
+
+    // Геттеры текущего состояния — передаются в 1С при каждом fetch-запросе
+    const getCurrentTheme = () => themeCtrl ? themeCtrl.getCurrent() : 'light';
+    const getSelectedExecutors = () => Array.from(selectedExecutorsSet);
+    const getSelectedProjects = () => projectsList.filter(p => p.checked).map(p => p.id);
+    const getSelectedUrgencies = () => Array.from(selectedUrgenciesSet);
+    const getSelectedCardTypes = () => Array.from(selectedCardTypesSet);
+
+    // Интерфейс взаимодействия с 1С.
+    // fetch() — записывает параметры в скрытый input и «кликает» его (1С перехватывает клик).
+    // sendResponse() — вызывается из 1С для передачи данных обратно в JS.
+    // reinitKanban() — вызывается из 1С после полной перезагрузки HTML.
+    window['V8Proxy'] = {
+        fetch: (eventName, params) => {
+            const req = document.querySelector('#V8_request');
+            req.value = eventName;
+            req.setAttribute('theme', getCurrentTheme());
+            req.setAttribute('grouping', currentGroupingType);
+            req.setAttribute('executorfilter', JSON.stringify(getSelectedExecutors()));
+            req.setAttribute('projectfilter', JSON.stringify(getSelectedProjects()));
+            req.setAttribute('urgencyfilter', JSON.stringify(getSelectedUrgencies()));
+            req.setAttribute('cardtypefilter', JSON.stringify(getSelectedCardTypes()));
+            req.setAttribute('urgencysettings', JSON.stringify(boardSettings.urgencySettings));
+            req.setAttribute('task', JSON.stringify(params || {}));
+            req.click();
+        },
+
+        sendResponse: (eventName, data) => {
+            if (typeof data === 'string') {
+                try { data = JSON.parse(data); }
+                catch (e) { console.error('sendResponse: Failed to parse JSON:', e); return; }
+            }
+
+            expandedBlocks.clear();
+
+            if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) {
+                data.tasks.forEach(td => processTask(td));
+            }
+
+            applyBoardSettings(data);
+        },
+
+        reinitKanban: () => {
+            if (projectCtrl) { projectCtrl.parseProjects(); projectCtrl.updateDisplay(); }
+            if (executorCtrl) { executorCtrl.populateMenu(); executorCtrl.applyFilter(); }
+            if (urgencyCtrl) urgencyCtrl.populateMenu();
+            initGroupCollapse();
+            RecalculateKanbanBlock();
+        },
+    };
+
+    // Применение начальных настроек, вшитых в HTML (элемент <script id="board-settings">)
     const scriptEl = document.getElementById('board-settings');
     if (scriptEl && scriptEl.textContent && scriptEl.textContent.trim() !== '{}') {
-        try {
-            applyBoardSettingsFromData(JSON.parse(scriptEl.textContent));
-        } catch (e) {
-            console.error('board-settings: Failed to parse JSON:', e);
-        }
+        try { applyBoardSettings(JSON.parse(scriptEl.textContent)); }
+        catch (e) { console.error('board-settings: Failed to parse JSON:', e); }
     }
+
+    RecalculateKanbanBlock();
 });
-
-// ========== CARD LIMIT (ограничение видимых карточек в колонке) ==========
-const expandedBlocks = new Set();
-
-const getBlockKey = (block) => {
-    const group = block.closest('.group');
-    if (group) {
-        return (group.getAttribute('data-executor-id') || group.getAttribute('data-project-id') || '') + '|' + block.id;
-    }
-    return block.id;
-};
-
-const limitBlockCards = (block, availableHeight, linkReserve) => {
-    if (expandedBlocks.has(getBlockKey(block))) return;
-
-    const visibleCards = Array.from(
-        block.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)')
-    );
-    if (visibleCards.length === 0) return;
-
-    let totalHeight = 0;
-    let limitIndex = visibleCards.length;
-
-    for (let i = 0; i < visibleCards.length; i++) {
-        const cs = getComputedStyle(visibleCards[i]);
-        const cardH = visibleCards[i].offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
-        const isLast = i === visibleCards.length - 1;
-        const maxH = isLast ? availableHeight : availableHeight - linkReserve;
-
-        if (totalHeight + cardH > maxH) {
-            limitIndex = i;
-            break;
-        }
-        totalHeight += cardH;
-    }
-
-    if (limitIndex >= visibleCards.length) return;
-    if (limitIndex < 1) limitIndex = 1;
-
-    for (let i = limitIndex; i < visibleCards.length; i++) {
-        visibleCards[i].classList.add('card__overflow_hidden');
-    }
-
-    const link = document.createElement('span');
-    link.className = 'show_all_link';
-    link.textContent = 'Показать все (' + visibleCards.length + ')';
-    link.addEventListener('click', () => {
-        expandedBlocks.add(getBlockKey(block));
-        applyCardLimits();
-    });
-    block.appendChild(link);
-};
-
-function applyCardLimits() {
-    document.querySelectorAll('.card__overflow_hidden').forEach(c => c.classList.remove('card__overflow_hidden'));
-    document.querySelectorAll('.show_all_link').forEach(l => l.remove());
-
-    const kanbanBoard = document.getElementById('kanban-board');
-    if (!kanbanBoard) return;
-
-    const remPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    const vH = window.innerHeight;
-    const linkReserve = 3 * remPx;
-    if (kanbanBoard.classList.contains('grouped')) return;
-
-    {
-        const headerH = 11.8 * remPx;
-        kanbanBoard.querySelectorAll('.kanban-block').forEach(block => {
-            const bs = getComputedStyle(block);
-            const avail = vH - headerH - parseFloat(bs.paddingTop) - parseFloat(bs.paddingBottom);
-            limitBlockCards(block, avail, linkReserve);
-        });
-    }
-}
-
-// Обновление счетчиков задач в блоках
-const kanbanBlocks = document.querySelectorAll('.kanban-block');
-function RecalculateKanbanBlock() {
-    const kanbanBoard = document.getElementById('kanban-board');
-    const isGrouped = kanbanBoard && kanbanBoard.classList.contains('grouped');
-    
-    let block_headers = document.querySelectorAll('.block_header');
-    
-    if (isGrouped) {
-        // При группировке считаем задачи во всех группах для данного статуса
-        block_headers.forEach((block_header, index) => {
-            let count = 0;
-            document.querySelectorAll('.group').forEach(group => {
-                const groupBlocks = group.querySelectorAll('.kanban-block');
-                if (groupBlocks[index]) {
-                    count += groupBlocks[index].querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)').length;
-                }
-            });
-            let number = block_header.querySelector('.kanban-block__number');
-            if (number) {
-                number.textContent = count;
-            }
-        });
-    } else {
-        // Без группировки - обычный подсчёт
-        kanbanBlocks.forEach((kanbanBlock, index) => {
-            let tasks = kanbanBlock.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)');
-            let block_header = block_headers[index];
-            if (block_header) {
-                let number = block_header.querySelector('.kanban-block__number');
-                if (number) {
-                    number.textContent = tasks.length;
-                }
-            }
-        });
-    }
-
-    // Счётчики в заголовках групп
-    document.querySelectorAll('.group').forEach(group => {
-        const groupCount = group.querySelector('.group-count');
-        if (groupCount) {
-            const visibleCards = group.querySelectorAll('.card:not(.card__inactive):not(.card__search_hidden)');
-            groupCount.textContent = visibleCards.length;
-        }
-    });
-
-    applyCardLimits();
-}
-
-RecalculateKanbanBlock();

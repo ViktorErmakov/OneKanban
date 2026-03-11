@@ -114,7 +114,9 @@
 				
 				Если Настройка.name = "executorfilter" 
 					Или Настройка.name = "projectfilter" 
-					Или Настройка.name = "urgencysettings" Тогда
+					Или Настройка.name = "urgencysettings" 
+					Или Настройка.name = "urgencyfilter" 
+					Или Настройка.name = "cardtypefilter" Тогда
 					
 					НастройкиДоски[Настройка.name] = канбан_КанбанДоскаВызовСервера.JSONВЗначение(Настройка.value, , Ложь);
 					
