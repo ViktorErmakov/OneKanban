@@ -65,9 +65,10 @@
   <commonTemplates>CommonTemplate.канбан_ТекстHTMLДоскиЧетыреПроектаССопоставлением</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTMLДоскиТолькоМоиЗадачи</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTMLРедакторПустой</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTMLДоскиВсеПроектыССопоставлением</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTMLВсеПроектыНоНеВыбраныПроекты</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTMLВсеПроектыНоВыбраныЧетыре</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ВсеПроекты</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ВсеПроекты_Сопоставление</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_НетВыбора</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_Темная</commonTemplates>
@@ -77,6 +78,7 @@
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ПоискПоСтроке_ГруппировкаИсполнитель_Темная</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ПоискПоСтроке_ГруппировкаПроекты_Темная</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ИзмнениеСтатуса</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ГруппировкаПроекты_Темная_ИзменениеСтатуса</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ГруппировкаИсполнитель_ИзменениеСтатуса</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ГруппировкаИсполнитель_ИзменениеПользователя</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_СозданиеЗадачиВнеДоски</commonTemplates>
