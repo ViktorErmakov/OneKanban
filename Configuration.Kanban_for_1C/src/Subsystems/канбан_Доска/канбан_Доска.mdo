@@ -21,7 +21,6 @@
   <content>Catalog.канбан_Проекты</content>
   <content>Role.канбан_ОбщиеПрава</content>
   <content>DataProcessor.Канбан_Доска_HTML</content>
-  <content>CommonPicture.канбан_Доска</content>
   <content>InformationRegister.канбан_ИспользуемыеСтатусыДоски</content>
   <content>CommonCommand.канбан_Проекты</content>
   <content>CommandGroup.канбан_Информация</content>
@@ -39,4 +38,5 @@
   <content>CommonModule.канбан_КанбанДоскаКлиентСервер</content>
   <content>DefinedType.канбан_СрочностьИсправления</content>
   <content>Enum.канбан_СрочностьИсправления</content>
+  <content>CommonPicture.канбан_ЛоготипКартинка</content>
 </mdclass:Subsystem>

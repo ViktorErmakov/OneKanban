@@ -3,6 +3,7 @@ const { resolve } = require('path');
 
 const DIST_PATH = resolve(__dirname, '../dist/index.html');
 const FIXTURE_PATH = resolve(__dirname, '../tests/fixtures/four-projects.json');
+const LOGO_PATH = resolve(__dirname, '../src/pictures/Logo/logo_variant2.svg');
 const OUTPUT_DIR = resolve(__dirname, '../../documentation/static/demo-board');
 const OUTPUT_PATH = resolve(OUTPUT_DIR, 'index.html');
 
@@ -50,6 +51,15 @@ html = html.replace(
     /(<div\s+id="kanban-board"[^>]*>)([\s\S]*?)(<\/div>\s*<\/div>\s*<button)/,
     `$1<div class="kanban_body">${blocks}</div>$3`
 );
+
+if (existsSync(LOGO_PATH)) {
+    const logoSvg = readFileSync(LOGO_PATH, 'utf-8');
+    const logoDataUri = 'data:image/svg+xml,' + encodeURIComponent(logoSvg);
+    html = html.replace(
+        /(<img\s+id="logo_img"[^>]*\bsrc=)"[^"]*"/,
+        `$1"${logoDataUri}"`
+    );
+}
 
 const sendResponsePayload = {
     ...fixture.settings,
