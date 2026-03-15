@@ -9,7 +9,7 @@ const IFRAME_STYLE = {
 };
 
 export default function Demo() {
-  const demoUrl = useBaseUrl('/demo/index.html');
+  const demoUrl = useBaseUrl('/demo-board/');
 
   return (
     <Layout title="Демо доска" description="Интерактивная демонстрация OneKanban">

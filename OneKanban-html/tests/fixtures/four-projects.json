@@ -278,6 +278,36 @@
       "card__photo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%234a90d9' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EЕВ%3C/text%3E%3C/svg%3E",
       "alt": "Ермаков Виктор",
       "card__text": "Первая задача четвертого эпика"
+    },
+    {
+      "idTask": "bug-a1b2c3d4-0001-11f0-952c-107b4419808b",
+      "status": "a1ca3363-c296-11ee-93e4-107b4419808b",
+      "project": "projectb49a3cc6-3026-11f0-952c-107b4419808b",
+      "user": "usere7e28f5a-8d7e-11de-a1ba-005056c00008",
+      "user_name": "user_nameАдминистратор",
+      "urgencyId": "ВПлановомПорядке",
+      "isBug": true,
+      "fullnameobjecttask": "Справочник.канбан_Ошибки",
+      "card__link_href": "#bug1",
+      "card__link_name": "Ошибка №1",
+      "card__photo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%23d94a90' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EАД%3C/text%3E%3C/svg%3E",
+      "alt": "Администратор",
+      "card__text": "Некорректное отображение отчёта"
+    },
+    {
+      "idTask": "bug-a1b2c3d4-0002-11f0-952c-107b4419808b",
+      "status": "a1ca3366-c296-11ee-93e4-107b4419808b",
+      "project": "projectb49a3cc7-3026-11f0-952c-107b4419808b",
+      "user": "user074f17ec-ce19-11f0-9551-107b4419808b",
+      "user_name": "user_nameЕрмаков_Виктор",
+      "urgencyId": "ЖелательноБыстрее",
+      "isBug": true,
+      "fullnameobjecttask": "Справочник.канбан_Ошибки",
+      "card__link_href": "#bug2",
+      "card__link_name": "Ошибка №2",
+      "card__photo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%234a90d9' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EЕВ%3C/text%3E%3C/svg%3E",
+      "alt": "Ермаков Виктор",
+      "card__text": "Ошибка при сохранении формы"
     }
   ]
 }

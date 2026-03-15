@@ -3,7 +3,7 @@ const { resolve } = require('path');
 
 const DIST_PATH = resolve(__dirname, '../dist/index.html');
 const FIXTURE_PATH = resolve(__dirname, '../tests/fixtures/four-projects.json');
-const OUTPUT_DIR = resolve(__dirname, '../../documentation/static/demo');
+const OUTPUT_DIR = resolve(__dirname, '../../documentation/static/demo-board');
 const OUTPUT_PATH = resolve(OUTPUT_DIR, 'index.html');
 
 if (!existsSync(DIST_PATH)) {
@@ -58,13 +58,11 @@ const sendResponsePayload = {
 
 const initScript = `
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Stub V8Proxy.fetch for demo mode
+window.addEventListener('load', function() {
     window.V8Proxy.fetch = function(eventName, params) {
         console.log('Demo mode — V8Proxy.fetch:', eventName, params);
     };
 
-    // Initialize board with demo data
     var data = ${JSON.stringify(sendResponsePayload)};
     window.V8Proxy.sendResponse('init', data);
 });
