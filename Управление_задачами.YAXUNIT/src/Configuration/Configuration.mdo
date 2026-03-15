@@ -62,11 +62,6 @@
   <commonTemplates>CommonTemplate.ЮТYaxUnitAddIn</commonTemplates>
   <commonTemplates>CommonTemplate.ЮТИнформацияОбОшибке</commonTemplates>
   <commonTemplates>CommonTemplate.ЮТОписаниеМетаданных</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTMLДоскиЧетыреПроектаССопоставлением</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTMLДоскиТолькоМоиЗадачи</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTMLРедакторПустой</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTMLВсеПроектыНоНеВыбраныПроекты</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTMLВсеПроектыНоВыбраныЧетыре</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ВсеПроекты</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ВсеПроекты_Сопоставление</commonTemplates>
   <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_НетВыбора</commonTemplates>
