@@ -2,11 +2,62 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://viktorermakov.github.io/OneKanban/blog</id>
     <title>OneKanban Blog</title>
-    <updated>2025-12-03T00:00:00.000Z</updated>
+    <updated>2026-03-14T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://viktorermakov.github.io/OneKanban/blog"/>
     <subtitle>OneKanban Blog</subtitle>
     <icon>https://viktorermakov.github.io/OneKanban/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Релиз 3.0 — полностью обновлённая доска]]></title>
+        <id>https://viktorermakov.github.io/OneKanban/blog/3</id>
+        <link href="https://viktorermakov.github.io/OneKanban/blog/3"/>
+        <updated>2026-03-14T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Привет, друзья!]]></summary>
+        <content type="html"><![CDATA[<p>Привет, друзья!</p>
+<p>Рад представить вам <strong>релиз 3.0</strong> — самое масштабное обновление OneKanban с момента создания проекта! Доска была полностью переработана и получила множество новых возможностей.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="что-нового">Что нового<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D1%87%D1%82%D0%BE-%D0%BD%D0%BE%D0%B2%D0%BE%D0%B3%D0%BE" class="hash-link" aria-label="Прямая ссылка на Что нового" title="Прямая ссылка на Что нового">​</a></h2>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="новая-панель-управления">Новая панель управления<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F-%D0%BF%D0%B0%D0%BD%D0%B5%D0%BB%D1%8C-%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F" class="hash-link" aria-label="Прямая ссылка на Новая панель управления" title="Прямая ссылка на Новая панель управления">​</a></h3>
+<p>Панель управления полностью переработана. Теперь все инструменты — отборы, фильтры, группировка, поиск и настройки — расположены в одной компактной строке и работают без перезагрузки страницы.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="фильтр-по-исполнителям">Фильтр по исполнителям<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D1%84%D0%B8%D0%BB%D1%8C%D1%82%D1%80-%D0%BF%D0%BE-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D0%BD%D0%B8%D1%82%D0%B5%D0%BB%D1%8F%D0%BC" class="hash-link" aria-label="Прямая ссылка на Фильтр по исполнителям" title="Прямая ссылка на Фильтр по исполнителям">​</a></h3>
+<p>Появился полноценный фильтр по исполнителям с поддержкой множественного выбора. В выпадающем списке отображаются фотографии и имена исполнителей. Можно быстро отфильтровать задачи, нажав на фотографию исполнителя прямо на карточке.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="фильтр-по-срочности">Фильтр по срочности<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D1%84%D0%B8%D0%BB%D1%8C%D1%82%D1%80-%D0%BF%D0%BE-%D1%81%D1%80%D0%BE%D1%87%D0%BD%D0%BE%D1%81%D1%82%D0%B8" class="hash-link" aria-label="Прямая ссылка на Фильтр по срочности" title="Прямая ссылка на Фильтр по срочности">​</a></h3>
+<p>Новый фильтр по уровню срочности задач. Каждый уровень отображается с настраиваемой иконкой и цветом. Прямо из выпадающего списка можно настроить внешний вид иконки и цвет для каждого уровня срочности — выбрать из 7 иконок и 6 цветов.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="фильтр-по-типу-карточки">Фильтр по типу карточки<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D1%84%D0%B8%D0%BB%D1%8C%D1%82%D1%80-%D0%BF%D0%BE-%D1%82%D0%B8%D0%BF%D1%83-%D0%BA%D0%B0%D1%80%D1%82%D0%BE%D1%87%D0%BA%D0%B8" class="hash-link" aria-label="Прямая ссылка на Фильтр по типу карточки" title="Прямая ссылка на Фильтр по типу карточки">​</a></h3>
+<p>Добавлен фильтр по типу: <strong>Задача</strong> или <strong>Ошибка</strong>. Удобно для досок, где одновременно отображаются и задачи, и ошибки (например, в СППР).</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="группировка">Группировка<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D0%B3%D1%80%D1%83%D0%BF%D0%BF%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B0" class="hash-link" aria-label="Прямая ссылка на Группировка" title="Прямая ссылка на Группировка">​</a></h3>
+<p>Задачи на доске теперь можно группировать:</p>
+<ul>
+<li><strong>По исполнителю</strong> — каждая группа показывает фотографию и имя исполнителя с количеством задач. При перетаскивании карточки в другую группу исполнитель автоматически меняется.</li>
+<li><strong>По проектам</strong> — каждая группа показывает цвет и название проекта. Перетаскивание между группами разных проектов запрещено.</li>
+</ul>
+<p>Группы можно сворачивать и разворачивать нажатием на заголовок.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="поиск-по-задачам">Поиск по задачам<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D0%BF%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B0%D0%BC" class="hash-link" aria-label="Прямая ссылка на Поиск по задачам" title="Прямая ссылка на Поиск по задачам">​</a></h3>
+<p>Новое поле поиска фильтрует карточки в реальном времени по тексту описания задачи. Работает мгновенно, без перезагрузки страницы.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="тёмная-тема">Тёмная тема<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D1%82%D1%91%D0%BC%D0%BD%D0%B0%D1%8F-%D1%82%D0%B5%D0%BC%D0%B0" class="hash-link" aria-label="Прямая ссылка на Тёмная тема" title="Прямая ссылка на Тёмная тема">​</a></h3>
+<p>Добавлена поддержка тёмной темы с переключателем на панели управления. Выбранная тема сохраняется между сессиями.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="обновлённый-выбор-проектов">Обновлённый выбор проектов<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D0%BE%D0%B1%D0%BD%D0%BE%D0%B2%D0%BB%D1%91%D0%BD%D0%BD%D1%8B%D0%B9-%D0%B2%D1%8B%D0%B1%D0%BE%D1%80-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BE%D0%B2" class="hash-link" aria-label="Прямая ссылка на Обновлённый выбор проектов" title="Прямая ссылка на Обновлённый выбор проектов">​</a></h3>
+<p>Выбор проектов переработан: теперь выбранные проекты отображаются в виде цветных «пилюль» на панели. Если выбрано много проектов, лишние скрываются под счётчиком. Можно быстро отфильтровать по проекту, нажав на цветную метку карточки.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="автолимит-карточек">Автолимит карточек<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D0%B0%D0%B2%D1%82%D0%BE%D0%BB%D0%B8%D0%BC%D0%B8%D1%82-%D0%BA%D0%B0%D1%80%D1%82%D0%BE%D1%87%D0%B5%D0%BA" class="hash-link" aria-label="Прямая ссылка на Автолимит карточек" title="Прямая ссылка на Автолимит карточек">​</a></h3>
+<p>Если в колонке слишком много карточек и они не помещаются по высоте экрана, лишние автоматически скрываются. Внизу колонки появляется ссылка «Ещё N» для отображения всех.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="улучшенный-drag--drop">Улучшенный Drag &amp; Drop<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D1%83%D0%BB%D1%83%D1%87%D1%88%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9-drag--drop" class="hash-link" aria-label="Прямая ссылка на Улучшенный Drag &amp; Drop" title="Прямая ссылка на Улучшенный Drag &amp; Drop">​</a></h3>
+<p>Drag &amp; Drop полностью переработан и теперь поддерживает все режимы — обычный и с группировкой. При группировке по проектам запрещённые зоны перетаскивания подсвечиваются.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="интерактивные-карточки">Интерактивные карточки<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5-%D0%BA%D0%B0%D1%80%D1%82%D0%BE%D1%87%D0%BA%D0%B8" class="hash-link" aria-label="Прямая ссылка на Интерактивные карточки" title="Прямая ссылка на Интерактивные карточки">​</a></h3>
+<p>Элементы карточки стали интерактивными:</p>
+<ul>
+<li>Нажатие на <strong>фото исполнителя</strong> — быстрый фильтр по исполнителю</li>
+<li>Нажатие на <strong>цветную метку проекта</strong> — быстрый фильтр по проекту</li>
+<li>Нажатие на <strong>иконку срочности</strong> — быстрый фильтр по срочности</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="демо">Демо<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D0%B4%D0%B5%D0%BC%D0%BE" class="hash-link" aria-label="Прямая ссылка на Демо" title="Прямая ссылка на Демо">​</a></h2>
+<p>Теперь вы можете попробовать доску прямо на сайте документации — <a href="https://viktorermakov.github.io/OneKanban/demo">Демо доска</a>.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="ссылки">Ссылки<a href="https://viktorermakov.github.io/OneKanban/blog/3#%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B8" class="hash-link" aria-label="Прямая ссылка на Ссылки" title="Прямая ссылка на Ссылки">​</a></h2>
+<p><a href="https://github.com/ViktorErmakov/Kanban_for_1C" target="_blank" rel="noopener noreferrer">Проект на GitHub</a></p>
+<p><a href="https://infostart.ru/1c/tools/2398094/" target="_blank" rel="noopener noreferrer">Статья на Инфостарт</a></p>]]></content>
+        <author>
+            <name>Ermakov Viktor</name>
+            <uri>https://viktorermakov.ru/</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Выпуск релиза 2.5]]></title>
         <id>https://viktorermakov.github.io/OneKanban/blog/2.5</id>
