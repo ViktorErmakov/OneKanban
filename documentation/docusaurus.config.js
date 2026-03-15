@@ -92,6 +92,7 @@ const config = {
             label: 'Описание',
           },
           { to: '/blog', label: 'Блог', position: 'left' },
+          { to: '/demo', label: 'Демо', position: 'left' },
         ],
       },
       colorMode: {
@@ -108,6 +109,10 @@ const config = {
               {
                 label: 'Описание',
                 to: '/docs/intro',
+              },
+              {
+                label: 'Демо доска',
+                to: '/demo',
               },
             ],
           },

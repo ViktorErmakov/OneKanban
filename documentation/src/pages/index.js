@@ -22,6 +22,12 @@ function HomepageHeader() {
             to="/docs/intro">
             Описание
           </Link>
+          <Link
+            className="button button--primary button--lg"
+            to="/demo"
+            style={{marginLeft: '1rem'}}>
+            Попробовать демо
+          </Link>
         </div>
       </div>
     </header>

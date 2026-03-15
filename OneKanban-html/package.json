@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "webpack serve",
-    "build": "webpack build",
+    "build": "webpack build && node scripts/build-demo.js",
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
     "test:headed": "npx playwright test --headed",
