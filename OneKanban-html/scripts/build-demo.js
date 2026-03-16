@@ -15,6 +15,39 @@ if (!existsSync(DIST_PATH)) {
 const fixture = JSON.parse(readFileSync(FIXTURE_PATH, 'utf-8'));
 let html = readFileSync(DIST_PATH, 'utf-8');
 
+// Replaces the inner content of a <div id="..."> with newContent,
+// correctly handling nested <div> tags by counting depth.
+function replaceDivContent(source, divId, newContent) {
+    const marker = `id="${divId}"`;
+    const startIdx = source.indexOf(marker);
+    if (startIdx === -1) return source;
+
+    const tagClose = source.indexOf('>', startIdx);
+    if (tagClose === -1) return source;
+
+    const contentStart = tagClose + 1;
+    let depth = 1;
+    let pos = contentStart;
+
+    while (depth > 0 && pos < source.length) {
+        const nextOpen = source.indexOf('<div', pos);
+        const nextClose = source.indexOf('</div>', pos);
+        if (nextClose === -1) break;
+
+        if (nextOpen !== -1 && nextOpen < nextClose) {
+            depth++;
+            pos = nextOpen + 4;
+        } else {
+            depth--;
+            if (depth === 0) {
+                return source.substring(0, contentStart) + newContent + source.substring(nextClose);
+            }
+            pos = nextClose + 6;
+        }
+    }
+    return source;
+}
+
 function buildStatusesHtml(fixture) {
     const headers = fixture.statuses.map(s => {
         const addBtn = s.hasAddButton
@@ -36,29 +69,32 @@ const projectsJson = JSON.stringify(fixture.projects);
 const settingsJson = JSON.stringify(fixture.settings);
 
 html = html.replace(
-    /(<script[^>]*id="projects-data"[^>]*>)\s*\[\]\s*(<\/script>)/,
+    /(<script[^>]*id="projects-data"[^>]*>)[\s\S]*?(<\/script>)/,
     `$1${projectsJson}$2`
 );
 html = html.replace(
-    /(<script[^>]*id="board-settings"[^>]*>)\s*\{\}\s*(<\/script>)/,
+    /(<script[^>]*id="board-settings"[^>]*>)[\s\S]*?(<\/script>)/,
     `$1${settingsJson}$2`
 );
-html = html.replace(
-    /(<div\s+id="kanban_header"[^>]*>)([\s\S]*?)(<\/div>)/,
-    `$1${headers}$3`
-);
-html = html.replace(
-    /(<div\s+id="kanban-board"[^>]*>)([\s\S]*?)(<\/div>\s*<\/div>\s*<button)/,
-    `$1<div class="kanban_body">${blocks}</div>$3`
-);
+
+html = replaceDivContent(html, 'kanban_header', headers);
+html = replaceDivContent(html, 'kanban-board', `<div class="kanban_body">${blocks}</div>`);
 
 if (existsSync(LOGO_PATH)) {
     const logoSvg = readFileSync(LOGO_PATH, 'utf-8');
     const logoDataUri = 'data:image/svg+xml,' + encodeURIComponent(logoSvg);
-    html = html.replace(
-        /(<img\s+id="logo_img"[^>]*\bsrc=)"[^"]*"/,
-        `$1"${logoDataUri}"`
-    );
+    const srcMarker = 'id="logo_img"';
+    const srcIdx = html.indexOf(srcMarker);
+    if (srcIdx !== -1) {
+        const srcAttr = html.indexOf('src="', srcIdx);
+        if (srcAttr !== -1 && srcAttr - srcIdx < 200) {
+            const srcValStart = srcAttr + 5;
+            const srcValEnd = html.indexOf('"', srcValStart);
+            if (srcValEnd !== -1) {
+                html = html.substring(0, srcValStart) + logoDataUri + html.substring(srcValEnd);
+            }
+        }
+    }
 }
 
 const sendResponsePayload = {
