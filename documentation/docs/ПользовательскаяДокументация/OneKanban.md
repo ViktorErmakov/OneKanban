@@ -115,7 +115,9 @@ sidebar_position: 3
 
 Перетаскивание карточек между колонками изменяет статус задачи. При перетаскивании целевая колонка подсвечивается.
 
-![Drag & Drop](/img/user/DragDrop.png)
+<video autoPlay loop muted playsInline width="100%">
+  <source src="/OneKanban/img/DragDrop.webm" type="video/webm" />
+</video>
 
 В режиме группировки Drag & Drop также работает:
 - **Группировка по исполнителям**: можно перетаскивать карточки между группами — при этом меняется исполнитель задачи

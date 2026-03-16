@@ -26,7 +26,6 @@ const config = {
   projectName: 'OneKanban', // Usually your repo name.
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -38,6 +37,9 @@ const config = {
   themes: ['@docusaurus/theme-mermaid'],
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
   },
   presets: [
     [
@@ -79,7 +81,7 @@ const config = {
       // Replace with your project's social card
 
       navbar: {
-        title: 'OneKanban',
+        title: '',
         logo: {
           alt: 'OneKanban Logo',
           src: 'img/OneKanban_1.png',
@@ -89,7 +91,7 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Описание',
+            label: 'Документация',
           },
           { to: '/blog', label: 'Блог', position: 'left' },
           { to: '/demo', label: 'Демо', position: 'left' },
