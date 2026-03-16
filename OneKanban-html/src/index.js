@@ -137,11 +137,9 @@ const limitBlockCards = (block, availableHeight, linkReserve) => {
     const hiddenCount = visibleCards.length - limitIndex;
     let link = block.querySelector('.show-more-link');
     if (!link) {
-        link = document.createElement('a');
+        link = document.createElement('span');
         link.className = 'show-more-link';
-        link.href = '#';
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
+        link.addEventListener('click', () => {
             expandedBlocks.add(getBlockKey(block));
             applyCardLimits();
         });
@@ -161,13 +159,11 @@ function applyCardLimits() {
         if (link) link.style.display = 'none';
     });
 
-    const board = document.getElementById('kanban-board');
-    if (!board) return;
-    const boardRect = board.getBoundingClientRect();
-    const maxH = window.innerHeight - boardRect.top - 16;
-    if (maxH <= 0) return;
-
     document.querySelectorAll('.kanban-block').forEach(block => {
+        if (expandedBlocks.has(getBlockKey(block))) return;
+        const blockRect = block.getBoundingClientRect();
+        const maxH = window.innerHeight - blockRect.top - 16;
+        if (maxH <= 0) return;
         limitBlockCards(block, maxH, 28);
     });
 }

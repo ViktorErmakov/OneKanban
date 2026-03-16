@@ -46,7 +46,6 @@ html {
 body {
     margin: 0;
     font-size: 1.7rem;
-    overflow: hidden;
     min-height: 100vh;
     background-color: var(--bg-primary);
     color: var(--text-primary);
@@ -114,7 +113,6 @@ body {
     display: flex;
     width: 100%;
     flex: 1;
-    height: 100vh;
 }
 
 /* Плейсхолдер "Выберите проект" в project_picker */
@@ -166,7 +164,6 @@ body {
 }
 
 .kanban-block {
-    /* margin-top: 0; */
     background-color: var(--bg-secondary);
     transition: background-color 0.3s ease;
     display: flex;
@@ -542,6 +539,8 @@ body {
     margin-top: 1rem;
     padding: .5rem;
     color: var(--text-primary);
+
+    flex-shrink: 0;
 
     /* Обеспечиваем плавный переход для opacity и height */
     transition: opacity 0.5s ease-out, height 0.5s ease-out, background-color 0.3s ease, border-color 0.3s ease;
@@ -1607,7 +1606,7 @@ label {
     display: none;
 }
 
-.show_all_link {
+.show-more-link {
     display: block;
     text-align: center;
     color: var(--text-secondary);
@@ -1624,7 +1623,7 @@ label {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.show_all_link:hover {
+.show-more-link:hover {
     background-color: var(--bg-tertiary);
     color: var(--text-primary);
 }

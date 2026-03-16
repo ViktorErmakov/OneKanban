@@ -25,7 +25,7 @@ test.describe('Фильтр по исполнителю', () => {
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(16);
+        expect(count).toBeLessThan(18);
         expect(count).toBeGreaterThan(0);
     });
 
@@ -47,7 +47,7 @@ test.describe('Фильтр по исполнителю', () => {
 
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(16);
+        await expect(cards).toHaveCount(18);
     });
 
     test('label обновляется при выборе одного исполнителя', async ({ page }) => {
@@ -74,7 +74,7 @@ test.describe('Фильтр по исполнителю', () => {
         await page.waitForTimeout(200);
         await expect(page.locator('#executor_label')).toHaveText('Исполнитель');
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(16);
+        await expect(cards).toHaveCount(18);
     });
 
     test('фильтр по исполнителю отправляет settingsChanged', async ({ page }) => {
@@ -98,7 +98,7 @@ test.describe('Фильтр по исполнителю', () => {
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(16);
+        expect(count).toBeLessThan(18);
         expect(count).toBeGreaterThan(0);
     });
 
@@ -117,7 +117,7 @@ test.describe('Фильтр по исполнителю', () => {
 
             await page.waitForTimeout(200);
             const cards = await getVisibleCards(page);
-            await expect(cards).toHaveCount(16);
+            await expect(cards).toHaveCount(18);
         }
     });
 

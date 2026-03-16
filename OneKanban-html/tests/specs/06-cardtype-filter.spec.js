@@ -27,14 +27,14 @@ test.describe('Фильтр по типу карточки', () => {
         await expect(cards).toHaveCount(16);
     });
 
-    test('выбор типа "Ошибка" скрывает все (нет ошибок в данных)', async ({ page }) => {
+    test('выбор типа "Ошибка" показывает только ошибки', async ({ page }) => {
         await openBoard(page, 'four-projects');
         await page.click('#cardtype_toggle');
         await page.locator('.cardtype_option[data-value="bug"]').click();
 
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(0);
+        await expect(cards).toHaveCount(2);
     });
 
     test('крестик сбрасывает фильтр типа', async ({ page }) => {
@@ -49,7 +49,7 @@ test.describe('Фильтр по типу карточки', () => {
         await page.waitForTimeout(200);
         await expect(page.locator('#cardtype_label')).toHaveText('Тип');
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(16);
+        await expect(cards).toHaveCount(18);
     });
 
     test('карточка-ошибка отображается с красной полоской', async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe('Фильтр по типу карточки', () => {
 
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(2);
+        await expect(cards).toHaveCount(4);
     });
 
     test('фильтр типа отправляет settingsChanged', async ({ page }) => {

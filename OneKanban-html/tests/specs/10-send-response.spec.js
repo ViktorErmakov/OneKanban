@@ -5,7 +5,7 @@ test.describe('sendResponse (динамическое обновление)', ()
     test('добавление новой задачи через sendResponse', async ({ page }) => {
         await openBoard(page, 'four-projects');
         const before = await getVisibleCards(page);
-        await expect(before).toHaveCount(16);
+        await expect(before).toHaveCount(18);
 
         await sendResponse(page, {
             tasks: [{
@@ -26,7 +26,7 @@ test.describe('sendResponse (динамическое обновление)', ()
         });
 
         const after = await getVisibleCards(page);
-        await expect(after).toHaveCount(17);
+        await expect(after).toHaveCount(19);
         await expect(page.locator('#new-task-001')).toBeVisible();
     });
 
@@ -166,7 +166,7 @@ test.describe('sendResponse (динамическое обновление)', ()
 
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(16);
+        expect(count).toBeLessThan(18);
     });
 
     test('установка поиска через sendResponse', async ({ page }) => {

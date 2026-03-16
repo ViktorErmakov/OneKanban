@@ -52,7 +52,7 @@ test.describe('Комбинированные сценарии', () => {
 
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(16);
+        expect(count).toBeLessThan(18);
     });
 
     test('группировка + поиск', async ({ page }) => {
@@ -67,7 +67,7 @@ test.describe('Комбинированные сценарии', () => {
 
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(16);
+        expect(count).toBeLessThan(18);
     });
 
     test('тёмная тема + группировка по исполнителю', async ({ page }) => {
@@ -163,7 +163,7 @@ test.describe('Комбинированные сценарии', () => {
         await page.waitForTimeout(200);
 
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(1);
+        await expect(cards).toHaveCount(3);
         await expect(page.locator('#new-bug-001 .card__link')).toHaveText('Новая ошибка');
     });
 
@@ -183,7 +183,7 @@ test.describe('Комбинированные сценарии', () => {
         await page.waitForTimeout(300);
 
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(16);
+        await expect(cards).toHaveCount(18);
     });
 
     test('dropdown-ы закрываются при открытии другого', async ({ page }) => {
@@ -217,6 +217,6 @@ test.describe('Комбинированные сценарии', () => {
 
         const cards = page.locator('.card');
         const count = await cards.count();
-        expect(count).toBe(16);
+        expect(count).toBe(18);
     });
 });
