@@ -62,30 +62,30 @@
   <commonTemplates>CommonTemplate.ЮТYaxUnitAddIn</commonTemplates>
   <commonTemplates>CommonTemplate.ЮТИнформацияОбОшибке</commonTemplates>
   <commonTemplates>CommonTemplate.ЮТОписаниеМетаданных</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ВсеПроекты</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ВсеПроекты_Сопоставление</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_НетВыбора</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_Темная</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ГруппировкаПроекты_Темная</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ГруппировкаИсполнитель_Темная</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ПоискПоСтроке_Темная</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ПоискПоСтроке_ГруппировкаИсполнитель_Темная</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ПоискПоСтроке_ГруппировкаПроекты_Темная</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ИзмнениеСтатуса</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ГруппировкаПроекты_Темная_ИзменениеСтатуса</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ГруппировкаИсполнитель_ИзменениеСтатуса</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ГруппировкаИсполнитель_ИзменениеПользователя</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_СозданиеЗадачиВнеДоски</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_Срочность_Немедленно</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_Срочность_ЖелательноБыстрее</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_Срочность_ВПлановомПорядке</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ВключеноСопоставление_Заполнено</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ВключеноСопоставление_Заполнено_Тип_Ошибка</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ВключеноСопоставление_НеЗаполнено</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_СозданиеОшибкиВнеДоски</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_ИзменитьСтатусОшибке</commonTemplates>
-  <commonTemplates>CommonTemplate.канбан_ТекстHTML_ЧетыреПроекта_УбратьОтображениеЗадачиНаДоске</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ВсеПроекты</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ВсеПроекты_Сопоставление</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_НетВыбора</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ИзмнениеСтатуса</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_Темная</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ГруппировкаПроекты_Темная</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ГруппировкаИсполнитель_Темная</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ПоискПоСтроке_Темная</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ПоискПоСтроке_ГруппировкаИсполнитель_Темная</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ПоискПоСтроке_ГруппировкаПроекты_Темная</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ГруппировкаПроекты_Темная_ИзменениеСтатуса</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ГруппировкаИсполнитель_ИзменениеСтатуса_Темная</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ГруппировкаИсполнитель_ИзменениеПользователя_Темная</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_СозданиеЗадачиВнеДоски</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_Срочность_Немедленно</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_Срочность_ЖелательноБыстрее</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_Срочность_ВПлановомПорядке</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ВключеноСопоставление_Заполнено</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ВключеноСопоставление_Заполнено_Тип_Ошибка</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ВключеноСопоставление_НеЗаполнено</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_СозданиеОшибкиВнеДоски</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_ИзменитьСтатусОшибке</commonTemplates>
+  <commonTemplates>CommonTemplate.канбан_ЧетыреПроекта_УбратьОтображениеЗадачиНаДоске</commonTemplates>
   <commonModules>CommonModule.Мокито</commonModules>
   <commonModules>CommonModule.МокитоОбучение</commonModules>
   <commonModules>CommonModule.МокитоПерехват</commonModules>

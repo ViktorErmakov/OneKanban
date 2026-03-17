@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:CommonTemplate xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="f8c5d697-3f2d-4a44-9633-e6f785b8b23a">
+  <name>канбан_ЧетыреПроекта_ГруппировкаПроекты_Темная_ИзменениеСтатуса</name>
+  <synonym>
+    <key>ru</key>
+    <value>Канбан четыре проекта группировка проекты темная изменение статуса</value>
+  </synonym>
+  <templateType>TextDocument</templateType>
+</mdclass:CommonTemplate>

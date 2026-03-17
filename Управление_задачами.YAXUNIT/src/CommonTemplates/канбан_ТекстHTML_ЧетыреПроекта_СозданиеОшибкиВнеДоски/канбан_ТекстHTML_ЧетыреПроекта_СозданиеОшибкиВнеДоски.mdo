@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mdclass:CommonTemplate xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="aa9c0ffe-0698-492d-bdf2-b9f21090612a">
-  <name>канбан_ТекстHTML_ЧетыреПроекта_СозданиеОшибкиВнеДоски</name>
-  <synonym>
-    <key>ru</key>
-    <value>Канбан текст HTML четыре проекта создание ошибки вне доски</value>
-  </synonym>
-  <templateType>TextDocument</templateType>
-</mdclass:CommonTemplate>

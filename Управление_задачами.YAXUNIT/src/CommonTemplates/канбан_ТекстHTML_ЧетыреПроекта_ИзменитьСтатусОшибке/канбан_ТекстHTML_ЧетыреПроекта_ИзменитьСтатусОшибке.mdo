@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mdclass:CommonTemplate xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="7f97b50c-e77e-4baf-a43b-cc90dfa0cb59">
-  <name>канбан_ТекстHTML_ЧетыреПроекта_ИзменитьСтатусОшибке</name>
-  <synonym>
-    <key>ru</key>
-    <value>Канбан текст HTML четыре проекта изменить статус ошибке</value>
-  </synonym>
-  <templateType>TextDocument</templateType>
-</mdclass:CommonTemplate>
