@@ -6,7 +6,7 @@ sidebar_position: 1
 
 OneKanban - это расширение конфигурации с открытым исходным кодом, которое визиализирует канбан доску в ПолеHTML.
 
-![alt text](\img\OneKanban.png)
+![alt text](/img/OneKanban.png)
 
 <details>
   <summary>Смотреть презентацию с YouTube</summary>

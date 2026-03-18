@@ -1,8 +1,8 @@
 ---
 sidebar_position: 3
+title: Схема работы
+description:  с проектами встроенными в OneKanban (БСП)
 ---
-
-# Схема работы с проектами встроенными в OneKanban (БСП)
 
 :::info
 
