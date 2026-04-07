@@ -1,0 +1,10 @@
+{
+  // "[oscript]": {
+  //   "cSpell.enabled": false
+  //   "editor.unicodeHighlight.ambiguousCharacters": false
+  // },
+  "[bsl]": {
+    "cSpell.enabled": false,
+    "editor.unicodeHighlight.ambiguousCharacters": false
+  }
+}
