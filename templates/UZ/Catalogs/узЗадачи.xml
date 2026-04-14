@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="f6452e83-cbbb-4fe9-a41e-98a5547e52a4">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.узЗадачи" category="Object">
+				<xr:TypeId>c3c73f64-1cf8-4f57-ad85-19de164beeb6</xr:TypeId>
+				<xr:ValueId>6a0c293d-9d66-4f3d-996f-244b3249081e</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.узЗадачи" category="Ref">
+				<xr:TypeId>6291c778-7044-4c42-b8d1-93275a187894</xr:TypeId>
+				<xr:ValueId>f5f608cf-8202-492d-a5f9-fe356c85ca61</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.узЗадачи" category="Selection">
+				<xr:TypeId>160f1f0d-6fb5-41e8-9bab-4ca0654f5c92</xr:TypeId>
+				<xr:ValueId>a420ba36-ccfa-465c-a9a8-dc0b84bcb786</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.узЗадачи" category="List">
+				<xr:TypeId>cb9561d4-3662-46c8-bb05-028542d588b2</xr:TypeId>
+				<xr:ValueId>c3ee8298-4212-4007-bdce-110182fd4713</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.узЗадачи" category="Manager">
+				<xr:TypeId>944f89fd-2252-4364-b106-32098173ce46</xr:TypeId>
+				<xr:ValueId>db63c3c6-9710-4453-bc70-e94e22abcde1</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>узЗадачи</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>33ee2945-a302-44ac-a8b6-152205a57775</ExtendedConfigurationObject>
+			<CodeLength>11</CodeLength>
+			<DescriptionLength>150</DescriptionLength>
+			<CodeType>Number</CodeType>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="ee5c90e7-b4b9-4991-983b-48eea1a2f93b">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Исполнитель</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>0ba7cac9-af0c-4b78-9371-7cc21b80d923</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.Пользователи</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="ff409fb3-31c1-4767-97be-2a1a77cbd192">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Проект</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>c182f64b-fa93-49c1-a6ce-06016e4f7dbe</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.узПроекты</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="812fa7ba-e9a6-40dd-b628-5057e7f2d865">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ОсновнаяЗадача</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>f89ba60b-7fb3-46b8-a109-1cda93ee05f1</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.узЗадачи</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="d2c33035-d4ca-423d-8e55-16ab6c0c4c37">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Статус</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>bb935ffd-92ef-4182-956b-379c0583df52</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.узСтатусыЗадачи</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="81eedc94-7fe3-42ef-a45e-003b79d2bb3c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>ПоказыватьВОтчетахИКанбанДоске</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>21c02852-d755-488d-8f07-b621b18c2715</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

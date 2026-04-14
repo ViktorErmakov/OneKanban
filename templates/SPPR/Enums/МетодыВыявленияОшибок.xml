@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Enum uuid="91fba5ff-aba2-4f49-bc07-5be3419d6809">
+		<InternalInfo>
+			<xr:GeneratedType name="EnumRef.МетодыВыявленияОшибок" category="Ref">
+				<xr:TypeId>7bf0934b-621e-4853-bbea-b43ef2b9373f</xr:TypeId>
+				<xr:ValueId>7dbfbafd-d276-4416-b7e9-874ea17cd96a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="EnumManager.МетодыВыявленияОшибок" category="Manager">
+				<xr:TypeId>9c5bd6d9-29d9-41c2-8850-202a86570d0c</xr:TypeId>
+				<xr:ValueId>4c5e4e75-f45d-4e47-9d2d-e43dfe07fcbe</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="EnumList.МетодыВыявленияОшибок" category="List">
+				<xr:TypeId>deca9d27-a14e-4855-a812-c23e1d9110e5</xr:TypeId>
+				<xr:ValueId>ba4d8379-c364-4fc3-b33d-6b9b563272ed</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>МетодыВыявленияОшибок</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>626fa22d-0f42-409b-8d43-4f0fc274aea0</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<EnumValue uuid="85706cdb-40a3-48e9-8540-5df391bd324c">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РаботаСПрограммой</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>ddd510f2-92ac-440b-b935-a6a4376a9751</ExtendedConfigurationObject>
+				</Properties>
+			</EnumValue>
+			<EnumValue uuid="0134f6ec-d5bf-40c2-8a04-72d5de21ac3b">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>АудитКода</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>2b610bf6-a755-49d0-a520-36afe741f556</ExtendedConfigurationObject>
+				</Properties>
+			</EnumValue>
+			<EnumValue uuid="39a36a42-96b6-44a6-9b22-c4b1716880cd">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Автотесты</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>d3cd85c1-38ed-449f-91ab-265130821d11</ExtendedConfigurationObject>
+				</Properties>
+			</EnumValue>
+		</ChildObjects>
+	</Enum>
+</MetaDataObject>

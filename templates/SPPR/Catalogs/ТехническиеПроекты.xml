@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="c7e63b2e-05e5-4397-a36b-18f7605caa40">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.ТехническиеПроекты" category="Object">
+				<xr:TypeId>f2366096-bb39-41a4-957a-6196452b47da</xr:TypeId>
+				<xr:ValueId>e34a88c4-9800-479f-a02f-cc36e22ac77a</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.ТехническиеПроекты" category="Ref">
+				<xr:TypeId>0765e913-8553-4b42-b529-4bbc9d759e33</xr:TypeId>
+				<xr:ValueId>aa5d98ef-c7a4-40d5-9116-71024ae16d3d</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.ТехническиеПроекты" category="Selection">
+				<xr:TypeId>958713d7-37ca-435d-9b75-847cec89afc1</xr:TypeId>
+				<xr:ValueId>488a3ed1-a495-4f27-9603-d1144810e208</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.ТехническиеПроекты" category="List">
+				<xr:TypeId>05be9243-e0cf-4d0c-b848-2983e9011861</xr:TypeId>
+				<xr:ValueId>6ea19ba7-2909-456e-9578-cfdde0f820aa</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.ТехническиеПроекты" category="Manager">
+				<xr:TypeId>e8f7ebac-054d-45e3-9e58-144a1cdf043a</xr:TypeId>
+				<xr:ValueId>f11972a6-cfc9-40c7-8fe2-f165ca576870</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ТехническиеПроекты</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>05123eb5-b6d6-43d3-9caf-c5b5f334e432</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</Catalog>
+</MetaDataObject>

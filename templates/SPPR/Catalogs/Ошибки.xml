@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="48a602df-6a44-467b-adb4-60d6dcafe201">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.Ошибки" category="Object">
+				<xr:TypeId>4ebc2e35-0bf3-43cc-b520-56ac36084b85</xr:TypeId>
+				<xr:ValueId>597f0768-d398-4d6d-8fc4-e4044aa59b6d</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.Ошибки" category="Ref">
+				<xr:TypeId>80e56f9a-36f3-4656-a2f4-69d36ac64b4f</xr:TypeId>
+				<xr:ValueId>f6fc5c9d-1fdb-4d47-a1a5-c3079537ebe8</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.Ошибки" category="Selection">
+				<xr:TypeId>9f7f806a-3a3a-4a59-9ef0-8b75dd0550b6</xr:TypeId>
+				<xr:ValueId>2b586b8a-167e-4221-8776-0bbee5e94d04</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.Ошибки" category="List">
+				<xr:TypeId>093f10c8-5dcc-4361-ac15-80cb11a91e35</xr:TypeId>
+				<xr:ValueId>b5338764-9682-4a6d-8e24-216c0fbca463</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.Ошибки" category="Manager">
+				<xr:TypeId>55be0972-334e-4298-8eb6-ae4f1c692515</xr:TypeId>
+				<xr:ValueId>e26a7bd0-dfce-4f86-bb11-eef665b2dcb1</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>Ошибки</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>c446934f-02b3-4974-974c-a049ef786dd9</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="b028cbff-ff76-4d4c-91bf-248ada616dd9">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>КомуНаправлена</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>8b8e4fdf-2a5a-40f8-b8f3-d805a0ebca32</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.Пользователи</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="c520d1b9-ef6c-42a2-83e2-3ea0d22e6acf">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Статус</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>3851142b-2894-492d-80ab-d6801b25813e</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:EnumRef.СтатусыОшибок</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Form>ПомощникРегистрацииИОбработкиОшибки</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

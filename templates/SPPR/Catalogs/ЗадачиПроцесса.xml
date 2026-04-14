@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Catalog uuid="51670932-1175-433c-b350-b0f877f59a0e">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.ЗадачиПроцесса" category="Object">
+				<xr:TypeId>d4632eab-9666-4e3c-85e1-2b148532d68d</xr:TypeId>
+				<xr:ValueId>f5608a20-a691-4ae9-85cb-cd35b04b3e4c</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.ЗадачиПроцесса" category="Ref">
+				<xr:TypeId>0cccea61-14de-4628-ab0e-9b84bf462fc5</xr:TypeId>
+				<xr:ValueId>eb6c2e32-8941-48f0-b894-97311b841809</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.ЗадачиПроцесса" category="Selection">
+				<xr:TypeId>1786a72a-351b-4578-b1f5-5c6a5ef656a5</xr:TypeId>
+				<xr:ValueId>35395066-1550-45ca-8119-4a1a245678c2</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.ЗадачиПроцесса" category="List">
+				<xr:TypeId>5df39ea1-7a52-4949-9f46-39cd8bb378a3</xr:TypeId>
+				<xr:ValueId>2ce2f9ab-cf3e-4ecf-8e28-479bafe58185</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.ЗадачиПроцесса" category="Manager">
+				<xr:TypeId>39131800-9ccf-4f02-b78e-738021a6e600</xr:TypeId>
+				<xr:ValueId>de99d4b7-c5bf-459a-b924-e86db201bdc9</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ЗадачиПроцесса</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>1774ff87-9b31-4695-8d69-a4f11842ad32</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="ebcdfb0d-9bcd-41ef-8a7b-70cb4aa35c1e">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Исполнитель</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>7a41d718-7802-456c-a0ed-2e539efda911</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:CatalogRef.Пользователи</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="3abca4d5-e01a-463e-abac-be48c2fef22d">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Статус</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>304872f0-bbbf-4ab7-8fe9-eba213d08666</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>cfg:EnumRef.СтатусыЗадачПроцессов</v8:Type>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="449b37b9-4771-4494-8328-8f938e09a804">
+				<InternalInfo/>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>Предмет</Name>
+					<Comment/>
+					<ExtendedConfigurationObject>9b426e49-3e23-4b1d-8999-cdce223ad696</ExtendedConfigurationObject>
+					<Type>
+						<v8:TypeSet>cfg:DefinedType.ПредметПроцесса</v8:TypeSet>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Form>ФормаЭлемента</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

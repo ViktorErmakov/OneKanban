@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Enum uuid="dc8d45e6-abab-4cf7-9d5a-490d448c2f8f">
+		<InternalInfo>
+			<xr:GeneratedType name="EnumRef.СрочностьИсправленияОшибок" category="Ref">
+				<xr:TypeId>e46bcfa4-dec8-4b9f-9a21-81644b9e7796</xr:TypeId>
+				<xr:ValueId>13b1704d-2c8b-436e-b380-6bfeda98f89f</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="EnumManager.СрочностьИсправленияОшибок" category="Manager">
+				<xr:TypeId>ef1a37d4-fcd9-476e-bfc4-482002d0c392</xr:TypeId>
+				<xr:ValueId>bb6dc0a8-35ce-4fd7-b849-a481f2126d92</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="EnumList.СрочностьИсправленияОшибок" category="List">
+				<xr:TypeId>a0400d5a-e092-4916-99b8-eb7eec752bb1</xr:TypeId>
+				<xr:ValueId>4b2358c5-d8a3-4022-8f1e-2a97897a28ca</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СрочностьИсправленияОшибок</Name>
+			<Comment/>
+			<ExtendedConfigurationObject>1f9cebde-986e-40ee-8aff-0109a43ac3b9</ExtendedConfigurationObject>
+		</Properties>
+		<ChildObjects/>
+	</Enum>
+</MetaDataObject>
