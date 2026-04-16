@@ -18,7 +18,7 @@ authors: [Ermakov]
 <details>
   <summary>Видео презентация NotebookLm релиза 3.0 ВКонтакте</summary>
   
-  <iframe src="https://vkvideo.ru/video_ext.php?oid=-234388169&id=456239019&hash=5254feb4ae5eb283&hd=3" width="1280" height="720" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>
+  <iframe src="https://vkvideo.ru/video_ext.php?oid=-234388169&id=456239019&hash=5254feb4ae5eb283" width="560" height="315" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>
 
 </details>
 
