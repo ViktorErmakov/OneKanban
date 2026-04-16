@@ -8,7 +8,19 @@ authors: [Ermakov]
 
 Рад представить вам **релиз 3.0** — самое масштабное обновление OneKanban с момента создания проекта! Доска была полностью переработана и получила множество новых возможностей.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/l2f_adOpy4Y?si=VkUK0at1nUzQFBeb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<details>
+  <summary>Видео презентация NotebookLm релиза 3.0 YouTube</summary>
+  
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/l2f_adOpy4Y?si=VkUK0at1nUzQFBeb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+</details>
+
+<details>
+  <summary>Видео презентация NotebookLm релиза 3.0 ВКонтакте</summary>
+  
+  <iframe src="https://vkvideo.ru/video_ext.php?oid=-234388169&id=456239019&hash=5254feb4ae5eb283&hd=3" width="1280" height="720" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>
+
+</details>
 
 <!-- truncate -->
 
