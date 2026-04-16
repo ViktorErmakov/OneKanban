@@ -25,24 +25,3 @@ npm run build
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
 После сборки проекта, нужно изменить ветку на gh-pages, там скопировать содержимое build в корень ветки, сделать коммит.
-
-
-Заменить placeholder-файлы в documentation/static/img/user/ реальными скриншотами доски. Имена файлов: 
-ПанельУправления.png, 
-БыстрыеОтборы.png, 
-СписокПроектов.png, 
-ФильтрИсполнитель.png, 
-ФильтрСрочность.png, 
-НастройкаСрочности.png, 
-ФильтрТип.png, 
-Группировка.png, 
-ГруппировкаИсполнитель.png, 
-Поиск.png, 
-ТемнаяТема.png, 
-Добавить.png, 
-DragDrop.png, 
-Обновление.png, 
-Настройки.png.
-
-
-ЕщёN.png, 

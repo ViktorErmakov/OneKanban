@@ -8,6 +8,8 @@ authors: [Ermakov]
 
 Рад представить вам **релиз 3.0** — самое масштабное обновление OneKanban с момента создания проекта! Доска была полностью переработана и получила множество новых возможностей.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/l2f_adOpy4Y?si=VkUK0at1nUzQFBeb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 <!-- truncate -->
 
 ## Что нового
