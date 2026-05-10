@@ -36,6 +36,104 @@ const URGENCY_COLORS = {
 
 const URGENCY_ICON_IDS = Object.keys(URGENCY_ICONS);
 const URGENCY_COLOR_IDS = Object.keys(URGENCY_COLORS);
+
+/** Палитра для выбора без native color input (совместимо с полем HTML в 1С). */
+const URGENCY_PALETTE_HEXES = [
+    '#000000', '#37474f', '#546e7a', '#78909c', '#b0bec5', '#cfd8dc', '#eceff1', '#ffffff',
+    '#b71c1c', '#c62828', '#e53935', '#f44336', '#ff7961', '#ffcdd2', '#ffebee',
+    '#e65100', '#ef6c00', '#fb8c00', '#ffa726', '#ffe0b2', '#fff3e0',
+    '#f57f17', '#f9a825', '#fdd835', '#ffee58', '#fff9c4', '#fffde7',
+    '#33691e', '#558b2f', '#689f38', '#7cb342', '#c5e1a5', '#f1f8e9',
+    '#1b5e20', '#2e7d32', '#43a047', '#66bb6a', '#a5d6a7', '#e8f5e9',
+    '#004d40', '#00695c', '#00897b', '#26a69a', '#b2dfdb', '#e0f2f1',
+    '#01579b', '#0277bd', '#0288d1', '#29b6f6', '#bbdefb', '#e3f2fd',
+    '#4a148c', '#6a1b9a', '#8e24aa', '#ab47bc', '#e1bee7', '#f3e5f5',
+];
+
+/** CSS-цвет (#rrggbb) для отображения: имя из URGENCY_COLORS или любой hex из настроек. */
+const resolveUrgencyColorCss = (colorValue) => {
+    if (colorValue === undefined || colorValue === null || String(colorValue).trim() === '') {
+        return URGENCY_COLORS.red;
+    }
+    const s = String(colorValue).trim();
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(s)) {
+        if (s.length === 4) {
+            return '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+        }
+        return s.length === 9 ? s.slice(0, 7) : s;
+    }
+    const lowerName = s.toLowerCase();
+    if (URGENCY_COLOR_IDS.includes(lowerName)) return URGENCY_COLORS[lowerName];
+    return URGENCY_COLORS.red;
+};
+
+const isValidUrgencyHexOnly = (raw) => {
+    if (raw === undefined || raw === null) return false;
+    const t = String(raw).trim();
+    return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(t);
+};
+
+const isLegacyPaletteName = (raw) => {
+    const t = String(raw).trim().toLowerCase();
+    return t !== '' && URGENCY_COLOR_IDS.includes(t);
+};
+
+/** Для отображения карточек/меню: hex или старые имена из 1С. */
+const colorCanDisplayForStoredSettings = (raw) =>
+    isValidUrgencyHexOnly(raw) || isLegacyPaletteName(raw);
+
+const expandShortHex = (hex) => {
+    const t = String(hex).trim();
+    if (/^#[0-9a-f]{3}$/i.test(t)) {
+        const h = t.toLowerCase();
+        return '#' + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
+    }
+    return t;
+};
+
+/** Только #RGB/#RRGGBB для ввода пользователем; имена палитры при сохранении переводятся в hex. */
+const canonicalUrgencyColorStorage = (raw) => {
+    const t = String(raw).trim();
+    const tl = t.toLowerCase();
+    if (URGENCY_COLOR_IDS.includes(tl)) return URGENCY_COLORS[tl];
+    if (isValidUrgencyHexOnly(t)) return expandShortHex(t).toLowerCase();
+    return t;
+};
+
+/** Показ в поле ввода всегда как #RRGGBB (старые имена из данных раскрываются). */
+const colorIdToDisplayHex = (raw) => {
+    if (raw === undefined || raw === null || String(raw).trim() === '') return '';
+    const t = String(raw).trim();
+    if (isLegacyPaletteName(t)) return URGENCY_COLORS[t.toLowerCase()];
+    if (isValidUrgencyHexOnly(t)) return expandShortHex(t).toLowerCase();
+    return t;
+};
+
+const parseHexToRgb = (hexExpanded) => {
+    const h = String(hexExpanded).replace(/^#/, '');
+    if (h.length !== 6) return null;
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return null;
+    return [r, g, b];
+};
+
+/** Убирает неполные/пустые уровни; в поле HTML 1С без type=color только пара иконка+валидный цвет попадает в настройки. */
+const normalizeUrgencySettingsFromDraft = (draft) => {
+    const out = {};
+    if (!draft || typeof draft !== 'object') return out;
+    Object.keys(draft).forEach((id) => {
+        const e = draft[id];
+        if (!e || typeof e !== 'object') return;
+        const iconId = e.iconId;
+        const colorRaw = e.colorId != null ? String(e.colorId).trim() : '';
+        if (!iconId || !URGENCY_ICON_IDS.includes(iconId)) return;
+        if (!colorRaw || !colorCanDisplayForStoredSettings(colorRaw)) return;
+        out[id] = { iconId, colorId: canonicalUrgencyColorStorage(colorRaw) };
+    });
+    return out;
+};
 const MAX_VISIBLE_PROJECTS = 3;
 
 // Значение фильтра «исполнитель не назначен» в executorfilter (не пересекается с классами user… из 1С)
@@ -73,12 +171,15 @@ let draggingCardProjectId = null;          // ID проекта перетаск
 // Не зависят от DOM-замыканий, можно вызывать в любой момент.
 // ============================================================
 
-// Возвращает { svg, color } для иконки срочности или '' если не задана
+// Возвращает { svg, color } для иконки срочности или '' если не задана (нет пользовательской пары иконка+цвет)
 const getUrgencyIconHtml = (urgencyId) => {
     if (!urgencyId || !boardSettings.urgencySettings[urgencyId]) return '';
     const { iconId, colorId } = boardSettings.urgencySettings[urgencyId];
+    if (!iconId || String(iconId).trim() === '') return '';
+    const colorRaw = colorId != null ? String(colorId).trim() : '';
+    if (colorRaw === '' || !colorCanDisplayForStoredSettings(colorRaw)) return '';
     const icon = URGENCY_ICON_IDS.includes(iconId) ? URGENCY_ICONS[iconId] : URGENCY_ICONS[URGENCY_ICON_IDS[0]];
-    const color = URGENCY_COLOR_IDS.includes(colorId) ? URGENCY_COLORS[colorId] : URGENCY_COLORS.red;
+    const color = resolveUrgencyColorCss(colorId);
     return { svg: icon, color };
 };
 
@@ -1027,6 +1128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const populateMenu = () => {
             menu.innerHTML = '';
+
             (boardSettings.urgencyLevels || []).forEach(({ id, name }) => {
                 const option = document.createElement('div');
                 option.className = 'urgency_option';
@@ -1058,6 +1160,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 menu.appendChild(option);
             });
+
+            const toolbar = document.createElement('div');
+            toolbar.className = 'urgency_menu_toolbar';
+            const clearAllSettingsBtn = document.createElement('button');
+            clearAllSettingsBtn.type = 'button';
+            clearAllSettingsBtn.className = 'urgency_clear_all_settings';
+            clearAllSettingsBtn.textContent = 'Сбросить настройки';
+            clearAllSettingsBtn.title = 'Убрать пользовательские иконки и цвета для всех уровней срочности';
+            clearAllSettingsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                boardSettings.urgencySettings = {};
+                window.V8Proxy.fetch('settingsChanged', {});
+                refreshUrgencyIcons();
+                populateMenu();
+            });
+            toolbar.appendChild(clearAllSettingsBtn);
+            menu.appendChild(toolbar);
         };
 
         const updateLabel = () => {
@@ -1442,6 +1562,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const titleEl = popover ? popover.querySelector('.urgency-popover__title') : null;
         const saveBtn = document.getElementById('urgency_popover_save');
         const cancelBtn = document.getElementById('urgency_popover_cancel');
+        const resetPopoverBtn = document.getElementById('urgency_popover_reset');
 
         if (!popover || !listEl) return { open: () => {} };
 
@@ -1449,51 +1570,216 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentEditId = null;
         let draftSettings = {};
 
+        const updateUrgencyPreviewTile = (previewEl, urgencyId) => {
+            if (!previewEl) return;
+            previewEl.innerHTML = '';
+            previewEl.classList.add('urgency_preview_tile--empty');
+            previewEl.style.color = '';
+            const s = draftSettings[urgencyId];
+            if (!s || !s.iconId || !URGENCY_ICON_IDS.includes(s.iconId)) return;
+            const colorRaw = s.colorId != null ? String(s.colorId).trim() : '';
+            if (!colorRaw) return;
+            const ok = colorCanDisplayForStoredSettings(colorRaw) || isValidUrgencyHexOnly(colorRaw);
+            if (!ok) return;
+            previewEl.classList.remove('urgency_preview_tile--empty');
+            previewEl.style.color = resolveUrgencyColorCss(colorRaw);
+            previewEl.innerHTML = URGENCY_ICONS[s.iconId];
+        };
+
         const renderSettings = (urgencyId) => {
             listEl.innerHTML = '';
-            const s = draftSettings[urgencyId] || {};
-            const iconId = s.iconId || URGENCY_ICON_IDS[0];
-            const colorId = s.colorId || 'red';
+            const s = draftSettings[urgencyId];
+            const iconId = s && s.iconId ? s.iconId : '';
+            const initialHexDisplay = colorIdToDisplayHex(s && s.colorId != null ? s.colorId : '');
+
             const row = document.createElement('div');
             row.className = 'urgency_setting_row';
-            row.innerHTML =
-                '<div class="urgency_setting_icons" data-urgency-id="' + urgencyId + '">' +
-                    URGENCY_ICON_IDS.map(iid =>
-                        '<button type="button" class="urgency_icon_btn ' + (iid === iconId ? 'selected' : '') + '" data-icon="' + iid + '" title="' + iid + '">' + URGENCY_ICONS[iid] + '</button>'
-                    ).join('') +
-                '</div>' +
-                '<div class="urgency_setting_colors" data-urgency-id="' + urgencyId + '">' +
-                    URGENCY_COLOR_IDS.map(cid =>
-                        '<button type="button" class="urgency_color_btn ' + (cid === colorId ? 'selected' : '') + '" data-color="' + cid + '" style="background-color: ' + URGENCY_COLORS[cid] + '" title="' + cid + '"></button>'
-                    ).join('') +
-                '</div>';
-            listEl.appendChild(row);
 
-            listEl.querySelectorAll('.urgency_icon_btn').forEach(btn => {
+            const iconsWrap = document.createElement('div');
+            iconsWrap.className = 'urgency_setting_icons';
+            iconsWrap.setAttribute('data-urgency-id', urgencyId);
+
+            const ensureIconWhenSettingColor = () => {
+                if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
+                const cur = draftSettings[urgencyId].iconId;
+                if (!cur || !URGENCY_ICON_IDS.includes(cur)) {
+                    draftSettings[urgencyId].iconId = URGENCY_ICON_IDS[0];
+                    iconsWrap.querySelectorAll('.urgency_icon_btn').forEach(b => b.classList.remove('selected'));
+                    const fb = iconsWrap.querySelector('.urgency_icon_btn[data-icon="' + draftSettings[urgencyId].iconId + '"]');
+                    if (fb) fb.classList.add('selected');
+                }
+            };
+
+            URGENCY_ICON_IDS.forEach((iid) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'urgency_icon_btn' + (iid === iconId ? ' selected' : '');
+                btn.setAttribute('data-icon', iid);
+                btn.setAttribute('title', iid);
+                btn.innerHTML = URGENCY_ICONS[iid];
+                iconsWrap.appendChild(btn);
+            });
+            row.appendChild(iconsWrap);
+
+            const hexRow = document.createElement('div');
+            hexRow.className = 'urgency_field_row';
+            const hexLabel = document.createElement('span');
+            hexLabel.className = 'urgency_field_label';
+            hexLabel.textContent = 'HEX';
+
+            const hexInput = document.createElement('input');
+            hexInput.type = 'text';
+            hexInput.className = 'urgency_color_hex';
+            hexInput.setAttribute('data-urgency-id', urgencyId);
+            hexInput.setAttribute('spellcheck', 'false');
+            hexInput.setAttribute('autocomplete', 'off');
+            hexInput.setAttribute('placeholder', '#RRGGBB или #RGB');
+            hexInput.setAttribute('aria-label', 'HEX');
+            hexInput.value = initialHexDisplay;
+
+            const previewTile = document.createElement('div');
+            previewTile.className = 'urgency_preview_tile urgency_option_preview';
+            previewTile.setAttribute('aria-hidden', 'true');
+
+            hexRow.appendChild(hexLabel);
+            hexRow.appendChild(hexInput);
+            hexRow.appendChild(previewTile);
+            row.appendChild(hexRow);
+
+            const rgbRow = document.createElement('div');
+            rgbRow.className = 'urgency_field_row';
+            const rgbLabel = document.createElement('span');
+            rgbLabel.className = 'urgency_field_label';
+            rgbLabel.textContent = 'RGB';
+
+            const rgbInputsWrap = document.createElement('div');
+            rgbInputsWrap.className = 'urgency_rgb_inputs';
+            const rgbInputs = [];
+            ['r', 'g', 'b'].forEach((ch) => {
+                const inp = document.createElement('input');
+                inp.type = 'text';
+                inp.className = 'urgency_rgb_input';
+                inp.setAttribute('inputmode', 'numeric');
+                inp.setAttribute('pattern', '[0-9]*');
+                inp.setAttribute('maxlength', '3');
+                inp.setAttribute('data-ch', ch);
+                inp.setAttribute('aria-label', 'RGB ' + ch.toUpperCase());
+                rgbInputs.push(inp);
+                rgbInputsWrap.appendChild(inp);
+            });
+            rgbRow.appendChild(rgbLabel);
+            rgbRow.appendChild(rgbInputsWrap);
+            row.appendChild(rgbRow);
+
+            const syncRgbFromExpandedHex = () => {
+                const t = hexInput.value.trim();
+                const disp = colorIdToDisplayHex(t) || (isValidUrgencyHexOnly(t) ? expandShortHex(t).toLowerCase() : '');
+                if (!disp || !/^#[0-9a-f]{6}$/i.test(disp)) {
+                    rgbInputs.forEach(i => { i.value = ''; });
+                    return;
+                }
+                const rgb = parseHexToRgb(disp);
+                if (!rgb) {
+                    rgbInputs.forEach(i => { i.value = ''; });
+                    return;
+                }
+                rgbInputs[0].value = String(rgb[0]);
+                rgbInputs[1].value = String(rgb[1]);
+                rgbInputs[2].value = String(rgb[2]);
+            };
+
+            iconsWrap.querySelectorAll('.urgency_icon_btn').forEach((btn) => {
                 btn.addEventListener('click', () => {
-                    const wrap = btn.closest('.urgency_setting_icons');
-                    const id = wrap.getAttribute('data-urgency-id');
-                    if (!draftSettings[id]) draftSettings[id] = {};
-                    draftSettings[id].iconId = btn.getAttribute('data-icon');
-                    wrap.querySelectorAll('.urgency_icon_btn').forEach(b => b.classList.remove('selected'));
+                    const iid = btn.getAttribute('data-icon');
+                    if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
+                    draftSettings[urgencyId].iconId = iid;
+                    const curCol = draftSettings[urgencyId].colorId != null ? String(draftSettings[urgencyId].colorId).trim() : '';
+                    if (curCol === '') draftSettings[urgencyId].colorId = '#c62828';
+                    iconsWrap.querySelectorAll('.urgency_icon_btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
+                    hexInput.value = colorIdToDisplayHex(draftSettings[urgencyId].colorId);
+                    syncRgbFromExpandedHex();
+                    updateUrgencyPreviewTile(previewTile, urgencyId);
                 });
             });
-            listEl.querySelectorAll('.urgency_color_btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const wrap = btn.closest('.urgency_setting_colors');
-                    const id = wrap.getAttribute('data-urgency-id');
-                    if (!draftSettings[id]) draftSettings[id] = {};
-                    draftSettings[id].colorId = btn.getAttribute('data-color');
-                    wrap.querySelectorAll('.urgency_color_btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
+
+            const applyRgbToDraft = () => {
+                const r = parseInt(String(rgbInputs[0].value).trim(), 10);
+                const g = parseInt(String(rgbInputs[1].value).trim(), 10);
+                const b = parseInt(String(rgbInputs[2].value).trim(), 10);
+                if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return;
+                const clamp = (x) => Math.max(0, Math.min(255, x));
+                const hex = '#' + [clamp(r), clamp(g), clamp(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+                ensureIconWhenSettingColor();
+                if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
+                draftSettings[urgencyId].colorId = hex;
+                hexInput.value = hex;
+                rgbInputs[0].value = String(clamp(r));
+                rgbInputs[1].value = String(clamp(g));
+                rgbInputs[2].value = String(clamp(b));
+                updateUrgencyPreviewTile(previewTile, urgencyId);
+            };
+
+            rgbInputs.forEach(inp => {
+                inp.addEventListener('input', () => applyRgbToDraft());
+            });
+
+            const paletteDetails = document.createElement('details');
+            paletteDetails.className = 'urgency_palette_details';
+            const paletteSummary = document.createElement('summary');
+            paletteSummary.className = 'urgency_palette_summary';
+            paletteSummary.textContent = 'Палитра';
+
+            const paletteGrid = document.createElement('div');
+            paletteGrid.className = 'urgency_palette_grid';
+            URGENCY_PALETTE_HEXES.forEach((hex) => {
+                const cell = document.createElement('button');
+                cell.type = 'button';
+                cell.className = 'urgency_palette_cell';
+                cell.style.backgroundColor = hex;
+                cell.title = hex;
+                cell.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    ensureIconWhenSettingColor();
+                    if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
+                    draftSettings[urgencyId].colorId = hex.toLowerCase();
+                    hexInput.value = hex.toLowerCase();
+                    syncRgbFromExpandedHex();
+                    updateUrgencyPreviewTile(previewTile, urgencyId);
                 });
+                paletteGrid.appendChild(cell);
+            });
+
+            paletteDetails.appendChild(paletteSummary);
+            paletteDetails.appendChild(paletteGrid);
+            row.appendChild(paletteDetails);
+
+            listEl.appendChild(row);
+
+            syncRgbFromExpandedHex();
+            updateUrgencyPreviewTile(previewTile, urgencyId);
+
+            hexInput.addEventListener('input', () => {
+                if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
+                draftSettings[urgencyId].colorId = hexInput.value;
+                syncRgbFromExpandedHex();
+                updateUrgencyPreviewTile(previewTile, urgencyId);
+            });
+            hexInput.addEventListener('blur', () => {
+                let t = hexInput.value.trim();
+                if (t && !t.startsWith('#') && /^[0-9a-f]{3,6}$/i.test(t)) t = '#' + t;
+                hexInput.value = t;
+                if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
+                draftSettings[urgencyId].colorId = t;
+                syncRgbFromExpandedHex();
+                updateUrgencyPreviewTile(previewTile, urgencyId);
             });
         };
 
         const positionPopover = (anchorEl) => {
             const rect = anchorEl.getBoundingClientRect();
-            const popW = 300;
+            const popW = 360;
             let left = rect.right + 8;
             let top = rect.top;
             if (left + popW > window.innerWidth) left = rect.left - popW - 8;
@@ -1505,7 +1791,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const closePopover = (apply) => {
             if (apply) {
-                boardSettings.urgencySettings = JSON.parse(JSON.stringify(draftSettings));
+                boardSettings.urgencySettings = normalizeUrgencySettingsFromDraft(draftSettings);
                 window.V8Proxy.fetch('settingsChanged', {});
                 refreshUrgencyIcons();
                 urgencyCtrl.populateMenu();
@@ -1520,6 +1806,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (saveBtn) saveBtn.addEventListener('click', () => closePopover(true));
         if (cancelBtn) cancelBtn.addEventListener('click', () => closePopover(false));
+        if (resetPopoverBtn) {
+            resetPopoverBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = currentEditId;
+                if (!id) return;
+                delete draftSettings[id];
+                renderSettings(id);
+            });
+        }
         document.addEventListener('mousedown', (e) => { if (popover.classList.contains('open') && !popover.contains(e.target)) closePopover(false); });
         popover.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePopover(false); });
 

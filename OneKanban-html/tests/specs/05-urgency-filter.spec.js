@@ -112,4 +112,15 @@ test.describe('Фильтр по срочности', () => {
         const calls = await getV8Calls(page);
         expect(calls.some(c => c.eventName === 'settingsChanged')).toBeTruthy();
     });
+
+    test('сброс всех настроек отображения срочности отправляет settingsChanged', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+        await clearV8Calls(page);
+
+        await page.click('#urgency_toggle');
+        await page.locator('.urgency_clear_all_settings').click();
+
+        const calls = await getV8Calls(page);
+        expect(calls.some(c => c.eventName === 'settingsChanged')).toBeTruthy();
+    });
 });

@@ -222,11 +222,13 @@
         <!-- Popover настроек срочности (иконка и цвет) -->
         <div id="urgency_settings_popover" class="urgency-popover" aria-hidden="true">
             <h3 class="urgency-popover__title">Настройка срочности</h3>
-            <p class="urgency-popover__hint">Выберите иконку и цвет.</p>
             <div id="urgency_settings_list" class="urgency_settings_list"></div>
             <div class="urgency-popover__actions">
-                <button type="button" id="urgency_popover_save" class="urgency-popover__btn urgency-popover__btn--save">Сохранить</button>
-                <button type="button" id="urgency_popover_cancel" class="urgency-popover__btn urgency-popover__btn--cancel">Отмена</button>
+                <button type="button" id="urgency_popover_reset" class="urgency-popover__btn urgency-popover__btn--reset">Сбросить настройки</button>
+                <div class="urgency-popover__actions-tail">
+                    <button type="button" id="urgency_popover_cancel" class="urgency-popover__btn urgency-popover__btn--cancel">Отмена</button>
+                    <button type="button" id="urgency_popover_save" class="urgency-popover__btn urgency-popover__btn--save">Сохранить</button>
+                </div>
             </div>
         </div>
 

@@ -33,16 +33,17 @@ test.describe('Настройки срочности (popover)', () => {
         expect(count).toBe(7);
     });
 
-    test('popover содержит кнопки цветов', async ({ page }) => {
+    test('popover содержит поле hex и образец цвета', async ({ page }) => {
         await openBoard(page, 'four-projects');
         await page.click('#urgency_toggle');
         await page.waitForTimeout(100);
         await page.locator('.urgency_option_settings').first().click();
         await page.waitForTimeout(200);
 
-        const colorBtns = page.locator('.urgency_color_btn');
-        const count = await colorBtns.count();
-        expect(count).toBe(6);
+        const hexInput = page.locator('.urgency_color_hex');
+        await expect(hexInput).toHaveCount(1);
+        await expect(hexInput).toBeVisible();
+        await expect(page.locator('.urgency_preview_tile')).toBeVisible();
     });
 
     test('выбор иконки помечает её как selected', async ({ page }) => {
@@ -57,16 +58,33 @@ test.describe('Настройки срочности (popover)', () => {
         await expect(secondIcon).toHaveClass(/selected/);
     });
 
-    test('выбор цвета помечает его как selected', async ({ page }) => {
+    test('изменение цвета в поле hex обновляет значение', async ({ page }) => {
         await openBoard(page, 'four-projects');
         await page.click('#urgency_toggle');
         await page.waitForTimeout(100);
         await page.locator('.urgency_option_settings').first().click();
         await page.waitForTimeout(200);
 
-        const secondColor = page.locator('.urgency_color_btn').nth(1);
-        await secondColor.click();
-        await expect(secondColor).toHaveClass(/selected/);
+        const hexInput = page.locator('.urgency_color_hex');
+        await hexInput.fill('#1565c0');
+        await expect(hexInput).toHaveValue('#1565c0');
+    });
+
+    test('кнопка «Сброс» убирает иконку и цвет (как без пользовательских настроек)', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+        await page.click('#urgency_toggle');
+        await page.waitForTimeout(100);
+        await page.locator('.urgency_option_settings').first().click();
+        await page.waitForTimeout(200);
+
+        await page.locator('.urgency_icon_btn[data-icon="lightning"]').click();
+        await page.locator('.urgency_color_hex').fill('#000000');
+
+        await page.click('#urgency_popover_reset');
+        await page.waitForTimeout(100);
+
+        await expect(page.locator('.urgency_icon_btn.selected')).toHaveCount(0);
+        await expect(page.locator('.urgency_color_hex')).toHaveValue('');
     });
 
     test('кнопка "Сохранить" закрывает popover и отправляет settingsChanged', async ({ page }) => {
@@ -145,7 +163,7 @@ test.describe('Настройки срочности (popover)', () => {
         await page.waitForTimeout(200);
 
         await page.locator('.urgency_icon_btn[data-icon="lightning"]').click();
-        await page.locator('.urgency_color_btn[data-color="blue"]').click();
+        await page.locator('.urgency_color_hex').fill('#1565c0');
         await page.click('#urgency_popover_save');
         await page.waitForTimeout(300);
 
