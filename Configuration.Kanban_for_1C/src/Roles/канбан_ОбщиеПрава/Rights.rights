@@ -269,6 +269,13 @@
 		</right>
 	</object>
 	<object>
+		<name>DataProcessor.Канбан_Доска_HTML.Command.СтраницаДокументации</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>DataProcessor.Канбан_Доска_HTML.Command.ОткрытьНастройкиКанбанДоски</name>
 		<right>
 			<name>View</name>

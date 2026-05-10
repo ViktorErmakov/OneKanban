@@ -2,10 +2,10 @@ const { test, expect } = require('@playwright/test');
 const { openBoard, getVisibleCards } = require('../helpers/board-helper');
 
 test.describe('Отрисовка доски', () => {
-    test('доска отображает все 18 карточек', async ({ page }) => {
+    test('доска отображает все 20 карточек', async ({ page }) => {
         await openBoard(page, 'four-projects');
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(18);
+        await expect(cards).toHaveCount(20);
     });
 
     test('доска отображает 6 колонок статусов', async ({ page }) => {
@@ -29,9 +29,9 @@ test.describe('Отрисовка доски', () => {
     test('счётчики карточек в заголовках корректны', async ({ page }) => {
         await openBoard(page, 'four-projects');
         const counters = page.locator('.block_header .kanban-block__number');
-        await expect(counters.nth(0)).toHaveText('6');
+        await expect(counters.nth(0)).toHaveText('7');
         await expect(counters.nth(1)).toHaveText('5');
-        await expect(counters.nth(2)).toHaveText('5');
+        await expect(counters.nth(2)).toHaveText('6');
         await expect(counters.nth(3)).toHaveText('2');
         await expect(counters.nth(4)).toHaveText('0');
         await expect(counters.nth(5)).toHaveText('0');
@@ -40,7 +40,7 @@ test.describe('Отрисовка доски', () => {
     test('карточки в первой колонке содержат правильные ссылки', async ({ page }) => {
         await openBoard(page, 'four-projects');
         const firstColumnCards = page.locator('#a1ca3366-c296-11ee-93e4-107b4419808b .card__link');
-        await expect(firstColumnCards).toHaveCount(6);
+        await expect(firstColumnCards).toHaveCount(7);
         await expect(firstColumnCards.nth(0)).toHaveText('Задача №1');
         await expect(firstColumnCards.nth(1)).toHaveText('Задача №2');
     });
@@ -55,7 +55,7 @@ test.describe('Отрисовка доски', () => {
         await openBoard(page, 'four-projects');
         const photos = page.locator('.card__photo');
         const count = await photos.count();
-        expect(count).toBe(18);
+        expect(count).toBe(20);
         for (let i = 0; i < count; i++) {
             const src = await photos.nth(i).getAttribute('src');
             expect(src).toBeTruthy();
@@ -66,7 +66,7 @@ test.describe('Отрисовка доски', () => {
         await openBoard(page, 'four-projects');
         const tags = page.locator('.tag_task');
         const count = await tags.count();
-        expect(count).toBe(18);
+        expect(count).toBe(20);
     });
 
     test('pills выбранных проектов отображаются', async ({ page }) => {

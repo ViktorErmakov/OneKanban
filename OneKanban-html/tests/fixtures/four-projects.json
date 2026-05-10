@@ -308,6 +308,32 @@
       "card__photo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40' viewBox='0 0 35 40'%3E%3Crect fill='%234a90d9' width='35' height='40'/%3E%3Ctext x='17.5' y='25' text-anchor='middle' fill='white' font-size='14'%3EЕВ%3C/text%3E%3C/svg%3E",
       "alt": "Ермаков Виктор",
       "card__text": "Ошибка при сохранении формы"
+    },
+    {
+      "idTask": "task-unassigned-0001-3026-11f0-952c-107b4419808b",
+      "status": "a1ca3366-c296-11ee-93e4-107b4419808b",
+      "project": "projectb49a3cc6-3026-11f0-952c-107b4419808b",
+      "urgencyId": "",
+      "isBug": false,
+      "fullnameobjecttask": "Справочник.канбан_Задачи",
+      "card__link_href": "#unassigned1",
+      "card__link_name": "Задача №БИ1",
+      "card__photo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40'/%3E%3C/svg%3E",
+      "alt": "",
+      "card__text": "Задача без исполнителя (демо)"
+    },
+    {
+      "idTask": "task-unassigned-0002-3026-11f0-952c-107b4419808b",
+      "status": "a1ca3363-c296-11ee-93e4-107b4419808b",
+      "project": "projectb49a3cc7-3026-11f0-952c-107b4419808b",
+      "urgencyId": "ВПлановомПорядке",
+      "isBug": false,
+      "fullnameobjecttask": "Справочник.канбан_Задачи",
+      "card__link_href": "#unassigned2",
+      "card__link_name": "Задача №БИ2",
+      "card__photo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40'/%3E%3C/svg%3E",
+      "alt": "",
+      "card__text": "Вторая задача без исполнителя"
     }
   ]
 }

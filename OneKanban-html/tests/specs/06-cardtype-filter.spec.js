@@ -24,7 +24,7 @@ test.describe('Фильтр по типу карточки', () => {
 
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(16);
+        await expect(cards).toHaveCount(18);
     });
 
     test('выбор типа "Ошибка" показывает только ошибки', async ({ page }) => {
@@ -49,7 +49,7 @@ test.describe('Фильтр по типу карточки', () => {
         await page.waitForTimeout(200);
         await expect(page.locator('#cardtype_label')).toHaveText('Тип');
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(18);
+        await expect(cards).toHaveCount(20);
     });
 
     test('карточка-ошибка отображается с красной полоской', async ({ page }) => {

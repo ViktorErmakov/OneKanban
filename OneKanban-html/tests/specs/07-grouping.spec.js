@@ -113,7 +113,7 @@ test.describe('Группировка', () => {
         await expect(page.locator('#kanban-board')).not.toHaveClass(/grouped/);
 
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(18);
+        await expect(cards).toHaveCount(20);
     });
 
     test('переключение группировок: исполнитель -> проект', async ({ page }) => {
@@ -157,7 +157,7 @@ test.describe('Группировка', () => {
         for (let i = 0; i < count; i++) {
             total += parseInt(await groupCounts.nth(i).textContent());
         }
-        expect(total).toBe(18);
+        expect(total).toBe(20);
     });
 
     test('визуальная регрессия: группировка по исполнителю', async ({ page }) => {

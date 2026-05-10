@@ -1,6 +1,8 @@
 const { test, expect } = require('@playwright/test');
 const { openBoard, getVisibleCards, clearV8Calls, getV8Calls, sendResponse } = require('../helpers/board-helper');
 
+const executorOptionUser = '.executor_option[data-value^="user"]';
+
 test.describe('Комбинированные сценарии', () => {
     test('фильтр по проекту + поиск', async ({ page }) => {
         await openBoard(page, 'four-projects');
@@ -24,7 +26,7 @@ test.describe('Комбинированные сценарии', () => {
         await openBoard(page, 'four-projects');
 
         await page.click('#executor_toggle');
-        await page.locator('.executor_option').first().click();
+        await page.locator(executorOptionUser).first().click();
         await page.waitForTimeout(200);
 
         await page.click('#urgency_toggle');
@@ -52,7 +54,7 @@ test.describe('Комбинированные сценарии', () => {
 
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
     });
 
     test('группировка + поиск', async ({ page }) => {
@@ -67,7 +69,7 @@ test.describe('Комбинированные сценарии', () => {
 
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
     });
 
     test('тёмная тема + группировка по исполнителю', async ({ page }) => {
@@ -111,7 +113,7 @@ test.describe('Комбинированные сценарии', () => {
         await page.waitForTimeout(100);
 
         await page.click('#executor_toggle');
-        await page.locator('.executor_option').first().click();
+        await page.locator(executorOptionUser).first().click();
         await page.waitForTimeout(100);
 
         await page.click('#urgency_toggle');
@@ -183,7 +185,7 @@ test.describe('Комбинированные сценарии', () => {
         await page.waitForTimeout(300);
 
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(18);
+        await expect(cards).toHaveCount(20);
     });
 
     test('dropdown-ы закрываются при открытии другого', async ({ page }) => {
@@ -217,6 +219,6 @@ test.describe('Комбинированные сценарии', () => {
 
         const cards = page.locator('.card');
         const count = await cards.count();
-        expect(count).toBe(18);
+        expect(count).toBe(20);
     });
 });

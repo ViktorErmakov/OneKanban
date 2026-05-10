@@ -37,7 +37,7 @@ test.describe('Фильтр по проектам', () => {
         const fixture = await openBoard(page, 'four-projects');
 
         const cardsBefore = await getVisibleCards(page);
-        await expect(cardsBefore).toHaveCount(18);
+        await expect(cardsBefore).toHaveCount(20);
 
         await page.click('#project_picker_toggle');
         const firstProject = page.locator('.project_grid_item:not(.project_grid_item_all)').first();
@@ -46,7 +46,7 @@ test.describe('Фильтр по проектам', () => {
         await page.waitForTimeout(200);
         const cardsAfter = await getVisibleCards(page);
         const count = await cardsAfter.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
     });
 
     test('удаление проекта через крестик на pill', async ({ page }) => {
@@ -57,7 +57,7 @@ test.describe('Фильтр по проектам', () => {
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
     });
 
     test('кнопка "Выбрать все" выбирает все проекты', async ({ page }) => {
@@ -72,7 +72,7 @@ test.describe('Фильтр по проектам', () => {
 
         const cardsBeforeSelectAll = await getVisibleCards(page);
         const before = await cardsBeforeSelectAll.count();
-        expect(before).toBeLessThan(18);
+        expect(before).toBeLessThan(20);
 
         await page.click('#project_picker_toggle');
         await page.waitForTimeout(300);
@@ -81,7 +81,7 @@ test.describe('Фильтр по проектам', () => {
 
         await page.waitForTimeout(500);
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(18);
+        await expect(cards).toHaveCount(20);
     });
 
     test('счётчик "+N" отображается при > 3 выбранных проектах', async ({ page }) => {
@@ -128,7 +128,7 @@ test.describe('Фильтр по проектам', () => {
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
         expect(count).toBeGreaterThan(0);
     });
 });

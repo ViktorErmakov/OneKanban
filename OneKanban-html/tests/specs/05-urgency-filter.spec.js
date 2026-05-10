@@ -31,7 +31,7 @@ test.describe('Фильтр по срочности', () => {
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
         expect(count).toBeGreaterThan(0);
     });
 
@@ -71,7 +71,7 @@ test.describe('Фильтр по срочности', () => {
         await page.waitForTimeout(200);
         await expect(page.locator('#urgency_label')).toHaveText('Срочность');
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(18);
+        await expect(cards).toHaveCount(20);
     });
 
     test('иконки срочности отображаются на карточках', async ({ page }) => {
@@ -91,7 +91,7 @@ test.describe('Фильтр по срочности', () => {
         await page.waitForTimeout(200);
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
     });
 
     test('кнопка настройки срочности присутствует', async ({ page }) => {

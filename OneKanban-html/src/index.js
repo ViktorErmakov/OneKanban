@@ -38,6 +38,13 @@ const URGENCY_ICON_IDS = Object.keys(URGENCY_ICONS);
 const URGENCY_COLOR_IDS = Object.keys(URGENCY_COLORS);
 const MAX_VISIBLE_PROJECTS = 3;
 
+// Значение фильтра «исполнитель не назначен» в executorfilter (не пересекается с классами user… из 1С)
+const EXECUTOR_FILTER_NONE = '__no_executor__';
+
+/** Класс исполнителя на карточке: user… без user_name… */
+const getCardExecutorUserClass = (card) =>
+    Array.from(card.classList).find(cls => cls.startsWith('user') && !cls.startsWith('user_name')) || null;
+
 const CARD_TYPES = [
     { id: 'task', name: 'Задача' },
     { id: 'bug', name: 'Ошибка' },
@@ -314,11 +321,10 @@ const moveCardToStatus = (card, statusId) => {
     let targetBlock = null;
 
     if (currentGroupingType === 'executor') {
-        const userClass = Array.from(card.classList).find(cls => cls.startsWith('user') && !cls.startsWith('user_name'));
-        if (userClass) {
-            const group = document.querySelector('.group[data-executor-id="' + userClass + '"]');
-            if (group) targetBlock = group.querySelector('.kanban-block[id="' + statusId + '"]');
-        }
+        const userClass = getCardExecutorUserClass(card);
+        const groupKey = userClass || EXECUTOR_FILTER_NONE;
+        const group = document.querySelector('.group[data-executor-id="' + groupKey + '"]');
+        if (group) targetBlock = group.querySelector('.kanban-block[id="' + statusId + '"]');
     } else if (currentGroupingType === 'project') {
         const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
         if (projectClass) {
@@ -403,11 +409,10 @@ const initCardDragEvents = (card) => {
 // Находит колонку для новой карточки с учётом группировки
 const findTargetBlockForNewCard = (card, statusId) => {
     if (currentGroupingType === 'executor') {
-        const userClass = Array.from(card.classList).find(cls => cls.startsWith('user'));
-        if (userClass) {
-            const group = document.querySelector('.group[data-executor-id="' + userClass + '"]');
-            if (group) return group.querySelector('.kanban-block[id="' + statusId + '"]');
-        }
+        const userClass = getCardExecutorUserClass(card);
+        const groupKey = userClass || EXECUTOR_FILTER_NONE;
+        const group = document.querySelector('.group[data-executor-id="' + groupKey + '"]');
+        if (group) return group.querySelector('.kanban-block[id="' + statusId + '"]');
     } else if (currentGroupingType === 'project') {
         const projectClass = Array.from(card.classList).find(cls => cls.startsWith('project'));
         if (projectClass) {
@@ -576,11 +581,11 @@ const setupDragDropForGroups = () => {
             // При группировке по исполнителям: перенос карточки в другую группу
             // меняет исполнителя задачи (обновляет CSS-классы и данные в Map)
             if (currentGroupingType === 'executor' && targetGroup) {
-                const idNewExecutor = targetGroup.getAttribute('data-executor-id');
-                const newExecutorName = targetGroup.getAttribute('data-executor-name');
+                const idNewExecutorAttr = targetGroup.getAttribute('data-executor-id');
+                const newExecutorName = targetGroup.getAttribute('data-executor-name') || '';
 
-                if (idNewExecutor) {
-                    params.idNewExecutor = idNewExecutor;
+                if (idNewExecutorAttr === EXECUTOR_FILTER_NONE) {
+                    params.idNewExecutor = '';
 
                     const cl = Array.from(draggedElement.classList);
                     const oldUserClass = cl.find(c => c.startsWith('user') && !c.startsWith('user_name'));
@@ -589,12 +594,34 @@ const setupDragDropForGroups = () => {
                     if (oldUserClass) draggedElement.classList.remove(oldUserClass);
                     if (oldUserNameClass) draggedElement.classList.remove(oldUserNameClass);
 
-                    draggedElement.classList.add(idNewExecutor);
+                    const img = draggedElement.querySelector('.card__photo');
+                    if (img) {
+                        img.src = '';
+                        img.alt = '';
+                    }
+
+                    if (taskData) {
+                        taskData.user = '';
+                        taskData.user_name = '';
+                        taskData.card__photo = '';
+                        taskData.alt = '';
+                    }
+                } else if (idNewExecutorAttr) {
+                    params.idNewExecutor = idNewExecutorAttr;
+
+                    const cl = Array.from(draggedElement.classList);
+                    const oldUserClass = cl.find(c => c.startsWith('user') && !c.startsWith('user_name'));
+                    const oldUserNameClass = cl.find(c => c.startsWith('user_name'));
+
+                    if (oldUserClass) draggedElement.classList.remove(oldUserClass);
+                    if (oldUserNameClass) draggedElement.classList.remove(oldUserNameClass);
+
+                    draggedElement.classList.add(idNewExecutorAttr);
                     const newUserNameClass = 'user_name' + newExecutorName.replace(/ /g, '_');
                     draggedElement.classList.add(newUserNameClass);
 
                     if (taskData) {
-                        taskData.user = idNewExecutor;
+                        taskData.user = idNewExecutorAttr;
                         taskData.user_name = newUserNameClass;
                     }
                 }
@@ -845,12 +872,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const collectExecutors = () => {
             const map = new Map();
             document.querySelectorAll('.card').forEach(card => {
-                const cl = card.className.split(' ');
-                let userId = null, userName = null;
-                for (const cls of cl) {
-                    if (cls.startsWith('user')) userId = cls;
-                    if (cls.startsWith('user_name')) userName = cls.substring('user_name'.length);
-                }
+                const userId = getCardExecutorUserClass(card);
+                const userNameClass = Array.from(card.classList).find(cls => cls.startsWith('user_name'));
+                const userName = userNameClass ? userNameClass.substring('user_name'.length) : null;
                 if (userId && userName && !map.has(userId)) {
                     const photo = card.querySelector('.card__photo');
                     map.set(userId, { name: userName, photo: photo ? photo.src : null });
@@ -861,6 +885,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const populateMenu = () => {
             menu.innerHTML = '';
+
+            const noneOpt = document.createElement('div');
+            noneOpt.className = 'executor_option executor_option_neutral';
+            noneOpt.setAttribute('data-value', EXECUTOR_FILTER_NONE);
+            const nonePhoto = document.createElement('span');
+            nonePhoto.className = 'kanban-neutral-slot';
+            nonePhoto.setAttribute('aria-hidden', 'true');
+            noneOpt.appendChild(nonePhoto);
+            const noneSpan = document.createElement('span');
+            noneSpan.className = 'executor_option_text';
+            noneSpan.textContent = 'Без исполнителя';
+            noneOpt.appendChild(noneSpan);
+            if (selectedExecutorsSet.has(EXECUTOR_FILTER_NONE)) noneOpt.classList.add('selected');
+            menu.appendChild(noneOpt);
+
             collectExecutors().forEach((data, userId) => {
                 const option = document.createElement('div');
                 option.className = 'executor_option';
@@ -873,6 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     option.appendChild(img);
                 }
                 const nameSpan = document.createElement('span');
+                nameSpan.className = 'executor_option_text';
                 nameSpan.textContent = data.name.replace(/_/g, ' ');
                 option.appendChild(nameSpan);
                 if (selectedExecutorsSet.has(userId)) option.classList.add('selected');
@@ -886,7 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (selectedExecutorsSet.size === 1) {
                 const val = Array.from(selectedExecutorsSet)[0];
                 const opt = menu.querySelector('[data-value="' + val + '"]');
-                const ns = opt ? opt.querySelector('span') : null;
+                const ns = opt ? opt.querySelector('.executor_option_text') : null;
                 label.textContent = ns ? ns.textContent : 'Исполнитель';
             } else {
                 label.textContent = 'Исполнитель (' + selectedExecutorsSet.size + ')';
@@ -906,7 +946,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.classList.remove('card__inactive');
                 } else {
                     let show = false;
-                    selectedExecutorsSet.forEach(id => { if (card.classList.contains(id)) show = true; });
+                    const executorClass = getCardExecutorUserClass(card);
+                    const unassigned = !executorClass;
+                    selectedExecutorsSet.forEach(id => {
+                        if (id === EXECUTOR_FILTER_NONE) {
+                            if (unassigned) show = true;
+                        } else if (executorClass && card.classList.contains(id)) {
+                            show = true;
+                        }
+                    });
                     card.classList.toggle('card__inactive', !show);
                 }
 
@@ -1151,8 +1199,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const kanbanBoard = document.getElementById('kanban-board');
 
         const executors = new Map();
+        const unassignedTasks = [];
+
         tasksData.forEach((data) => {
-            if (!data.user) return;
+            if (!data.user) {
+                unassignedTasks.push(data);
+                return;
+            }
             const visibleName = data.user_name
                 ? data.user_name.replace('user_name', '').replace(/_/g, ' ')
                 : data.user;
@@ -1165,13 +1218,19 @@ document.addEventListener('DOMContentLoaded', () => {
         kanbanBoard.innerHTML = '';
         kanbanBoard.classList.add('grouped');
 
-        executors.forEach((exec, visibleName) => {
+        const appendExecutorGroup = (userId, visibleName, photo, tasksList) => {
             const group = document.createElement('div');
             group.className = 'group';
-            group.setAttribute('data-executor-id', exec.userId);
+            group.setAttribute('data-executor-id', userId);
             group.setAttribute('data-executor-name', visibleName);
 
-            const photoHtml = exec.photo ? '<img class="group-photo" src="' + exec.photo + '" alt="' + visibleName + '">' : '';
+            let photoHtml = '';
+            if (userId === EXECUTOR_FILTER_NONE) {
+                photoHtml = '<span class="group-photo group-photo_placeholder" aria-hidden="true"></span>';
+            } else if (photo) {
+                photoHtml = '<img class="group-photo" src="' + photo + '" alt="' + visibleName + '">';
+            }
+
             group.innerHTML =
                 '<div class="group-header">' +
                     '<div class="group-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>' +
@@ -1180,8 +1239,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     '<span class="group-count">0</span>' +
                 '</div><div class="group-content"></div>';
 
-            buildGroupBlocks(group.querySelector('.group-content'), exec.tasks);
+            buildGroupBlocks(group.querySelector('.group-content'), tasksList);
             kanbanBoard.appendChild(group);
+        };
+
+        if (unassignedTasks.length > 0) {
+            appendExecutorGroup(EXECUTOR_FILTER_NONE, 'Без исполнителя', null, unassignedTasks);
+        }
+
+        executors.forEach((exec, visibleName) => {
+            appendExecutorGroup(exec.userId, visibleName, exec.photo, exec.tasks);
         });
 
         initGroupCollapse();
@@ -1499,8 +1566,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (photo) {
             const card = photo.closest('.card');
             if (card) {
-                let userId = null;
-                for (const cls of card.className.split(' ')) { if (cls.startsWith('user')) userId = cls; }
+                const userId = getCardExecutorUserClass(card);
                 if (userId && executorCtrl) { e.preventDefault(); e.stopPropagation(); executorCtrl.filterByExecutor(userId); return; }
             }
         }

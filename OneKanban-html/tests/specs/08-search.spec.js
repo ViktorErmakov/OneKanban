@@ -14,7 +14,7 @@ test.describe('Поиск', () => {
 
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
         expect(count).toBeGreaterThan(0);
     });
 
@@ -56,7 +56,7 @@ test.describe('Поиск', () => {
         await page.waitForTimeout(200);
 
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(18);
+        await expect(cards).toHaveCount(20);
     });
 
     test('крестик очистки появляется при вводе', async ({ page }) => {
@@ -78,7 +78,7 @@ test.describe('Поиск', () => {
 
         await expect(page.locator('#search_input')).toHaveValue('');
         const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(18);
+        await expect(cards).toHaveCount(20);
     });
 
     test('поиск "задача" находит все задачи с этим словом', async ({ page }) => {
@@ -88,7 +88,7 @@ test.describe('Поиск', () => {
 
         const cards = await getVisibleCards(page);
         const count = await cards.count();
-        expect(count).toBe(12);
+        expect(count).toBe(14);
     });
 
     test('поиск работает с группировкой по исполнителю', async ({ page }) => {
@@ -103,7 +103,7 @@ test.describe('Поиск', () => {
 
         const visibleCards = await getVisibleCards(page);
         const count = await visibleCards.count();
-        expect(count).toBeLessThan(18);
+        expect(count).toBeLessThan(20);
     });
 
     test('поиск через sendResponse', async ({ page }) => {

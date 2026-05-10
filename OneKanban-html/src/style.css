@@ -989,6 +989,19 @@ label {
     font-size: 1.2rem;
 }
 
+/* Плейсхолдер слева у пункта «Без исполнителя» (под размер фото в том же меню) */
+.kanban-neutral-slot {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 2rem;
+    height: 2.3rem;
+    border-radius: 0.3rem;
+    margin-right: 0.6rem;
+    flex-shrink: 0;
+    border: 1px dashed var(--border-color);
+    background-color: var(--bg-tertiary);
+}
+
 /* ========== EXECUTOR FILTER ========== */
 .executor_dropdown {
     position: relative;
@@ -1690,6 +1703,13 @@ label {
     border-radius: 0.3rem;
     object-fit: cover;
     transition: background-color 0.3s ease;
+}
+
+span.group-photo.group-photo_placeholder {
+    display: inline-block;
+    box-sizing: border-box;
+    border-style: dashed;
+    background-color: var(--bg-tertiary);
 }
 
 .group-project-color {
