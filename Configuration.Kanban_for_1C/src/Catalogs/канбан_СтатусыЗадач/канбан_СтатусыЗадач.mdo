@@ -77,6 +77,7 @@
   </predefined>
   <editType>InDialog</editType>
   <choiceMode>BothWays</choiceMode>
+  <defaultObjectForm>Catalog.канбан_СтатусыЗадач.Form.ФормаЭлемента</defaultObjectForm>
   <attributes uuid="7fb7aeba-2746-4b98-ba21-8f6b358f98b6">
     <name>НаименованиеДляКанбанДоски</name>
     <synonym>
@@ -95,4 +96,13 @@
     <fullTextSearch>Use</fullTextSearch>
     <dataHistory>Use</dataHistory>
   </attributes>
+  <forms uuid="20b75af8-2a53-4e02-8bc3-0de5778722d7">
+    <name>ФормаЭлемента</name>
+    <synonym>
+      <key>ru</key>
+      <value>Форма элемента</value>
+    </synonym>
+    <usePurposes>PersonalComputer</usePurposes>
+    <usePurposes>MobileDevice</usePurposes>
+  </forms>
 </mdclass:Catalog>
