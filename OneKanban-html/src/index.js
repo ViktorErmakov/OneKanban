@@ -166,6 +166,11 @@ let selectedCardTypesSet = new Set();      // Выбранные типы кар
 let projectsList = [];                     // Список проектов из 1С: [{ id, name, color, checked }]
 let draggingCardProjectId = null;          // ID проекта перетаскиваемой карточки (для запрета переноса между проектами)
 
+/** Вызывается после изменения задач: скрытие фильтров «Тип»/«Исполнитель», пересчёт отступа доски. */
+let syncToolbarFiltersVisibilityFn = () => {};
+/** Отступ #kanban-board под фиксированный sticky_blok (после смены видимости фильтров). */
+let syncKanbanBoardTopPaddingFn = () => {};
+
 // ============================================================
 // СЕКЦИЯ 3: ЧИСТЫЕ ФУНКЦИИ
 // Не зависят от DOM-замыканий, можно вызывать в любой момент.
@@ -585,7 +590,7 @@ const collectCardsData = () => {
         tasksData.set(card.id, {
             idTask: card.id,
             project: classList.find(c => c.startsWith('project')) || '',
-            user: classList.find(c => c.startsWith('user')) || '',
+            user: classList.find(c => c.startsWith('user') && !c.startsWith('user_name')) || '',
             user_name: classList.find(c => c.startsWith('user_name')) || '',
             urgencyId,
             isBug,
@@ -733,6 +738,7 @@ const setupDragDropForGroups = () => {
 
             RecalculateKanbanBlock();
             window.V8Proxy.fetch('changeStatus', params);
+            syncToolbarFiltersVisibilityFn();
         });
     });
 
@@ -902,7 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const allSelected = projectsList.every(p => p.checked);
                 const selectAllItem = document.createElement('div');
                 selectAllItem.className = 'project_grid_item project_grid_item_all' + (allSelected ? ' selected' : '');
-                selectAllItem.textContent = 'Выбрать все';
+                selectAllItem.textContent = allSelected ? 'Снять все' : 'Выбрать все';
                 selectAllItem.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const shouldSelect = !projectsList.every(p => p.checked);
@@ -1098,6 +1104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return {
             applyFilter,
             populateMenu,
+            syncChrome: () => { populateMenu(); updateLabel(); updateHasSelected(); },
             filterByExecutor: (userId) => {
                 if (selectedExecutorsSet.size === 1 && selectedExecutorsSet.has(userId)) selectedExecutorsSet.clear();
                 else { selectedExecutorsSet.clear(); selectedExecutorsSet.add(userId); }
@@ -1300,6 +1307,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ids.forEach(id => selectedCardTypesSet.add(id));
                 populateMenu(); updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
             },
+            syncChrome: () => { populateMenu(); updateLabel(); updateHasSelected(); },
         };
     };
 
@@ -1373,6 +1381,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         initGroupCollapse();
         setupDragDropForGroups();
+        syncKanbanBoardTopPaddingFn();
     };
 
     // Группировка по проектам: пересоздаёт доску, разбивая карточки по project
@@ -1413,6 +1422,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         initGroupCollapse();
         setupDragDropForGroups();
+        syncKanbanBoardTopPaddingFn();
     };
 
     // Снятие группировки: восстанавливает исходную структуру колонок из statusBlocksData
@@ -1442,6 +1452,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setupDragDrop();
         setupCardDrag();
+        syncKanbanBoardTopPaddingFn();
     };
 
     // Управление группировкой: выпадающий список «Нет / Исполнитель / Проект».
@@ -1474,6 +1485,7 @@ document.addEventListener('DOMContentLoaded', () => {
             executorCtrl.applyFilter();
             searchCtrl.applyCurrent();
             RecalculateKanbanBlock();
+            syncKanbanBoardTopPaddingFn();
         };
 
         document.querySelectorAll('.grouping_option').forEach(option => {
@@ -1847,6 +1859,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupingCtrl = initGrouping();
     const searchCtrl = initSearch();
 
+    const syncKanbanBoardTopPadding = () => {
+        const sticky = document.getElementById('sticky_blok');
+        const board = document.getElementById('kanban-board');
+        if (!sticky || !board) return;
+        board.style.paddingTop = Math.ceil(sticky.getBoundingClientRect().height) + 'px';
+    };
+
+    const syncToolbarFiltersVisibility = () => {
+        const cardTypeDropdown = document.querySelector('.cardtype_dropdown');
+        const executorDropdown = document.querySelector('.executor_dropdown');
+        if (!cardTypeDropdown || !executorDropdown) return;
+
+        const taskCount = tasksData.size;
+        const types = new Set();
+        const executors = new Set();
+        tasksData.forEach((td) => {
+            types.add(td.isBug ? 'bug' : 'task');
+            const uid = td.user && String(td.user).trim() !== '' ? String(td.user) : null;
+            executors.add(uid || EXECUTOR_FILTER_NONE);
+        });
+
+        const showCardType = taskCount === 0 || types.size > 1;
+        const showExecutor = taskCount === 0 || executors.size > 1;
+
+        if (!showCardType) {
+            selectedCardTypesSet.clear();
+            cardTypeDropdown.classList.add('filter_dropdown_hidden');
+            cardTypeDropdown.classList.remove('open', 'has-selected');
+        } else {
+            cardTypeDropdown.classList.remove('filter_dropdown_hidden');
+        }
+
+        if (!showExecutor) {
+            selectedExecutorsSet.clear();
+            executorDropdown.classList.add('filter_dropdown_hidden');
+            executorDropdown.classList.remove('open', 'has-selected');
+        } else {
+            executorDropdown.classList.remove('filter_dropdown_hidden');
+        }
+
+        if (cardTypeCtrl) cardTypeCtrl.syncChrome();
+        if (executorCtrl) executorCtrl.syncChrome();
+        if (executorCtrl) executorCtrl.applyFilter();
+        syncKanbanBoardTopPadding();
+    };
+
+    syncKanbanBoardTopPaddingFn = syncKanbanBoardTopPadding;
+    syncToolbarFiltersVisibilityFn = syncToolbarFiltersVisibility;
+
     initGroupCollapse();
     setupDragDrop();
     setupCardDrag();
@@ -1863,7 +1924,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = photo.closest('.card');
             if (card) {
                 const userId = getCardExecutorUserClass(card);
-                if (userId && executorCtrl) { e.preventDefault(); e.stopPropagation(); executorCtrl.filterByExecutor(userId); return; }
+                const executorDropdownEl = document.querySelector('.executor_dropdown');
+                if (userId && executorCtrl && executorDropdownEl
+                    && !executorDropdownEl.classList.contains('filter_dropdown_hidden')) {
+                    e.preventDefault(); e.stopPropagation(); executorCtrl.filterByExecutor(userId); return;
+                }
             }
         }
 
@@ -1899,7 +1964,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => RecalculateKanbanBlock(), 150);
+        resizeTimer = setTimeout(() => {
+            syncKanbanBoardTopPaddingFn();
+            RecalculateKanbanBlock();
+        }, 150);
     });
 
     // ============================================================
@@ -1977,6 +2045,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             applyBoardSettings(data);
+            syncToolbarFiltersVisibilityFn();
         },
 
         reinitKanban: () => {
@@ -1985,6 +2054,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (urgencyCtrl) urgencyCtrl.populateMenu();
             initGroupCollapse();
             RecalculateKanbanBlock();
+            syncToolbarFiltersVisibilityFn();
         },
     };
 
@@ -1995,5 +2065,6 @@ document.addEventListener('DOMContentLoaded', () => {
         catch (e) { console.error('board-settings: Failed to parse JSON:', e); }
     }
 
+    syncToolbarFiltersVisibilityFn();
     RecalculateKanbanBlock();
 });

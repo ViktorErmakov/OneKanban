@@ -1,0 +1,57 @@
+{
+  "projects": [
+    { "id": "projectb49a3cc6-3026-11f0-952c-107b4419808b", "name": "Первый проект", "color": "rgb(208, 32, 144)" }
+  ],
+  "settings": {
+    "theme": "light",
+    "grouping": "",
+    "executorfilter": [],
+    "projectfilter": ["projectb49a3cc6-3026-11f0-952c-107b4419808b"],
+    "urgencyfilter": [],
+    "cardtypefilter": [],
+    "currentuserid": "074f17ec-ce19-11f0-9551-107b4419808b",
+    "currentusername": "Ермаков Виктор",
+    "urgencylevels": [
+      { "id": "ВПлановомПорядке", "name": "В плановом порядке" }
+    ],
+    "urgencysettings": {
+      "ВПлановомПорядке": { "iconId": "flag", "colorId": "green" }
+    }
+  },
+  "statuses": [
+    { "id": "a1ca3366-c296-11ee-93e4-107b4419808b", "name": "Зарегистрирована", "fullName": "Справочник.канбан_СтатусыЗадач", "hasAddButton": true },
+    { "id": "a1ca3363-c296-11ee-93e4-107b4419808b", "name": "В работе", "fullName": "Справочник.канбан_СтатусыЗадач" }
+  ],
+  "tasks": [
+    {
+      "idTask": "task-single-1",
+      "status": "a1ca3366-c296-11ee-93e4-107b4419808b",
+      "project": "projectb49a3cc6-3026-11f0-952c-107b4419808b",
+      "user": "user074f17ec-ce19-11f0-9551-107b4419808b",
+      "user_name": "user_nameЕрмаков_Виктор",
+      "urgencyId": "ВПлановомПорядке",
+      "isBug": false,
+      "fullnameobjecttask": "Справочник.канбан_Задачи",
+      "card__link_href": "#t1",
+      "card__link_name": "Задача А",
+      "card__photo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40'%3E%3Crect fill='%234a90d9' width='35' height='40'/%3E%3C/svg%3E",
+      "alt": "Ермаков Виктор",
+      "card__text": "Только задачи, один исполнитель"
+    },
+    {
+      "idTask": "task-single-2",
+      "status": "a1ca3366-c296-11ee-93e4-107b4419808b",
+      "project": "projectb49a3cc6-3026-11f0-952c-107b4419808b",
+      "user": "user074f17ec-ce19-11f0-9551-107b4419808b",
+      "user_name": "user_nameЕрмаков_Виктор",
+      "urgencyId": "",
+      "isBug": false,
+      "fullnameobjecttask": "Справочник.канбан_Задачи",
+      "card__link_href": "#t2",
+      "card__link_name": "Задача Б",
+      "card__photo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='35' height='40'%3E%3Crect fill='%234a90d9' width='35' height='40'/%3E%3C/svg%3E",
+      "alt": "Ермаков Виктор",
+      "card__text": "Вторая"
+    }
+  ]
+}

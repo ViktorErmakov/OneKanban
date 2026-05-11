@@ -202,26 +202,40 @@ body {
     /* Плавный переход */
 }
 
-/* Тёмная тема — project_pill и project_grid_item с заданным цветом проекта */
-.wrapper.dark-theme .project_pill[style*="--project-color"],
-.wrapper.dark-theme .project_grid_item[style*="--project-color"] {
+/* Тёмная тема — pill проекта в шапке с цветом (сетка фильтра — отдельные правила ниже) */
+.wrapper.dark-theme .project_pill[style*="--project-color"] {
     background-color: var(--project-color);
     border-color: transparent;
     color: var(--text-primary);
 }
 
-.wrapper.dark-theme .project_pill[style*="--project-color"]:hover,
-.wrapper.dark-theme .project_grid_item[style*="--project-color"]:hover {
+.wrapper.dark-theme .project_pill[style*="--project-color"]:hover {
     filter: brightness(0.85);
 }
 
-/* Тёмная тема — выбранный проект с цветом: затемнение */
+/* Тёмная тема — project_grid_item: фон темы, бордер цвета проекта; выбор — только галочка */
+.wrapper.dark-theme .project_grid_item[style*="--project-color"] {
+    background-color: var(--command-bg);
+    border: 2px solid var(--project-color);
+    color: var(--text-primary);
+    filter: none;
+}
+
+.wrapper.dark-theme .project_grid_item[style*="--project-color"]:hover {
+    background-color: var(--bg-tertiary);
+    filter: none;
+}
+
 .wrapper.dark-theme .project_grid_item.selected[style*="--project-color"] {
-    filter: brightness(0.75);
+    background-color: var(--command-bg);
+    color: var(--text-primary);
+    border-color: var(--project-color);
+    filter: none;
 }
 
 .wrapper.dark-theme .project_grid_item.selected[style*="--project-color"]:hover {
-    filter: brightness(0.85);
+    background-color: var(--bg-tertiary);
+    filter: none;
 }
 
 /* Тёмная тема — project_pill и project_grid_item БЕЗ цвета (стили как у grouping_toggle) */
@@ -238,20 +252,22 @@ body {
     border-color: var(--border-color);
 }
 
-/* Тёмная тема — выбранный проект без цвета: активный фон */
+/* Тёмная тема — выбранный проект без цвета в CSS-переменной: тот же фон, бордер как у невыбранного */
 .wrapper.dark-theme .project_grid_item.selected:not([style*="--project-color"]) {
-    background-color: var(--button-active-bg);
-    color: #e0e0e0;
-    border-color: var(--button-active-bg);
+    background-color: var(--command-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
 }
 
 .wrapper.dark-theme .project_grid_item.selected:not([style*="--project-color"]):hover {
-    filter: brightness(1.1);
+    background-color: var(--bg-tertiary);
+    filter: none;
 }
 
-/* Светлая тема — выбранный проект без цвета: затемнение фона */
+/* Светлая тема — выбранный пункт без отдельной «заливки», только галочка */
 .project_grid_item.selected:not([style*="--project-color"]) {
-    filter: brightness(0.85);
+    background-color: var(--command-bg);
+    filter: none;
 }
 
 /* Цветная точка проекта в карточке */
@@ -326,8 +342,8 @@ body {
     align-items: center;
     padding: 0.3rem 0.7rem;
     margin: 0.15rem;
-    background-color: var(--project-color, var(--button-bg));
-    border: 1px solid var(--border-color);
+    background-color: var(--command-bg);
+    border: 2px solid var(--project-color, var(--border-color));
     border-radius: 1.6rem;
     font-size: 1.4rem;
     color: var(--text-primary);
@@ -337,11 +353,6 @@ body {
     transition: opacity 0.2s ease, filter 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
     -webkit-user-select: none;
     user-select: none;
-}
-
-/* Светлая тема: проекты с цветом — прозрачная граница */
-.project_pill[style*="--project-color"] {
-    border-color: transparent;
 }
 
 /* Кнопка × */
@@ -359,7 +370,8 @@ body {
 
 /* Светлая тема: hover для проектов с цветом */
 .project_pill[style*="--project-color"]:hover {
-    filter: brightness(0.9);
+    background-color: var(--bg-tertiary);
+    filter: none;
 }
 
 /* Светлая тема: hover для проектов без цвета */
@@ -442,33 +454,34 @@ body {
     flex-wrap: wrap;
 }
 
-/* Элемент в сетке — заливка цветом проекта */
+/* Элемент сетки: фон темы, цвет проекта в бордере; выбор — только галочка */
 .project_grid_item {
     display: flex;
     align-items: center;
     padding: 0.5rem 2.5rem 0.5rem 1rem;
     margin: 0.3rem;
-    background-color: var(--project-color, var(--button-bg));
-    border: 1px solid transparent;
+    background-color: var(--command-bg);
+    border: 2px solid var(--project-color, var(--border-color));
     border-radius: 1.6rem;
     font-size: 1.5rem;
     color: var(--text-primary);
     cursor: pointer;
     position: relative;
-    transition: filter 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
     -webkit-user-select: none;
     user-select: none;
 }
 
 .project_grid_item:hover {
-    filter: brightness(0.92);
+    background-color: var(--bg-tertiary);
 }
 
-/* Выбранный проект в сетке — без изменения цвета */
-/* .project_grid_item.selected — наследует цвет */
+.project_grid_item.selected {
+    background-color: var(--command-bg);
+}
 
 .project_grid_item.selected:hover {
-    filter: brightness(0.95);
+    background-color: var(--bg-tertiary);
 }
 
 /* Галочка для выбранного проекта */
@@ -477,6 +490,7 @@ body {
     position: absolute;
     right: 0.8rem;
     font-size: 1.2rem;
+    opacity: 0.9;
 }
 
 /* Разделитель перед «Выбрать все» */
@@ -971,14 +985,14 @@ label {
 
 /* Светлая тема — активная опция как у my_tasks_active */
 .grouping_option.active {
-    filter: brightness(0.85);
-    background-color: var(--button-bg);
+    filter: none;
+    background-color: transparent;
 }
 
 /* Тёмная тема — активная опция как у my_tasks_active */
 .wrapper.dark-theme .grouping_option.active {
-    background-color: var(--button-active-bg);
-    color: #e0e0e0;
+    background-color: transparent;
+    color: var(--text-primary);
     filter: none;
 }
 
@@ -1099,6 +1113,10 @@ label {
     transform: translateY(0);
 }
 
+.filter_dropdown_hidden {
+    display: none !important;
+}
+
 .executor_option {
     padding: 0.6rem 2.5rem 0.6rem 1.2rem;
     cursor: pointer;
@@ -1127,23 +1145,24 @@ label {
 
 /* Светлая тема — выбранный исполнитель */
 .executor_option.selected {
-    filter: brightness(0.85);
-    background-color: var(--button-bg);
+    background-color: transparent;
+    filter: none;
 }
 
 /* Тёмная тема — выбранный исполнитель */
 .wrapper.dark-theme .executor_option.selected {
-    background-color: var(--button-active-bg);
-    color: #e0e0e0;
+    background-color: transparent;
+    color: var(--text-primary);
     filter: none;
 }
 
-/* галочка для выбранного исполнителя */
+/* галочка для выбранного исполнителя (фон остаётся) */
 .executor_option.selected::after {
     content: "✓";
     position: absolute;
     right: 1rem;
     font-size: 1.2rem;
+    opacity: 0.85;
 }
 
 /* ========== URGENCY FILTER ========== */
@@ -1276,6 +1295,8 @@ label {
 .urgency_option_label {
     flex: 1;
     min-width: 0;
+    display: inline-flex;
+    align-items: center;
 }
 
 .urgency_option_settings {
@@ -1308,11 +1329,24 @@ label {
     background-color: var(--bg-tertiary);
 }
 
-.urgency_option.selected::after {
+.urgency_option.selected {
+    background-color: transparent;
+    filter: none;
+}
+
+.wrapper.dark-theme .urgency_option.selected {
+    background-color: transparent;
+    color: var(--text-primary);
+    filter: none;
+}
+
+/* Галочка сразу перед кнопкой настроек (конец подписи уровня) */
+.urgency_option.selected .urgency_option_label::after {
     content: "✓";
-    position: absolute;
-    right: 1rem;
+    margin-left: 0.5rem;
     font-size: 1.2rem;
+    opacity: 0.85;
+    flex-shrink: 0;
 }
 
 /* ========== CARD TYPE FILTER (Тип: Задача / Ошибка) ========== */
@@ -1406,11 +1440,23 @@ label {
     background-color: var(--bg-tertiary);
 }
 
+.cardtype_option.selected {
+    background-color: transparent;
+    filter: none;
+}
+
+.wrapper.dark-theme .cardtype_option.selected {
+    background-color: transparent;
+    color: var(--text-primary);
+    filter: none;
+}
+
 .cardtype_option.selected::after {
     content: "✓";
     position: absolute;
     right: 1rem;
     font-size: 1.2rem;
+    opacity: 0.85;
 }
 
 /* ========== SETTINGS MODAL (срочность) ========== */
@@ -1768,9 +1814,11 @@ label {
     width: 100%;
 }
 
-/* Первая группа - отступ сверху для sticky заголовка */
+/* Отступ сверху уточняется из JS по высоте sticky_blok (fallback до загрузки скрипта) */
 #kanban-board.grouped {
-    padding-top: 12.8rem;
+    display: flex;
+    flex-direction: column;
+    padding-top: 11.8rem;
 }
 
 .group:first-child {
@@ -1788,6 +1836,11 @@ label {
     user-select: none;
     transition: background-color 0.2s ease;
     margin-top: 0.5rem;
+}
+
+/* Как между группами: у первой группы нет лишнего margin сверху у заголовка */
+.group:first-child .group-header {
+    margin-top: 0;
 }
 
 .group-header > * {
@@ -1894,12 +1947,6 @@ span.group-photo.group-photo_placeholder {
 #kanban-board:not(.grouped) .kanban-block {
     margin-top: 0;
     min-height: calc(100vh - 11.8rem);
-}
-
-/* Режим с группировкой */
-#kanban-board.grouped {
-    display: flex;
-    flex-direction: column;
 }
 
 @media only screen and (max-width: 1450px) {
