@@ -180,8 +180,7 @@ test.describe('Комбинированные сценарии', () => {
         await page.locator('.grouping_option[data-value="project"]').click();
         await page.waitForTimeout(300);
 
-        await page.click('#grouping_toggle');
-        await page.locator('.grouping_option[data-value="none"]').click();
+        await page.locator('#grouping_clear').click();
         await page.waitForTimeout(300);
 
         const cards = await getVisibleCards(page);

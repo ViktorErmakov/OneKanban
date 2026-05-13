@@ -14,14 +14,13 @@ test.describe('Группировка', () => {
         await expect(page.locator('.grouping_dropdown')).toHaveClass(/open/);
     });
 
-    test('меню содержит 3 опции', async ({ page }) => {
+    test('меню содержит две опции группировки', async ({ page }) => {
         await openBoard(page, 'four-projects');
         await page.click('#grouping_toggle');
         const options = page.locator('.grouping_option');
-        await expect(options).toHaveCount(3);
-        await expect(options.nth(0)).toHaveText('Без группировки');
-        await expect(options.nth(1)).toHaveText('По исполнителю');
-        await expect(options.nth(2)).toHaveText('По проектам');
+        await expect(options).toHaveCount(2);
+        await expect(options.nth(0)).toHaveText('По исполнителю');
+        await expect(options.nth(1)).toHaveText('По проектам');
     });
 
     test('группировка по исполнителю создаёт группы', async ({ page }) => {
@@ -107,8 +106,7 @@ test.describe('Группировка', () => {
         await page.waitForTimeout(300);
         await expect(page.locator('#kanban-board')).toHaveClass(/grouped/);
 
-        await page.click('#grouping_toggle');
-        await page.locator('.grouping_option[data-value="none"]').click();
+        await page.locator('#grouping_clear').click();
         await page.waitForTimeout(300);
         await expect(page.locator('#kanban-board')).not.toHaveClass(/grouped/);
 

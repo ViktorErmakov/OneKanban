@@ -1,2 +1,6 @@
 # Dependencies
 /Releases
+
+# YAXUnit HTML snapshots (npm run yaxunit:apply-snapshots из OneKanban-html)
+# projectPath = корень репозитория Kanban_for_1C
+yaxunit-html-snapshots/test_templates/

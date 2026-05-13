@@ -22,6 +22,10 @@ OneKanban - это расширение конфигурации с открыт
 
 [Попробовать демо доску](/OneKanban/demo)
 
+## Разработка и сборка
+
+Инструкция по сборке фронта (**`OneKanban-html`**), Playwright и обновлению эталонов YAXUnit: **[Сборка OneKanban-html](./Разработка/Сборка-OneKanban-html)**.
+
 [Статья на Инфостарт](https://infostart.ru/1c/tools/2398094/)
 
 [Блог проекта](../blog/welcome)

@@ -90,6 +90,15 @@ test.describe('Фильтр по проектам', () => {
         await expect(more).toHaveText('+1');
     });
 
+    test('лимит видимых проектов в панели (1–5) меняет пилюли и +N', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+        await page.click('#project_picker_toggle');
+        await page.locator('.project_picker_count_btn[data-count="2"]').click();
+        await page.waitForTimeout(150);
+        await expect(page.locator('.project_pill')).toHaveCount(2);
+        await expect(page.locator('#project_picker_more')).toHaveText('+2');
+    });
+
     test('плейсхолдер отображается когда нет выбранных проектов', async ({ page }) => {
         await openBoard(page, 'four-projects');
 

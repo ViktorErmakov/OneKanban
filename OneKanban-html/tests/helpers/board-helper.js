@@ -40,6 +40,7 @@ async function openBoard(page, fixtureName, options = {}) {
     const settingsPayload = { ...fixture.settings };
     if (options.theme) settingsPayload.theme = options.theme;
     if (options.grouping) settingsPayload.grouping = options.grouping;
+    if (options.maxvisibleprojects !== undefined) settingsPayload.maxvisibleprojects = options.maxvisibleprojects;
     const settingsJson = JSON.stringify(settingsPayload);
 
     htmlContent = htmlContent.replace(
@@ -65,6 +66,7 @@ async function openBoard(page, fixtureName, options = {}) {
     const payload = buildSendResponsePayload(fixture);
     if (options.theme) payload.theme = options.theme;
     if (options.grouping) payload.grouping = options.grouping;
+    if (options.maxvisibleprojects !== undefined) payload.maxvisibleprojects = options.maxvisibleprojects;
 
     await page.evaluate((data) => {
         window.V8Proxy.sendResponse('init', data);

@@ -34,6 +34,10 @@
                             <div class="project_picker_grid" id="project_picker_grid">
                                 <!-- Динамически заполняется из JS -->
                             </div>
+                            <div class="project_picker_count_row" id="project_picker_count_row">
+                                <span class="project_picker_count_label">Показать в панели</span>
+                                <div class="project_picker_count_btns" id="project_picker_count_btns"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -43,8 +47,8 @@
                     <script type="application/json" id="projects-data">[]</script>
 
                     <!-- Начальные настройки доски (1С генерирует при построении страницы).
-                         Формат: {"theme":"light"|"dark","grouping":"none"|"executor"|"project","executorfilter":[],"projectfilter":[],"search":"текст"}
-                         executorfilter: строки классов исполнителей (user…) и при необходимости "__no_executor__" — только задачи без исполнителя. -->
+                         Пример: theme, grouping none|executor|project, maxvisibleprojects 1–5, executorfilter, projectfilter, search, …
+                         executorfilter: классы user… и при необходимости "__no_executor__" — только задачи без исполнителя. -->
                     <script type="application/json" id="board-settings">{}</script>
 
                     <!-- ========== EXECUTOR FILTER ========== -->
@@ -92,12 +96,12 @@
                     <div class="grouping_dropdown">
                         <button id="grouping_toggle" class="grouping_toggle">
                             <span id="grouping_label">Без группировки</span>
+                            <span class="grouping_clear" id="grouping_clear">×</span>
                             <svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">
                                 <polyline points="6 9 12 15 18 9"/>
                             </svg>
                         </button>
                         <div id="grouping_menu" class="grouping_menu">
-                            <div class="grouping_option active" data-value="none">Без группировки</div>
                             <div class="grouping_option" data-value="executor">По исполнителю</div>
                             <div class="grouping_option" data-value="project">По проектам</div>
                         </div>

@@ -1,0 +1,8 @@
+{
+  "label": "Разработка",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Сборка фронта, тесты и обновление эталонов HTML."
+  }
+}

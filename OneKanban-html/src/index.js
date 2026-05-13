@@ -11,6 +11,15 @@ const boardSettings = {
     currentUserName: null,
     urgencyLevels: [],
     urgencySettings: {},
+    /** Сколько выбранных проектов показывать «пилюлями» в панели (1–5), хранится в настройках 1С */
+    maxVisibleProjects: 3,
+};
+
+/** Нормализация лимита видимых проектов из настроек доски */
+const clampMaxVisibleProjects = (raw) => {
+    const n = parseInt(String(raw === undefined || raw === null ? 3 : raw), 10);
+    if (Number.isNaN(n)) return 3;
+    return Math.min(5, Math.max(1, n));
 };
 
 window.boardSettings = boardSettings;
@@ -134,8 +143,6 @@ const normalizeUrgencySettingsFromDraft = (draft) => {
     });
     return out;
 };
-const MAX_VISIBLE_PROJECTS = 3;
-
 // Значение фильтра «исполнитель не назначен» в executorfilter (не пересекается с классами user… из 1С)
 const EXECUTOR_FILTER_NONE = '__no_executor__';
 
@@ -162,7 +169,8 @@ let currentGroupingType = 'none';          // Текущая группиров�
 let statusBlocksData = null;               // Снимок структуры статусов (колонок) при первой группировке
 let selectedExecutorsSet = new Set();      // Выбранные исполнители в фильтре
 let selectedUrgenciesSet = new Set();      // Выбранные уровни срочности в фильтре
-let selectedCardTypesSet = new Set();      // Выбранные типы карточек (задача/ошибка) в фильтре
+/** Один выбранный тип карточки: null — без фильтра, «task» или «bug» (взаимоисключающе) */
+let selectedCardType = null;
 let projectsList = [];                     // Список проектов из 1С: [{ id, name, color, checked }]
 let draggingCardProjectId = null;          // ID проекта перетаскиваемой карточки (для запрета переноса между проектами)
 
@@ -839,8 +847,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedContainer = document.getElementById('project_picker_selected');
         const grid = document.getElementById('project_picker_grid');
         const moreCounter = document.getElementById('project_picker_more');
+        const countBtnsWrap = document.getElementById('project_picker_count_btns');
 
         if (!picker || !toggle) return null;
+
+        const updateCountButtonsHighlight = () => {
+            if (!countBtnsWrap) return;
+            const lim = boardSettings.maxVisibleProjects;
+            countBtnsWrap.querySelectorAll('.project_picker_count_btn').forEach(btn => {
+                const n = parseInt(btn.getAttribute('data-count'), 10);
+                btn.classList.toggle('active', n === lim);
+            });
+        };
+
+        if (countBtnsWrap && !countBtnsWrap.dataset.initialized) {
+            countBtnsWrap.dataset.initialized = '1';
+            for (let n = 1; n <= 5; n += 1) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'project_picker_count_btn';
+                b.setAttribute('data-count', String(n));
+                b.textContent = String(n);
+                b.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    boardSettings.maxVisibleProjects = n;
+                    updateCountButtonsHighlight();
+                    updateDisplay();
+                    window.V8Proxy.fetch('settingsChanged', {});
+                });
+                countBtnsWrap.appendChild(b);
+            }
+        }
 
         const parseProjects = () => {
             const scriptEl = document.getElementById('projects-data');
@@ -864,8 +901,9 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.innerHTML = '';
 
             const selected = projectsList.filter(p => p.checked);
-            const visible = selected.slice(0, MAX_VISIBLE_PROJECTS);
-            const hiddenCount = selected.length - MAX_VISIBLE_PROJECTS;
+            const maxVis = boardSettings.maxVisibleProjects;
+            const visible = selected.slice(0, maxVis);
+            const hiddenCount = selected.length - maxVis;
 
             if (selected.length === 0 && projectsList.length > 0) {
                 const placeholder = document.createElement('span');
@@ -938,10 +976,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('click', (e) => { if (!picker.contains(e.target)) picker.classList.remove('open'); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && picker.classList.contains('open')) picker.classList.remove('open'); });
 
+        updateCountButtonsHighlight();
         updateDisplay();
 
         return {
             updateDisplay,
+            syncMaxVisiblePillsSetting: () => {
+                boardSettings.maxVisibleProjects = clampMaxVisibleProjects(boardSettings.maxVisibleProjects);
+                updateCountButtonsHighlight();
+                updateDisplay();
+            },
             parseProjects,
             filterByProject: (projectId) => {
                 const project = projectsList.find(p => p.id === projectId);
@@ -1071,9 +1115,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!uid || !selectedUrgenciesSet.has(uid)) card.classList.add('card__inactive');
                 }
 
-                if (selectedCardTypesSet.size > 0 && !card.classList.contains('card__inactive')) {
+                if (selectedCardType && !card.classList.contains('card__inactive')) {
                     const ct = card.classList.contains('card-type-bug') ? 'bug' : 'task';
-                    if (!selectedCardTypesSet.has(ct)) card.classList.add('card__inactive');
+                    if (ct !== selectedCardType) card.classList.add('card__inactive');
                 }
             });
             RecalculateKanbanBlock();
@@ -1239,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    // Фильтр по типу карточки (Задача / Ошибка).
+    // Фильтр по типу карточки (Задача / Ошибка): один тип или сброс крестиком.
     // Возвращает контроллер: filterByCardType(typeId), setSelected(ids)
     const initCardTypeFilter = () => {
         const dropdown = document.querySelector('.cardtype_dropdown');
@@ -1250,7 +1294,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!dropdown || !toggle || !menu) return null;
 
-        const updateHasSelected = () => { dropdown.classList.toggle('has-selected', selectedCardTypesSet.size > 0); };
+        const updateHasSelected = () => { dropdown.classList.toggle('has-selected', selectedCardType !== null); };
 
         const populateMenu = () => {
             menu.innerHTML = '';
@@ -1258,18 +1302,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const option = document.createElement('div');
                 option.className = 'cardtype_option';
                 option.setAttribute('data-value', id);
-                if (selectedCardTypesSet.has(id)) option.classList.add('selected');
+                if (selectedCardType === id) option.classList.add('selected');
                 option.textContent = name;
                 menu.appendChild(option);
             });
         };
 
         const updateLabel = () => {
-            if (selectedCardTypesSet.size === 0) label.textContent = 'Тип';
-            else if (selectedCardTypesSet.size === 1) {
-                const t = CARD_TYPES.find(ct => ct.id === Array.from(selectedCardTypesSet)[0]);
+            if (!selectedCardType) label.textContent = 'Тип';
+            else {
+                const t = CARD_TYPES.find(ct => ct.id === selectedCardType);
                 label.textContent = t ? t.name : 'Тип';
-            } else label.textContent = 'Тип (' + selectedCardTypesSet.size + ')';
+            }
         };
 
         toggle.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(dropdown); populateMenu(); dropdown.classList.toggle('open'); });
@@ -1280,31 +1324,35 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!option) return;
             e.stopPropagation();
             const value = option.getAttribute('data-value');
-            if (selectedCardTypesSet.has(value)) { selectedCardTypesSet.delete(value); option.classList.remove('selected'); }
-            else { selectedCardTypesSet.add(value); option.classList.add('selected'); }
-            updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
+            if (value !== 'task' && value !== 'bug') return;
+            selectedCardType = value;
+            populateMenu(); updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
             window.V8Proxy.fetch('settingsChanged', {});
         });
 
         if (clearBtn) {
             clearBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                selectedCardTypesSet.clear(); updateLabel(); updateHasSelected(); populateMenu(); executorCtrl.applyFilter();
+                selectedCardType = null; updateLabel(); updateHasSelected(); populateMenu(); executorCtrl.applyFilter();
                 window.V8Proxy.fetch('settingsChanged', {});
             });
         }
 
         return {
             filterByCardType: (typeId) => {
-                if (selectedCardTypesSet.size === 1 && selectedCardTypesSet.has(typeId)) selectedCardTypesSet.clear();
-                else { selectedCardTypesSet.clear(); selectedCardTypesSet.add(typeId); }
+                if (typeId !== 'task' && typeId !== 'bug') return;
+                if (selectedCardType === typeId) selectedCardType = null;
+                else selectedCardType = typeId;
                 populateMenu(); updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
                 window.V8Proxy.fetch('settingsChanged', {});
             },
             setSelected: (ids) => {
                 if (!ids || !Array.isArray(ids)) return;
-                selectedCardTypesSet.clear();
-                ids.forEach(id => selectedCardTypesSet.add(id));
+                selectedCardType = null;
+                for (let i = 0; i < ids.length; i += 1) {
+                    const id = ids[i];
+                    if (id === 'task' || id === 'bug') { selectedCardType = id; break; }
+                }
                 populateMenu(); updateLabel(); updateHasSelected(); executorCtrl.applyFilter();
             },
             syncChrome: () => { populateMenu(); updateLabel(); updateHasSelected(); },
@@ -1455,33 +1503,52 @@ document.addEventListener('DOMContentLoaded', () => {
         syncKanbanBoardTopPaddingFn();
     };
 
-    // Управление группировкой: выпадающий список «Нет / Исполнитель / Проект».
+    // Управление группировкой: в меню только «По исполнителю» / «По проектам»; сброс — крестик → «Без группировки».
     // Возвращает контроллер: apply(value)
     const initGrouping = () => {
         const groupingDropdown = document.querySelector('.grouping_dropdown');
         const groupingToggle = document.getElementById('grouping_toggle');
         const groupingLabel = document.getElementById('grouping_label');
+        const groupingClear = document.getElementById('grouping_clear');
 
         if (!groupingToggle) return null;
+
+        const updateGroupingChrome = () => {
+            groupingDropdown.classList.toggle('has-selected', currentGroupingType !== 'none');
+        };
 
         groupingToggle.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(groupingDropdown); groupingDropdown.classList.toggle('open'); });
         document.addEventListener('click', (e) => { if (!groupingDropdown.contains(e.target)) groupingDropdown.classList.remove('open'); });
 
         const applyInternal = (value) => {
             expandedBlocks.clear();
+            document.querySelectorAll('.grouping_option').forEach(opt => opt.classList.remove('active'));
+
+            if (value === 'none' || value === '' || value === undefined) {
+                groupingLabel.textContent = 'Без группировки';
+                groupingDropdown.classList.remove('open');
+                currentGroupingType = 'none';
+                removeGrouping();
+                updateGroupingChrome();
+                executorCtrl.applyFilter();
+                searchCtrl.applyCurrent();
+                RecalculateKanbanBlock();
+                syncKanbanBoardTopPaddingFn();
+                return;
+            }
+
             const option = document.querySelector('.grouping_option[data-value="' + value + '"]');
             if (!option) return;
 
-            document.querySelectorAll('.grouping_option').forEach(opt => opt.classList.remove('active'));
             option.classList.add('active');
             groupingLabel.textContent = option.textContent;
             groupingDropdown.classList.remove('open');
             currentGroupingType = value;
 
-            if (value === 'none') removeGrouping();
-            else if (value === 'executor') applyGroupingByExecutor();
+            if (value === 'executor') applyGroupingByExecutor();
             else if (value === 'project') applyGroupingByProject();
 
+            updateGroupingChrome();
             executorCtrl.applyFilter();
             searchCtrl.applyCurrent();
             RecalculateKanbanBlock();
@@ -1495,6 +1562,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        if (groupingClear) {
+            groupingClear.addEventListener('click', (e) => {
+                e.stopPropagation();
+                applyInternal('none');
+                window.V8Proxy.fetch('settingsChanged', {});
+            });
+        }
+
+        updateGroupingChrome();
         return { apply: applyInternal };
     };
 
@@ -1884,7 +1960,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const showExecutor = taskCount === 0 || executors.size > 1;
 
         if (!showCardType) {
-            selectedCardTypesSet.clear();
+            selectedCardType = null;
             cardTypeDropdown.classList.add('filter_dropdown_hidden');
             cardTypeDropdown.classList.remove('open', 'has-selected');
         } else {
@@ -2001,6 +2077,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.urgencyfilter !== undefined && urgencyCtrl) urgencyCtrl.setSelected(data.urgencyfilter);
         if (data.cardtypefilter !== undefined && cardTypeCtrl) cardTypeCtrl.setSelected(data.cardtypefilter);
 
+        if (data.maxvisibleprojects !== undefined) {
+            boardSettings.maxVisibleProjects = clampMaxVisibleProjects(data.maxvisibleprojects);
+            if (projectCtrl) projectCtrl.syncMaxVisiblePillsSetting();
+        }
+
         if (executorCtrl) executorCtrl.applyFilter();
         if (searchCtrl) searchCtrl.applyCurrent();
         RecalculateKanbanBlock();
@@ -2011,7 +2092,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const getSelectedExecutors = () => Array.from(selectedExecutorsSet);
     const getSelectedProjects = () => projectsList.filter(p => p.checked).map(p => p.id);
     const getSelectedUrgencies = () => Array.from(selectedUrgenciesSet);
-    const getSelectedCardTypes = () => Array.from(selectedCardTypesSet);
+    const getSelectedCardTypes = () => (selectedCardType ? [selectedCardType] : []);
 
     // Интерфейс взаимодействия с 1С.
     // fetch() — записывает параметры в скрытый input и «кликает» его (1С перехватывает клик).
@@ -2027,6 +2108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             req.setAttribute('projectfilter', JSON.stringify(getSelectedProjects()));
             req.setAttribute('urgencyfilter', JSON.stringify(getSelectedUrgencies()));
             req.setAttribute('cardtypefilter', JSON.stringify(getSelectedCardTypes()));
+            req.setAttribute('maxvisibleprojects', String(boardSettings.maxVisibleProjects));
             req.setAttribute('urgencysettings', JSON.stringify(boardSettings.urgencySettings));
             req.setAttribute('task', JSON.stringify(params || {}));
             req.click();
@@ -2049,7 +2131,10 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         reinitKanban: () => {
-            if (projectCtrl) { projectCtrl.parseProjects(); projectCtrl.updateDisplay(); }
+            if (projectCtrl) {
+                projectCtrl.parseProjects();
+                projectCtrl.syncMaxVisiblePillsSetting();
+            }
             if (executorCtrl) { executorCtrl.populateMenu(); executorCtrl.applyFilter(); }
             if (urgencyCtrl) urgencyCtrl.populateMenu();
             initGroupCollapse();

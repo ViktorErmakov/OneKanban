@@ -104,4 +104,17 @@ test.describe('Фильтр по типу карточки', () => {
 
         await expect(page.locator('#cardtype_label')).toHaveText('Задача');
     });
+
+    test('нельзя выбрать оба типа: переключение «Задача» → «Ошибка»', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+        await page.click('#cardtype_toggle');
+        await page.locator('.cardtype_option[data-value="task"]').click();
+        await page.waitForTimeout(100);
+        await page.click('#cardtype_toggle');
+        await page.locator('.cardtype_option[data-value="bug"]').click();
+        await page.waitForTimeout(200);
+        await expect(page.locator('#cardtype_label')).toHaveText('Ошибка');
+        const cards = await getVisibleCards(page);
+        await expect(cards).toHaveCount(2);
+    });
 });

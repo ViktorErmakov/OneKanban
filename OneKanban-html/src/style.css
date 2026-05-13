@@ -448,6 +448,52 @@ body {
     transform: translateY(0);
 }
 
+/* Сколько проектов показывать «пилюлями» в панели (1–5) */
+.project_picker_count_row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem 0.8rem;
+    margin-top: 0.8rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.project_picker_count_label {
+    font-size: 1.35rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.project_picker_count_btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.project_picker_count_btn {
+    min-width: 2.4rem;
+    padding: 0.25rem 0.45rem;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    cursor: pointer;
+    border-radius: 0.45rem;
+    border: 1px solid var(--border-color);
+    background: var(--button-bg);
+    color: var(--text-primary);
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.project_picker_count_btn:hover {
+    background: var(--bg-tertiary);
+}
+
+.project_picker_count_btn.active {
+    border-color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    font-weight: 600;
+}
+
 /* Сетка проектов (2-3 колонки) */
 .project_picker_grid {
     display: flex;
@@ -939,6 +985,26 @@ label {
 
 .grouping_toggle .dropdown_arrow {
     transition: transform 0.2s ease;
+}
+
+.grouping_clear {
+    font-size: 1.6rem;
+    opacity: 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: opacity 0.2s ease;
+    line-height: 1;
+    pointer-events: none;
+    margin-left: 0.4rem;
+}
+
+.grouping_dropdown.has-selected .grouping_clear {
+    opacity: 0.6;
+    pointer-events: auto;
+}
+
+.grouping_clear:hover {
+    opacity: 1;
 }
 
 .grouping_dropdown.open .dropdown_arrow {

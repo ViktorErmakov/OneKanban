@@ -4,6 +4,8 @@
 
 Документация https://viktorermakov.github.io/OneKanban/
 
+Сборка фронта и эталонов YAXUnit: каталог **`OneKanban-html`**, команды **`npm run build`**, **`npm run yaxunit:apply-snapshots`**; после переноса снимков в EDT обновите проект **`Управление_задачами.YAXUNIT`** (F5) — см. **`documentation/docs/Разработка/Сборка-OneKanban-html.md`** и **`yaxunit-html-snapshots/README.md`**.
+
 ![image](https://infostart.ru/bitrix/templates/sandbox_empty/assets/tpl/abo/img/logo.svg)
 https://infostart.ru/1c/tools/2398094
 

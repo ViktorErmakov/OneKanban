@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack serve",
     "build": "webpack build && node scripts/build-demo.js",
-    "sync:yaxunit": "node scripts/sync-yaxunit-html-templates.js",
+    "yaxunit:apply-snapshots": "node scripts/apply-yaxunit-html-snapshots.js",
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
     "test:headed": "npx playwright test --headed",
