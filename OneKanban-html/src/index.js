@@ -1658,20 +1658,26 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentEditId = null;
         let draftSettings = {};
 
-        const updateUrgencyPreviewTile = (previewEl, urgencyId) => {
-            if (!previewEl) return;
-            previewEl.innerHTML = '';
-            previewEl.classList.add('urgency_preview_tile--empty');
-            previewEl.style.color = '';
+        const applyUrgencyIconRowColor = (iconsWrap, urgencyId) => {
+            if (!iconsWrap) return;
+            iconsWrap.querySelectorAll('.urgency_icon_btn').forEach((b) => { b.style.color = ''; });
+            const selected = iconsWrap.querySelector('.urgency_icon_btn.selected');
+            if (!selected) return;
             const s = draftSettings[urgencyId];
             if (!s || !s.iconId || !URGENCY_ICON_IDS.includes(s.iconId)) return;
             const colorRaw = s.colorId != null ? String(s.colorId).trim() : '';
             if (!colorRaw) return;
             const ok = colorCanDisplayForStoredSettings(colorRaw) || isValidUrgencyHexOnly(colorRaw);
             if (!ok) return;
-            previewEl.classList.remove('urgency_preview_tile--empty');
-            previewEl.style.color = resolveUrgencyColorCss(colorRaw);
-            previewEl.innerHTML = URGENCY_ICONS[s.iconId];
+            selected.style.color = resolveUrgencyColorCss(colorRaw);
+        };
+
+        const expandedHexForPaletteMatch = (raw) => {
+            const disp = colorIdToDisplayHex(raw != null ? raw : '');
+            if (disp && /^#[0-9a-f]{6}$/i.test(disp)) return disp.toLowerCase();
+            const t = String(raw != null ? raw : '').trim();
+            if (isValidUrgencyHexOnly(t)) return expandShortHex(t).toLowerCase();
+            return '';
         };
 
         const renderSettings = (urgencyId) => {
@@ -1709,10 +1715,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             row.appendChild(iconsWrap);
 
-            const hexRow = document.createElement('div');
-            hexRow.className = 'urgency_field_row';
+            let colorEnteredViaText = false;
+            const paletteCells = [];
+
+            const hexRgbRow = document.createElement('div');
+            hexRgbRow.className = 'urgency_hex_rgb_row';
+
             const hexLabel = document.createElement('span');
-            hexLabel.className = 'urgency_field_label';
+            hexLabel.className = 'urgency_field_label urgency_field_label--compact';
             hexLabel.textContent = 'HEX';
 
             const hexInput = document.createElement('input');
@@ -1721,23 +1731,12 @@ document.addEventListener('DOMContentLoaded', () => {
             hexInput.setAttribute('data-urgency-id', urgencyId);
             hexInput.setAttribute('spellcheck', 'false');
             hexInput.setAttribute('autocomplete', 'off');
-            hexInput.setAttribute('placeholder', '#RRGGBB или #RGB');
+            hexInput.setAttribute('placeholder', '#RRGGBB');
             hexInput.setAttribute('aria-label', 'HEX');
             hexInput.value = initialHexDisplay;
 
-            const previewTile = document.createElement('div');
-            previewTile.className = 'urgency_preview_tile urgency_option_preview';
-            previewTile.setAttribute('aria-hidden', 'true');
-
-            hexRow.appendChild(hexLabel);
-            hexRow.appendChild(hexInput);
-            hexRow.appendChild(previewTile);
-            row.appendChild(hexRow);
-
-            const rgbRow = document.createElement('div');
-            rgbRow.className = 'urgency_field_row';
             const rgbLabel = document.createElement('span');
-            rgbLabel.className = 'urgency_field_label';
+            rgbLabel.className = 'urgency_field_label urgency_field_label--compact';
             rgbLabel.textContent = 'RGB';
 
             const rgbInputsWrap = document.createElement('div');
@@ -1755,9 +1754,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 rgbInputs.push(inp);
                 rgbInputsWrap.appendChild(inp);
             });
-            rgbRow.appendChild(rgbLabel);
-            rgbRow.appendChild(rgbInputsWrap);
-            row.appendChild(rgbRow);
+
+            hexRgbRow.appendChild(hexLabel);
+            hexRgbRow.appendChild(hexInput);
+            hexRgbRow.appendChild(rgbLabel);
+            hexRgbRow.appendChild(rgbInputsWrap);
+            row.appendChild(hexRgbRow);
+
+            const syncPaletteSelectionHighlight = () => {
+                paletteCells.forEach((c) => c.classList.remove('urgency_palette_cell--selected'));
+                if (colorEnteredViaText) return;
+                const s = draftSettings[urgencyId];
+                const low = expandedHexForPaletteMatch(s && s.colorId != null ? s.colorId : '');
+                if (!low) return;
+                const hit = URGENCY_PALETTE_HEXES.find((h) => h.toLowerCase() === low);
+                if (!hit) return;
+                const cell = paletteCells.find((c) => c.getAttribute('data-hex') === hit.toLowerCase());
+                if (cell) cell.classList.add('urgency_palette_cell--selected');
+            };
 
             const syncRgbFromExpandedHex = () => {
                 const t = hexInput.value.trim();
@@ -1787,11 +1801,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.classList.add('selected');
                     hexInput.value = colorIdToDisplayHex(draftSettings[urgencyId].colorId);
                     syncRgbFromExpandedHex();
-                    updateUrgencyPreviewTile(previewTile, urgencyId);
+                    applyUrgencyIconRowColor(iconsWrap, urgencyId);
+                    syncPaletteSelectionHighlight();
                 });
             });
 
             const applyRgbToDraft = () => {
+                colorEnteredViaText = true;
                 const r = parseInt(String(rgbInputs[0].value).trim(), 10);
                 const g = parseInt(String(rgbInputs[1].value).trim(), 10);
                 const b = parseInt(String(rgbInputs[2].value).trim(), 10);
@@ -1805,7 +1821,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 rgbInputs[0].value = String(clamp(r));
                 rgbInputs[1].value = String(clamp(g));
                 rgbInputs[2].value = String(clamp(b));
-                updateUrgencyPreviewTile(previewTile, urgencyId);
+                applyUrgencyIconRowColor(iconsWrap, urgencyId);
+                syncPaletteSelectionHighlight();
             };
 
             rgbInputs.forEach(inp => {
@@ -1816,7 +1833,18 @@ document.addEventListener('DOMContentLoaded', () => {
             paletteDetails.className = 'urgency_palette_details';
             const paletteSummary = document.createElement('summary');
             paletteSummary.className = 'urgency_palette_summary';
-            paletteSummary.textContent = 'Палитра';
+            const paletteSummaryText = document.createElement('span');
+            paletteSummaryText.className = 'urgency_palette_summary_text';
+            paletteSummaryText.textContent = 'Палитра';
+            const paletteArrowWrap = document.createElement('span');
+            paletteArrowWrap.className = 'urgency_palette_summary_arrow';
+            paletteArrowWrap.setAttribute('aria-hidden', 'true');
+            paletteArrowWrap.innerHTML =
+                '<svg class="dropdown_arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="pointer-events: none;">' +
+                '<polyline points="6 9 12 15 18 9"/>' +
+                '</svg>';
+            paletteSummary.appendChild(paletteSummaryText);
+            paletteSummary.appendChild(paletteArrowWrap);
 
             const paletteGrid = document.createElement('div');
             paletteGrid.className = 'urgency_palette_grid';
@@ -1824,17 +1852,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cell = document.createElement('button');
                 cell.type = 'button';
                 cell.className = 'urgency_palette_cell';
+                cell.setAttribute('data-hex', hex.toLowerCase());
                 cell.style.backgroundColor = hex;
                 cell.title = hex;
+                paletteCells.push(cell);
                 cell.addEventListener('click', (ev) => {
                     ev.preventDefault();
                     ev.stopPropagation();
+                    colorEnteredViaText = false;
                     ensureIconWhenSettingColor();
                     if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
                     draftSettings[urgencyId].colorId = hex.toLowerCase();
                     hexInput.value = hex.toLowerCase();
                     syncRgbFromExpandedHex();
-                    updateUrgencyPreviewTile(previewTile, urgencyId);
+                    applyUrgencyIconRowColor(iconsWrap, urgencyId);
+                    syncPaletteSelectionHighlight();
                 });
                 paletteGrid.appendChild(cell);
             });
@@ -1846,13 +1878,16 @@ document.addEventListener('DOMContentLoaded', () => {
             listEl.appendChild(row);
 
             syncRgbFromExpandedHex();
-            updateUrgencyPreviewTile(previewTile, urgencyId);
+            applyUrgencyIconRowColor(iconsWrap, urgencyId);
+            syncPaletteSelectionHighlight();
 
             hexInput.addEventListener('input', () => {
+                colorEnteredViaText = true;
                 if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
                 draftSettings[urgencyId].colorId = hexInput.value;
                 syncRgbFromExpandedHex();
-                updateUrgencyPreviewTile(previewTile, urgencyId);
+                applyUrgencyIconRowColor(iconsWrap, urgencyId);
+                syncPaletteSelectionHighlight();
             });
             hexInput.addEventListener('blur', () => {
                 let t = hexInput.value.trim();
@@ -1861,7 +1896,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!draftSettings[urgencyId]) draftSettings[urgencyId] = {};
                 draftSettings[urgencyId].colorId = t;
                 syncRgbFromExpandedHex();
-                updateUrgencyPreviewTile(previewTile, urgencyId);
+                applyUrgencyIconRowColor(iconsWrap, urgencyId);
+                syncPaletteSelectionHighlight();
             });
         };
 

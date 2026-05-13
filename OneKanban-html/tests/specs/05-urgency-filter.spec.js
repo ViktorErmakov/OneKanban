@@ -8,6 +8,17 @@ test.describe('Фильтр по срочности', () => {
         await expect(page.locator('.urgency_dropdown')).toHaveClass(/open/);
     });
 
+    test('стрелка «Срочность» поворачивается при открытом меню (как у других фильтров)', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+        const arrow = page.locator('#urgency_toggle .dropdown_arrow');
+        const transformClosed = await arrow.evaluate((el) => getComputedStyle(el).transform);
+        await page.click('#urgency_toggle');
+        await expect(page.locator('.urgency_dropdown')).toHaveClass(/open/);
+        const transformOpen = await arrow.evaluate((el) => getComputedStyle(el).transform);
+        expect(transformOpen).not.toBe(transformClosed);
+        expect(transformOpen).toMatch(/matrix|rotate/);
+    });
+
     test('меню содержит 3 уровня срочности', async ({ page }) => {
         await openBoard(page, 'four-projects');
         await page.click('#urgency_toggle');

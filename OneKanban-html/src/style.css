@@ -1267,6 +1267,19 @@ label {
     background-color: var(--bg-tertiary);
 }
 
+.urgency_toggle svg {
+    stroke: var(--text-secondary);
+    transition: stroke 0.3s ease;
+}
+
+.urgency_toggle .dropdown_arrow {
+    transition: transform 0.2s ease;
+}
+
+.urgency_dropdown.open .dropdown_arrow {
+    transform: rotate(180deg);
+}
+
 .urgency_clear {
     font-size: 1.6rem;
     opacity: 0;
@@ -1536,7 +1549,9 @@ label {
     width: 36rem;
     max-width: min(36rem, 96vw);
     max-height: 80vh;
+    overflow-x: hidden;
     overflow-y: auto;
+    scrollbar-gutter: stable;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     opacity: 0;
     visibility: hidden;
@@ -1646,6 +1661,17 @@ label {
     gap: 0.4rem;
 }
 
+.urgency_hex_rgb_row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.35rem 0.45rem;
+    margin-top: 0.7rem;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
 .urgency_field_row {
     display: flex;
     align-items: center;
@@ -1662,52 +1688,43 @@ label {
     color: var(--text-secondary);
 }
 
+.urgency_field_label--compact {
+    flex: 0 0 auto;
+    min-width: 2.6rem;
+    font-size: 1.25rem;
+}
+
 .urgency_color_hex {
-    flex: 1 1 10rem;
-    min-width: 10rem;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 9.5rem;
     box-sizing: border-box;
     height: 2.8rem;
-    padding: 0.35rem 0.65rem;
+    padding: 0.35rem 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 0.45rem;
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-family: ui-monospace, Consolas, monospace;
     color: var(--text-primary);
     background: var(--button-bg);
 }
 
-.urgency_field_row .urgency_preview_tile.urgency_option_preview {
-    width: 2.2rem;
-    height: 2.2rem;
-    flex: 0 0 auto;
-}
-
-.urgency_field_row .urgency_preview_tile .urgency-icon-svg {
-    width: 1.55rem;
-    height: 1.55rem;
-}
-
-.urgency_preview_tile--empty {
-    border: 1px dashed var(--border-color);
-    background-color: var(--bg-tertiary);
-}
-
 .urgency_rgb_inputs {
     display: flex;
     align-items: center;
-    flex: 1 1 10rem;
+    flex: 0 0 auto;
     flex-wrap: nowrap;
-    gap: 0.45rem;
+    gap: 0.3rem;
     min-width: 0;
 }
 
 .urgency_rgb_input {
-    width: 3.8rem;
+    width: 3.15rem;
     box-sizing: border-box;
-    padding: 0.3rem 0.4rem;
+    padding: 0.28rem 0.3rem;
     border: 1px solid var(--border-color);
     border-radius: 0.35rem;
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-family: ui-monospace, Consolas, monospace;
     color: var(--text-primary);
     background: var(--button-bg);
@@ -1717,24 +1734,62 @@ label {
     margin-top: 0.65rem;
     width: 100%;
     border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
+    border-radius: 1.6rem;
     background: var(--button-bg);
+    overflow: hidden;
 }
 
 .urgency_palette_summary {
-    padding: 0.45rem 0.65rem;
-    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.4rem 1rem;
+    font-size: 1.5rem;
+    font-family: 'Arial', sans-serif;
     cursor: pointer;
     color: var(--text-primary);
     list-style: none;
+    user-select: none;
+    transition: background 0.15s ease;
 }
 
-.urgency_palette_summary::-webkit-details-marker {
-    display: none;
+.urgency_palette_summary_text {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    margin-right: 0.6rem;
+}
+
+.urgency_palette_summary_arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.urgency_palette_summary_arrow .dropdown_arrow {
+    transition: transform 0.2s ease;
+}
+
+.urgency_palette_details[open] .urgency_palette_summary_arrow .dropdown_arrow {
+    transform: rotate(180deg);
 }
 
 .urgency_palette_details[open] .urgency_palette_summary {
     border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    border-radius: 1.6rem 1.6rem 0 0;
+}
+
+.urgency_palette_summary_arrow svg {
+    stroke: var(--text-secondary);
+    transition: stroke 0.3s ease;
+}
+
+.urgency_palette_summary::-webkit-details-marker {
+    display: none;
 }
 
 .urgency_palette_grid {
@@ -1742,6 +1797,7 @@ label {
     grid-template-columns: repeat(8, 1fr);
     gap: 0.35rem;
     padding: 0.5rem 0.55rem 0.55rem;
+    border-radius: 0 0 1.55rem 1.55rem;
 }
 
 .urgency_palette_cell {
@@ -1754,9 +1810,18 @@ label {
     box-sizing: border-box;
 }
 
-.urgency_palette_cell:hover {
+.urgency_palette_cell:hover:not(.urgency_palette_cell--selected) {
     outline: 2px solid var(--link-color);
     outline-offset: 1px;
+}
+
+.urgency_palette_cell--selected {
+    outline: none;
+    box-shadow:
+        0 0 0 2px var(--text-primary),
+        0 0 0 4px var(--link-color);
+    z-index: 1;
+    position: relative;
 }
 
 .urgency_icon_btn {
