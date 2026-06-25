@@ -31,4 +31,5 @@
   <content>CommonCommand.канбан_Ошибки</content>
   <content>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</content>
   <content>Catalog.канбан_Ошибки</content>
+  <content>Report.канбан_ИсторияЗадач</content>
 </mdclass:Subsystem>

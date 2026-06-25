@@ -18,7 +18,7 @@ function buildSendResponsePayload(fixture) {
 function buildStatusesHtml(fixture) {
     const headers = fixture.statuses.map(s => {
         const addBtn = s.hasAddButton
-            ? `<div id="add_task" class="add_task status${s.id}" fullNameObjectStatus="${s.fullName}">` +
+            ? `<div id="add_task_${s.id}" class="add_task status${s.id}" fullNameObjectStatus="${s.fullName}" data-full-name-object-status="${s.fullName}" data-status-id="${s.id}">` +
               `<svg viewBox="0 0 24 24"><path d="M12 4V20M4 12H20" stroke="rgb(121, 121, 121)" stroke-width="2" stroke-linecap="round"></path></svg></div>`
             : '';
         return `<div class="block_header"><strong class="kanban-block__name">${s.name}</strong><strong class="kanban-block__number">0</strong>${addBtn}</div>`;
@@ -41,6 +41,7 @@ async function openBoard(page, fixtureName, options = {}) {
     if (options.theme) settingsPayload.theme = options.theme;
     if (options.grouping) settingsPayload.grouping = options.grouping;
     if (options.maxvisibleprojects !== undefined) settingsPayload.maxvisibleprojects = options.maxvisibleprojects;
+    if (options.showexecutorphoto !== undefined) settingsPayload.showexecutorphoto = options.showexecutorphoto;
     const settingsJson = JSON.stringify(settingsPayload);
 
     htmlContent = htmlContent.replace(
@@ -67,6 +68,7 @@ async function openBoard(page, fixtureName, options = {}) {
     if (options.theme) payload.theme = options.theme;
     if (options.grouping) payload.grouping = options.grouping;
     if (options.maxvisibleprojects !== undefined) payload.maxvisibleprojects = options.maxvisibleprojects;
+    if (options.showexecutorphoto !== undefined) payload.showexecutorphoto = options.showexecutorphoto;
 
     await page.evaluate((data) => {
         window.V8Proxy.sendResponse('init', data);

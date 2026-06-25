@@ -663,6 +663,7 @@ label {
     flex: 1;
     min-width: 0;
     text-align: center;
+    -webkit-user-drag: none;
 }
 
 .card__link:hover {
@@ -1563,6 +1564,43 @@ label {
     visibility: visible;
 }
 
+.urgency-popover__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.4rem;
+}
+
+.urgency-popover__header .urgency-popover__title {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    font-size: 1.6rem;
+    color: var(--text-primary);
+}
+
+.urgency-popover__close {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.1rem 0.45rem;
+    border: none;
+    border-radius: 0.4rem;
+    background: transparent;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    cursor: pointer;
+    color: var(--text-secondary);
+    opacity: 0.75;
+    transition: opacity 0.2s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.urgency-popover__close:hover {
+    opacity: 1;
+    color: var(--text-primary);
+    background-color: var(--bg-tertiary);
+}
+
 .urgency-popover__title {
     margin: 0 0 0.4rem 0;
     font-size: 1.6rem;
@@ -1603,14 +1641,6 @@ label {
 
 .urgency-popover__btn--save:hover {
     filter: brightness(1.15);
-}
-
-.urgency-popover__btn--cancel {
-    background-color: var(--button-bg);
-}
-
-.urgency-popover__btn--cancel:hover {
-    background-color: var(--bg-tertiary);
 }
 
 .urgency-popover__btn--reset {
@@ -2184,4 +2214,94 @@ span.group-photo.group-photo_placeholder {
     .command_panel_buttons>*:last-child {
         margin-right: 0;
     }
+}
+
+/* Модалка: создать задачу или ошибку (без затемнения; клики сквозь обёртку, панель — как popover) */
+.create_kind_modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+.create_kind_modal--visible {
+    display: block;
+}
+
+.create_kind_modal__panel {
+    position: absolute;
+    z-index: 1;
+    max-width: min(36rem, calc(100vw - 8px));
+    min-width: min(22rem, calc(100vw - 8px));
+    width: max-content;
+    background-color: var(--command-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.6rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+
+.create_kind_modal__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.4rem;
+}
+
+.create_kind_modal__header .urgency-popover__title {
+    margin: 0;
+    flex: 1;
+    min-width: min-content;
+}
+
+/* Крестик как у фильтров доски (.urgency_clear, .executor_clear) */
+.create_kind_modal__close {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.1rem 0.45rem;
+    border: none;
+    border-radius: 0.4rem;
+    background: transparent;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    cursor: pointer;
+    color: var(--text-secondary);
+    opacity: 0.75;
+    transition: opacity 0.2s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.create_kind_modal__close:hover {
+    opacity: 1;
+    color: var(--text-primary);
+    background-color: var(--bg-tertiary);
+}
+
+.create_kind_modal__actions {
+    margin-top: 0.2rem;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+}
+
+/* Кнопки выбора типа — как нейтральные кнопки панели (--button-bg), без «сохранить» (link-color) */
+.create_kind_modal__btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    background-color: var(--button-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.create_kind_modal__btn:hover {
+    background-color: var(--bg-tertiary);
 }

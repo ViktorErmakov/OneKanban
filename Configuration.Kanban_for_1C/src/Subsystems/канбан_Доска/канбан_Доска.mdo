@@ -9,12 +9,14 @@
   <content>InformationRegister.канбан_ИспользуемыеПроектыДоски</content>
   <content>CommonModule.канбан_КанбанДоска</content>
   <content>DefinedType.канбан_Задачи</content>
+  <content>DefinedType.канбан_ЗадачиИОшибки</content>
   <content>CommonModule.канбан_КанбанДоскаПереопределяемый</content>
   <content>DefinedType.канбан_Проекты</content>
   <content>Catalog.канбан_Задачи</content>
   <content>CommonModule.канбан_КанбанДоскаКлиент</content>
   <content>CommonModule.канбан_КанбанДоскаВызовСервера</content>
   <content>DefinedType.канбан_СтатусыЗадач</content>
+  <content>DefinedType.канбан_СтатусыЗадачИОшибок</content>
   <content>CommonPicture.канбан_ФотоПоУмолчанию</content>
   <content>CommonModule.канбан_КанбанДоскаКлиентПереопределяемый</content>
   <content>DefinedType.канбан_Пользователь</content>
@@ -36,7 +38,12 @@
   <content>DefinedType.канбан_Ошибки</content>
   <content>Catalog.канбан_Ошибки</content>
   <content>CommonModule.канбан_КанбанДоскаКлиентСервер</content>
+  <content>InformationRegister.канбан_ИсторияСтатусовЗадач</content>
+  <content>Report.канбан_ИсторияЗадач</content>
   <content>DefinedType.канбан_СрочностьИсправления</content>
   <content>Enum.канбан_СрочностьИсправления</content>
   <content>CommonPicture.канбан_ЛоготипКартинка</content>
+  <content>DefinedType.канбан_Задачи_Объект</content>
+  <content>EventSubscription.канбан_ПриЗаписиЗадачи</content>
+  <content>EventSubscription.канбан_ПриЗаписиОшибки</content>
 </mdclass:Subsystem>

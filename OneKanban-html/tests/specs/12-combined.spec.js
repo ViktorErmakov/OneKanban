@@ -220,4 +220,50 @@ test.describe('Комбинированные сценарии', () => {
         const count = await cards.count();
         expect(count).toBe(20);
     });
+
+    test('кнопка «+»: модалка при смешанной доске и openBoardCreateItem', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+        await clearV8Calls(page);
+
+        await page.locator('.add_task').first().click();
+        await expect(page.locator('#create_kind_modal')).toHaveClass(/create_kind_modal--visible/);
+
+        await page.locator('#create_kind_modal [data-create-kind="task"]').click();
+        await page.waitForTimeout(200);
+
+        await expect(page.locator('#create_kind_modal')).not.toHaveClass(/create_kind_modal--visible/);
+
+        const calls = await getV8Calls(page);
+        const hit = calls.find(c => c.eventName === 'openBoardCreateItem');
+        expect(hit).toBeTruthy();
+        expect(hit.params.createKind).toBe('task');
+        expect(hit.params.idStatusColumn).toBeTruthy();
+        expect(hit.params.fullNameObjectStatus).toMatch(/канбан_СтатусыЗадач/);
+    });
+
+    test('кнопка «+»: клик вне панели закрывает модалку', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+
+        await page.locator('.add_task').first().click();
+        await expect(page.locator('#create_kind_modal')).toHaveClass(/create_kind_modal--visible/);
+
+        await page.locator('.kanban-block__name').first().click();
+        await expect(page.locator('#create_kind_modal')).not.toHaveClass(/create_kind_modal--visible/);
+    });
+
+    test('кнопка «+»: без модалки при фильтре только задачи', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+        await page.click('#cardtype_toggle');
+        await page.locator('.cardtype_option[data-value="task"]').click();
+        await page.waitForTimeout(200);
+        await clearV8Calls(page);
+
+        await page.locator('.add_task').first().click();
+        await page.waitForTimeout(200);
+
+        await expect(page.locator('#create_kind_modal')).not.toHaveClass(/create_kind_modal--visible/);
+
+        const calls = await getV8Calls(page);
+        expect(calls.some(c => c.eventName === 'openBoardCreateItem' && c.params && c.params.createKind === 'task')).toBeTruthy();
+    });
 });

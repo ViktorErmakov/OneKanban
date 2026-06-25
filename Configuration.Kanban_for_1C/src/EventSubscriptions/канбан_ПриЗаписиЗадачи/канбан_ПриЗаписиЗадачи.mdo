@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:EventSubscription xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="894397df-62fd-4fcf-b251-5715155bb574">
+  <name>канбан_ПриЗаписиЗадачи</name>
+  <synonym>
+    <key>ru</key>
+    <value>При записи задачи</value>
+  </synonym>
+  <source>
+    <types>DefinedType.канбан_Задачи_Объект</types>
+  </source>
+  <event>OnWrite</event>
+  <handler>CommonModule.канбан_КанбанДоска.канбан_ПриЗаписиЗадачиПриЗаписи</handler>
+</mdclass:EventSubscription>

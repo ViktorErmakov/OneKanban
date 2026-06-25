@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:Report xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="7e6d5c4b-3a2f-4e1d-9c8b-7a6f5e4d3c2b">
+  <producedTypes>
+    <objectType typeId="bb6cba1f-cad2-45a3-8d67-0fad11d1b3ab" valueTypeId="03ab83bf-2d35-4fa5-872d-92d133fe155d"/>
+    <managerType typeId="a3c52cf6-d535-4880-920c-bacc14aa35e2" valueTypeId="ca8669c9-cb16-4ba2-9047-7c55292ab487"/>
+  </producedTypes>
+  <name>канбан_ИсторияЗадач</name>
+  <synonym>
+    <key>ru</key>
+    <value>История задач</value>
+  </synonym>
+  <useStandardCommands>true</useStandardCommands>
+  <mainDataCompositionSchema>Report.канбан_ИсторияЗадач.Template.ОсновнаяСхемаКомпоновкиДанных</mainDataCompositionSchema>
+  <variantsStorage>SettingsStorage.ХранилищеВариантовОтчетов</variantsStorage>
+  <templates uuid="51c64949-b0f1-4919-85a5-2967f49501aa">
+    <name>ОсновнаяСхемаКомпоновкиДанных</name>
+    <synonym>
+      <key>ru</key>
+      <value>Основная схема компоновки данных</value>
+    </synonym>
+    <templateType>DataCompositionSchema</templateType>
+  </templates>
+</mdclass:Report>
