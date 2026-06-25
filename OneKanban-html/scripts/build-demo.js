@@ -51,7 +51,7 @@ function replaceDivContent(source, divId, newContent) {
 function buildStatusesHtml(fixture) {
     const headers = fixture.statuses.map(s => {
         const addBtn = s.hasAddButton
-            ? `<div id="add_task" class="add_task status${s.id}" fullNameObjectStatus="${s.fullName}">` +
+            ? `<div id="add_task_${s.id}" class="add_task status${s.id}" fullNameObjectStatus="${s.fullName}" data-full-name-object-status="${s.fullName}" data-status-id="${s.id}">` +
               `<svg viewBox="0 0 24 24"><path d="M12 4V20M4 12H20" stroke="rgb(121, 121, 121)" stroke-width="2" stroke-linecap="round"></path></svg></div>`
             : '';
         return `<div class="block_header"><strong class="kanban-block__name">${s.name}</strong><strong class="kanban-block__number">0</strong>${addBtn}</div>`;

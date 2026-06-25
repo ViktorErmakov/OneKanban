@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:DefinedType xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="08543fbd-f98c-4072-98c9-a1ce83ac5451">
+  <producedTypes>
+    <containerType typeId="ee6a7155-f61f-4270-98c9-e327a0b6ee74" valueTypeId="fe3e39cd-3d1c-420b-945e-a22ca48a67fc"/>
+  </producedTypes>
+  <name>канбан_Задачи_Объект</name>
+  <synonym>
+    <key>ru</key>
+    <value>Задачи объект</value>
+  </synonym>
+  <type>
+    <types>CatalogObject.канбан_Задачи</types>
+  </type>
+</mdclass:DefinedType>

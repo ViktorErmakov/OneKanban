@@ -33,7 +33,7 @@
   <scriptVariant>Russian</scriptVariant>
   <defaultRoles>Role.канбан_ОбщиеПрава</defaultRoles>
   <vendor>@ViktorErmakov</vendor>
-  <version>3.1</version>
+  <version>3.2</version>
   <defaultLanguage>Language.Русский</defaultLanguage>
   <languages uuid="9bb2d542-5c6b-457a-88d2-15e059da5635">
     <name>Русский</name>
@@ -56,16 +56,22 @@
   <commonModules>CommonModule.канбан_КанбанДоскаКлиентСервер</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаПереопределяемый</commonModules>
   <commonModules>CommonModule.ОбщегоНазначенияПереопределяемый</commonModules>
+  <eventSubscriptions>EventSubscription.канбан_ПриЗаписиЗадачи</eventSubscriptions>
+  <eventSubscriptions>EventSubscription.канбан_ПриЗаписиОшибки</eventSubscriptions>
+  <settingsStorages>SettingsStorage.ХранилищеВариантовОтчетов</settingsStorages>
   <functionalOptions>FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</functionalOptions>
   <definedTypes>DefinedType.ВладелецПрисоединенныхФайлов</definedTypes>
   <definedTypes>DefinedType.ВладелецПрисоединенныхФайловОбъект</definedTypes>
   <definedTypes>DefinedType.ВладелецФайлов</definedTypes>
   <definedTypes>DefinedType.канбан_Задачи</definedTypes>
+  <definedTypes>DefinedType.канбан_Задачи_Объект</definedTypes>
+  <definedTypes>DefinedType.канбан_ЗадачиИОшибки</definedTypes>
   <definedTypes>DefinedType.канбан_Ошибки</definedTypes>
   <definedTypes>DefinedType.канбан_Пользователь</definedTypes>
   <definedTypes>DefinedType.канбан_Проекты</definedTypes>
   <definedTypes>DefinedType.канбан_СрочностьИсправления</definedTypes>
   <definedTypes>DefinedType.канбан_СтатусыЗадач</definedTypes>
+  <definedTypes>DefinedType.канбан_СтатусыЗадачИОшибок</definedTypes>
   <definedTypes>DefinedType.канбан_СтатусыОшибок</definedTypes>
   <commonCommands>CommonCommand.канбан_Задачи</commonCommands>
   <commonCommands>CommonCommand.канбан_Ошибки</commonCommands>
@@ -81,8 +87,10 @@
   <catalogs>Catalog.канбан_СтатусыОшибок</catalogs>
   <catalogs>Catalog.Пользователи</catalogs>
   <enums>Enum.канбан_СрочностьИсправления</enums>
+  <reports>Report.канбан_ИсторияЗадач</reports>
   <dataProcessors>DataProcessor.Канбан_Доска_HTML</dataProcessors>
   <informationRegisters>InformationRegister.канбан_ИспользуемыеПроектыДоски</informationRegisters>
   <informationRegisters>InformationRegister.канбан_ИспользуемыеСтатусыДоски</informationRegisters>
+  <informationRegisters>InformationRegister.канбан_ИсторияСтатусовЗадач</informationRegisters>
   <informationRegisters>InformationRegister.канбан_СопоставлениеСтатусов</informationRegisters>
 </mdclass:Configuration>

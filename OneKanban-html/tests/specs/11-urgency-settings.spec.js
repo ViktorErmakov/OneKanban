@@ -152,7 +152,7 @@ test.describe('Настройки срочности (popover)', () => {
         expect(calls.some(c => c.eventName === 'settingsChanged')).toBeTruthy();
     });
 
-    test('кнопка "Отмена" закрывает popover без сохранения', async ({ page }) => {
+    test('крестик закрывает popover без сохранения', async ({ page }) => {
         await openBoard(page, 'four-projects');
         await page.click('#urgency_toggle');
         await page.waitForTimeout(100);
@@ -162,7 +162,7 @@ test.describe('Настройки срочности (popover)', () => {
         await page.locator('.urgency_icon_btn').nth(3).click();
 
         await clearV8Calls(page);
-        await page.click('#urgency_popover_cancel');
+        await page.click('#urgency_popover_close');
         await page.waitForTimeout(200);
 
         const popover = page.locator('#urgency_settings_popover');
@@ -195,7 +195,7 @@ test.describe('Настройки срочности (popover)', () => {
         await page.locator('.urgency_option_settings').first().click();
         await page.waitForTimeout(200);
 
-        const title = page.locator('.urgency-popover__title');
+        const title = page.locator('#urgency_settings_popover .urgency-popover__header .urgency-popover__title');
         const text = await title.textContent();
         expect(text).toContain('Настройка:');
     });

@@ -29,6 +29,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.канбан_Ошибки</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.канбан_Ошибки</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.канбан_ИсторияЗадач</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

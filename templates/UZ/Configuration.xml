@@ -66,7 +66,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.канбан_ОбщиеПрава</xr:Item>
 			</DefaultRoles>
 			<Vendor>@ViktorErmakov</Vendor>
-			<Version>3.0</Version>
 			<DefaultStyle/>
 			<DefaultLanguage>Language.Русский</DefaultLanguage>
 			<BriefInformation/>
@@ -92,6 +91,8 @@
 			<CommonModule>ОбщегоНазначенияПереопределяемый</CommonModule>
 			<FunctionalOption>канбан_ИспользоватьСопоставлениеСтатусов</FunctionalOption>
 			<DefinedType>канбан_Задачи</DefinedType>
+			<DefinedType>канбан_ЗадачиИОшибки</DefinedType>
+			<DefinedType>канбан_СтатусыЗадачИОшибок</DefinedType>
 			<DefinedType>канбан_Ошибки</DefinedType>
 			<DefinedType>канбан_Проекты</DefinedType>
 			<DefinedType>канбан_Пользователь</DefinedType>
@@ -113,9 +114,13 @@
 			<Catalog>Пользователи</Catalog>
 			<Catalog>узВариантыВажностиЗадачи</Catalog>
 			<DataProcessor>Канбан_Доска_HTML</DataProcessor>
+			<Report>канбан_ИсторияЗадач</Report>
+			<SettingsStorage>ХранилищеВариантовОтчетов</SettingsStorage>
 			<InformationRegister>канбан_ИспользуемыеПроектыДоски</InformationRegister>
 			<InformationRegister>канбан_ИспользуемыеСтатусыДоски</InformationRegister>
 			<InformationRegister>канбан_СопоставлениеСтатусов</InformationRegister>
+			<InformationRegister>канбан_ИсторияСтатусовЗадач</InformationRegister>
+			<EventSubscription>канбан_ПриЗаписиОшибки</EventSubscription>
 		</ChildObjects>
 	</Configuration>
 </MetaDataObject>

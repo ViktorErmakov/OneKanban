@@ -19,6 +19,8 @@
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.канбан_ИспользуемыеПроектыДоски</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.канбан_КанбанДоска</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.канбан_Задачи</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.канбан_ЗадачиИОшибки</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.канбан_СтатусыЗадачИОшибок</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.канбан_КанбанДоскаПереопределяемый</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.канбан_Проекты</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.канбан_КанбанДоскаКлиент</xr:Item>
@@ -42,10 +44,13 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.канбан_Ошибки</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.канбан_Ошибки</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.канбан_Ошибки</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.канбан_ИсторияСтатусовЗадач</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.канбан_ПриЗаписиОшибки</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.канбан_КанбанДоскаКлиентСервер</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.канбан_СрочностьИсправления</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">f9e96926-bfc5-4f8a-b685-ae8cb1259e32</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.канбан_ЛоготипКартинка</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.канбан_ИсторияЗадач</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:InformationRegister xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:core="http://g5.1c.ru/v8/dt/mcore" xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="8f4e2a1b-3c5d-4e6f-9a0b-1c2d3e4f5a6b">
+  <producedTypes>
+    <selectionType typeId="a79b53e9-5200-4d05-af03-886c75db0792" valueTypeId="dd9c4bff-44d9-4495-b4b5-9d56e6d6bd9a"/>
+    <listType typeId="38afa999-4a40-4109-b5c8-76bb97d4f532" valueTypeId="f6fdf2e2-fb88-49eb-aa9b-7b69b96b1301"/>
+    <managerType typeId="8ead5d41-0584-4b01-b18a-db9c9bcfa836" valueTypeId="00082c01-e830-42c7-b594-cbf31aca7b5e"/>
+    <recordSetType typeId="d2805f3f-9da7-48eb-8af3-3226cacefe6c" valueTypeId="aec2c3ac-82b0-4342-aabb-4ff4deaebaa8"/>
+    <recordKeyType typeId="8f0e52ed-6d16-4215-a30a-f1cc082387f7" valueTypeId="38126c9f-70f7-48d8-84b4-d237e895431f"/>
+    <recordType typeId="76fc4de9-34a4-45e4-8297-c7f319619356" valueTypeId="de60d30c-9bc3-447e-928b-e0e8913b77bd"/>
+    <recordManagerType typeId="5958975b-ba41-4226-b973-c9cb851fe333" valueTypeId="b96bbe69-c745-4b40-8ee5-c81cec5d91d5"/>
+  </producedTypes>
+  <name>канбан_ИсторияСтатусовЗадач</name>
+  <synonym>
+    <key>ru</key>
+    <value>История статусов задач</value>
+  </synonym>
+  <useStandardCommands>true</useStandardCommands>
+  <editType>InDialog</editType>
+  <dataLockControlMode>Managed</dataLockControlMode>
+  <recordPresentation>
+    <key>ru</key>
+    <value>Интервал в статусе</value>
+  </recordPresentation>
+  <listPresentation>
+    <key>ru</key>
+    <value>История статусов задач</value>
+  </listPresentation>
+  <resources uuid="f6a7b8c9-d0e1-4234-a567-890123456789">
+    <name>Статус</name>
+    <synonym>
+      <key>ru</key>
+      <value>Статус</value>
+    </synonym>
+    <type>
+      <types>DefinedType.канбан_СтатусыЗадачИОшибок</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+    <fillValue xsi:type="core:UndefinedValue"/>
+  </resources>
+  <resources uuid="a7b8c9d0-e1f2-4345-b678-901234567890">
+    <name>Исполнитель</name>
+    <synonym>
+      <key>ru</key>
+      <value>Исполнитель</value>
+    </synonym>
+    <type>
+      <types>DefinedType.канбан_Пользователь</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+    <fillValue xsi:type="core:UndefinedValue"/>
+  </resources>
+  <resources uuid="b8c9d0e1-f2a3-4456-c789-012345678901">
+    <name>ДатаНачала</name>
+    <synonym>
+      <key>ru</key>
+      <value>Дата начала</value>
+    </synonym>
+    <type>
+      <types>Date</types>
+      <dateQualifiers/>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+    <fillValue xsi:type="core:UndefinedValue"/>
+  </resources>
+  <resources uuid="c9d0e1f2-a3b4-4567-d890-123456789012">
+    <name>ДатаОкончания</name>
+    <synonym>
+      <key>ru</key>
+      <value>Дата окончания</value>
+    </synonym>
+    <type>
+      <types>Date</types>
+      <dateQualifiers/>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+    <fillValue xsi:type="core:UndefinedValue"/>
+  </resources>
+  <dimensions uuid="d0e1f2a3-b4c5-4678-e901-234567890123">
+    <name>Задача</name>
+    <synonym>
+      <key>ru</key>
+      <value>Задача</value>
+    </synonym>
+    <type>
+      <types>DefinedType.канбан_ЗадачиИОшибки</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <denyIncompleteValues>true</denyIncompleteValues>
+    <fullTextSearch>Use</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+    <fillFromFillingValue>true</fillFromFillingValue>
+    <fillValue xsi:type="core:UndefinedValue"/>
+    <master>true</master>
+    <mainFilter>true</mainFilter>
+  </dimensions>
+  <dimensions uuid="e1f2a3b4-c5d6-4789-f012-345678901234">
+    <name>ИдентификаторЗаписи</name>
+    <synonym>
+      <key>ru</key>
+      <value>Идентификатор записи</value>
+    </synonym>
+    <type>
+      <types>UUID</types>
+    </type>
+    <minValue xsi:type="core:UndefinedValue"/>
+    <maxValue xsi:type="core:UndefinedValue"/>
+    <denyIncompleteValues>true</denyIncompleteValues>
+    <fullTextSearch>DontUse</fullTextSearch>
+    <dataHistory>Use</dataHistory>
+    <fillValue xsi:type="core:UndefinedValue"/>
+    <mainFilter>true</mainFilter>
+  </dimensions>
+</mdclass:InformationRegister>

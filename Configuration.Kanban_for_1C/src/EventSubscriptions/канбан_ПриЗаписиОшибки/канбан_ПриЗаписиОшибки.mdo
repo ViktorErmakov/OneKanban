@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:EventSubscription xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="c7a8b9d0-e1f2-4a3b-8c9d-0e1f2a3b4c5d">
+  <name>канбан_ПриЗаписиОшибки</name>
+  <synonym>
+    <key>ru</key>
+    <value>При записи ошибки</value>
+  </synonym>
+  <source>
+    <types>CatalogObject.канбан_Ошибки</types>
+  </source>
+  <event>OnWrite</event>
+  <handler>CommonModule.канбан_КанбанДоска.канбан_ПриЗаписиОшибкиПриЗаписи</handler>
+</mdclass:EventSubscription>

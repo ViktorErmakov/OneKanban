@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:DefinedType xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="d4e5f6a7-b8c9-4012-d345-6789abcdef01">
+  <producedTypes>
+    <containerType typeId="e5f6a7b8-c9d0-4123-e456-789abcdef012" valueTypeId="f6a7b8c9-d0e1-4234-f567-89abcdef0123"/>
+  </producedTypes>
+  <name>канбан_СтатусыЗадачИОшибок</name>
+  <synonym>
+    <key>ru</key>
+    <value>Статусы задач и ошибок</value>
+  </synonym>
+  <comment>Составной тип статуса для регистра истории статусов</comment>
+  <type>
+    <types>CatalogRef.канбан_СтатусыЗадач</types>
+    <types>CatalogRef.канбан_СтатусыОшибок</types>
+  </type>
+</mdclass:DefinedType>

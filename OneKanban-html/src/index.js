@@ -13,6 +13,8 @@ const boardSettings = {
     urgencySettings: {},
     /** Сколько выбранных проектов показывать «пилюлями» в панели (1–5), хранится в настройках 1С */
     maxVisibleProjects: 3,
+    /** Отображать фото исполнителя на карточках (ключ 1С showexecutorphoto) */
+    showExecutorPhoto: true,
 };
 
 /** Нормализация лимита видимых проектов из настроек доски */
@@ -21,6 +23,21 @@ const clampMaxVisibleProjects = (raw) => {
     if (Number.isNaN(n)) return 3;
     return Math.min(5, Math.max(1, n));
 };
+
+/** Как в канбан_КанбанДоска.ПоказыватьФотографиюИсполнителяПоНастройкамДоски */
+const parseShowExecutorPhoto = (raw) => {
+    if (raw === undefined || raw === null) return true;
+    if (typeof raw === 'boolean') return raw;
+    if (typeof raw === 'string') {
+        const t = raw.trim();
+        const u = t.toUpperCase();
+        if (u === 'FALSE' || t === '0') return false;
+        if (u === 'TRUE' || t === '1') return true;
+    }
+    return true;
+};
+
+const isExecutorPhotoVisible = () => boardSettings.showExecutorPhoto !== false;
 
 window.boardSettings = boardSettings;
 
@@ -410,12 +427,16 @@ const updateCardContent = (card, linkHref, linkName, photoSrc, altText, textCont
         }
     }
 
-    const photo = card.querySelector('.card__photo');
-    if (photo) {
-        if (photoSrc !== undefined && photo.src !== photoSrc) photo.src = photoSrc;
-        if (altText !== undefined && photo.alt !== altText) {
-            photo.alt = altText;
-            photo.title = altText;
+    if (!isExecutorPhotoVisible()) {
+        card.querySelectorAll('.card__photo').forEach((p) => p.remove());
+    } else {
+        const photo = card.querySelector('.card__photo');
+        if (photo) {
+            if (photoSrc !== undefined && photo.src !== photoSrc) photo.src = photoSrc;
+            if (altText !== undefined && photo.alt !== altText) {
+                photo.alt = altText;
+                photo.title = altText;
+            }
         }
     }
 
@@ -493,11 +514,15 @@ const createCardFromData = (data) => {
         ? '<div class="card__urgency-wrap" title="' + urgencyTitle + '" style="color: ' + urgencyIconData.color + '">' + urgencyIconData.svg + '</div>'
         : '';
 
+    const photoHtml = isExecutorPhotoVisible()
+        ? ('<img class="card__photo" alt="' + (data.alt || '') + '" title="' + executorTitle + '" src="' + (data.card__photo || '') + '">')
+        : '';
+
     card.innerHTML =
         '<div class="card__header">' +
             '<div class="tag_task" ' + projectColorStyle + ' title="' + projectTitle + '"></div>' +
-            '<a class="card__link" href="' + (data.card__link_href || '#') + '">' + (data.card__link_name || '') + '</a>' +
-            '<img class="card__photo" alt="' + (data.alt || '') + '" title="' + executorTitle + '" src="' + (data.card__photo || '') + '">' +
+            '<a class="card__link" draggable="false" href="' + (data.card__link_href || '#') + '">' + (data.card__link_name || '') + '</a>' +
+            photoHtml +
         '</div>' +
         '<div class="card__text">' + urgencyWrapHtml + '<span>' + (data.card__text || '') + '</span></div>';
 
@@ -507,8 +532,9 @@ const createCardFromData = (data) => {
 // Навешивает обработчики dragstart/dragend на карточку
 const initCardDragEvents = (card) => {
     card.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text', e.target.id);
-        const projectClass = Array.from(e.target.classList).find(cls => cls.startsWith('project'));
+        const el = e.currentTarget;
+        e.dataTransfer.setData('text', el.id);
+        const projectClass = Array.from(el.classList).find(cls => cls.startsWith('project'));
         draggingCardProjectId = projectClass || null;
     });
 
@@ -806,6 +832,20 @@ const setupCardDrag = () => {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    const boardSettingsEl = document.getElementById('board-settings');
+    if (boardSettingsEl && boardSettingsEl.textContent && boardSettingsEl.textContent.trim() !== '{}') {
+        try {
+            const initialBoard = JSON.parse(boardSettingsEl.textContent);
+            if (initialBoard.showexecutorphoto !== undefined) {
+                boardSettings.showExecutorPhoto = parseShowExecutorPhoto(initialBoard.showexecutorphoto);
+            }
+        } catch (_) { /* ignore */ }
+    }
+    if (!isExecutorPhotoVisible()) {
+        document.querySelectorAll('.card .card__photo').forEach((el) => el.remove());
+        document.querySelectorAll('.group-header .group-photo').forEach((el) => el.remove());
+    }
+
     saveStatusBlocks();
     collectCardsData();
 
@@ -1401,10 +1441,12 @@ document.addEventListener('DOMContentLoaded', () => {
             group.setAttribute('data-executor-name', visibleName);
 
             let photoHtml = '';
-            if (userId === EXECUTOR_FILTER_NONE) {
-                photoHtml = '<span class="group-photo group-photo_placeholder" aria-hidden="true"></span>';
-            } else if (photo) {
-                photoHtml = '<img class="group-photo" src="' + photo + '" alt="' + visibleName + '">';
+            if (isExecutorPhotoVisible()) {
+                if (userId === EXECUTOR_FILTER_NONE) {
+                    photoHtml = '<span class="group-photo group-photo_placeholder" aria-hidden="true"></span>';
+                } else if (photo) {
+                    photoHtml = '<img class="group-photo" src="' + photo + '" alt="' + visibleName + '">';
+                }
             }
 
             group.innerHTML =
@@ -1642,14 +1684,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Popover для настройки иконки и цвета уровня срочности.
-    // Позволяет выбрать иконку и цвет, сохранить или отменить изменения.
+    // Позволяет выбрать иконку и цвет, сохранить или закрыть без сохранения (крестик, снаружи, Escape).
     // Возвращает контроллер: open(urgencyId, name, anchorEl)
     const initSettingsPopover = () => {
         const popover = document.getElementById('urgency_settings_popover');
         const listEl = document.getElementById('urgency_settings_list');
-        const titleEl = popover ? popover.querySelector('.urgency-popover__title') : null;
+        const titleEl = popover ? popover.querySelector('.urgency-popover__header .urgency-popover__title') : null;
         const saveBtn = document.getElementById('urgency_popover_save');
-        const cancelBtn = document.getElementById('urgency_popover_cancel');
+        const closeBtn = document.getElementById('urgency_popover_close');
         const resetPopoverBtn = document.getElementById('urgency_popover_reset');
 
         if (!popover || !listEl) return { open: () => {} };
@@ -1929,7 +1971,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (saveBtn) saveBtn.addEventListener('click', () => closePopover(true));
-        if (cancelBtn) cancelBtn.addEventListener('click', () => closePopover(false));
+        if (closeBtn) closeBtn.addEventListener('click', () => closePopover(false));
         if (resetPopoverBtn) {
             resetPopoverBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -2118,6 +2160,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (projectCtrl) projectCtrl.syncMaxVisiblePillsSetting();
         }
 
+        if (data.showexecutorphoto !== undefined) {
+            boardSettings.showExecutorPhoto = parseShowExecutorPhoto(data.showexecutorphoto);
+            if (!boardSettings.showExecutorPhoto) {
+                document.querySelectorAll('.card .card__photo').forEach((el) => el.remove());
+                document.querySelectorAll('.group-header .group-photo').forEach((el) => el.remove());
+                tasksData.forEach((td) => { td.card__photo = ''; });
+                if (currentGroupingType === 'executor') applyGroupingByExecutor();
+            }
+        }
+
         if (executorCtrl) executorCtrl.applyFilter();
         if (searchCtrl) searchCtrl.applyCurrent();
         RecalculateKanbanBlock();
@@ -2178,6 +2230,120 @@ document.addEventListener('DOMContentLoaded', () => {
             syncToolbarFiltersVisibilityFn();
         },
     };
+
+    const getBoardTypesPresence = () => {
+        let hasTask = false;
+        let hasBug = false;
+        tasksData.forEach((td) => {
+            if (td.isBug) hasBug = true;
+            else hasTask = true;
+        });
+        return { hasTask, hasBug };
+    };
+
+    const resolveCreateKindForAddBtn = () => {
+        const { hasTask, hasBug } = getBoardTypesPresence();
+        if (!hasBug) return 'task';
+        if (!hasTask) return 'bug';
+        const ft = getSelectedCardTypes();
+        if (ft.length === 1) {
+            if (ft[0] === 'task') return 'task';
+            if (ft[0] === 'bug') return 'bug';
+        }
+        return '';
+    };
+
+    /** Позиция панели «задача/ошибка» у кнопки «+», по аналогии с urgency popover */
+    const positionCreateKindModal = (overlay, panel, anchorEl) => {
+        if (!panel || !anchorEl) return;
+        const rect = anchorEl.getBoundingClientRect();
+        const popW = panel.offsetWidth || 200;
+        const popH = Math.max(panel.offsetHeight, 120);
+        let left = rect.right + 8;
+        let top = rect.top;
+        if (left + popW > window.innerWidth) left = rect.left - popW - 8;
+        if (left < 4) left = 4;
+        if (top + popH > window.innerHeight) top = Math.max(4, window.innerHeight - popH - 8);
+        if (top < 4) top = 4;
+        panel.style.left = left + 'px';
+        panel.style.top = top + 'px';
+    };
+
+    const showCreateKindModal = (anchorEl) => new Promise((resolve) => {
+        const overlay = document.getElementById('create_kind_modal');
+        if (!overlay) {
+            resolve('');
+            return;
+        }
+        const panel = overlay.querySelector('.create_kind_modal__panel');
+        const btnTask = overlay.querySelector('[data-create-kind="task"]');
+        const btnBug = overlay.querySelector('[data-create-kind="bug"]');
+        const btnClose = document.getElementById('create_kind_modal_close');
+        if (!btnTask || !btnBug || !btnClose) {
+            resolve('');
+            return;
+        }
+        const cleanup = (kind) => {
+            overlay.classList.remove('create_kind_modal--visible');
+            overlay.setAttribute('aria-hidden', 'true');
+            document.removeEventListener('mousedown', onDocMouseDown);
+            document.removeEventListener('keydown', onKey);
+            btnTask.removeEventListener('click', onTask);
+            btnBug.removeEventListener('click', onBug);
+            btnClose.removeEventListener('click', onClose);
+            if (panel) {
+                panel.style.left = '';
+                panel.style.top = '';
+            }
+            resolve(kind || '');
+        };
+        const onDocMouseDown = (ev) => {
+            if (!overlay.classList.contains('create_kind_modal--visible')) return;
+            if (panel && panel.contains(ev.target)) return;
+            cleanup('');
+        };
+        const onKey = (ev) => {
+            if (ev.key === 'Escape') cleanup('');
+        };
+        const onTask = (e) => { e.stopPropagation(); cleanup('task'); };
+        const onBug = (e) => { e.stopPropagation(); cleanup('bug'); };
+        const onClose = (e) => { e.stopPropagation(); cleanup(''); };
+
+        overlay.classList.add('create_kind_modal--visible');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.addEventListener('mousedown', onDocMouseDown);
+        document.addEventListener('keydown', onKey);
+        btnTask.addEventListener('click', onTask);
+        btnBug.addEventListener('click', onBug);
+        btnClose.addEventListener('click', onClose);
+
+        requestAnimationFrame(() => {
+            positionCreateKindModal(overlay, panel, anchorEl);
+            requestAnimationFrame(() => positionCreateKindModal(overlay, panel, anchorEl));
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        const addBtn = e.target.closest('.add_task');
+        if (!addBtn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        void (async () => {
+            const idCol = (addBtn.getAttribute('data-status-id') || '').trim();
+            const fnStatus = (addBtn.getAttribute('data-full-name-object-status')
+                || addBtn.getAttribute('fullNameObjectStatus') || '').trim();
+            let kind = resolveCreateKindForAddBtn();
+            if (!kind) {
+                kind = await showCreateKindModal(addBtn);
+            }
+            if (!kind) return;
+            window.V8Proxy.fetch('openBoardCreateItem', {
+                createKind: kind,
+                idStatusColumn: idCol,
+                fullNameObjectStatus: fnStatus,
+            });
+        })();
+    }, true);
 
     // Применение начальных настроек, вшитых в HTML (элемент <script id="board-settings">)
     const scriptEl = document.getElementById('board-settings');

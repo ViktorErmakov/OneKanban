@@ -32,6 +32,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.канбан_Ошибки</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">cb805c5c-04d1-4e8b-8109-32bf04db2a02</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">3641b24f-c022-4787-a228-e275526d411e</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Report.канбан_ИсторияЗадач</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>
