@@ -2,11 +2,80 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://viktorermakov.github.io/OneKanban/blog</id>
     <title>OneKanban Blog</title>
-    <updated>2026-03-14T00:00:00.000Z</updated>
+    <updated>2026-06-17T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://viktorermakov.github.io/OneKanban/blog"/>
     <subtitle>OneKanban Blog</subtitle>
     <icon>https://viktorermakov.github.io/OneKanban/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Релиз 3.2 — веб-клиент, отчёт и документация]]></title>
+        <id>https://viktorermakov.github.io/OneKanban/blog/3.2</id>
+        <link href="https://viktorermakov.github.io/OneKanban/blog/3.2"/>
+        <updated>2026-06-17T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Привет, друзья!]]></summary>
+        <content type="html"><![CDATA[<p>Привет, друзья!</p>
+<p>Представляю <strong>релиз 3.2</strong> OneKanban: новые возможности доски и учёта, <strong>полностью обновлена пользовательская документация</strong>, исправлена ошибка открытия доски в <strong>веб-клиенте</strong> 1С.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="исправления-для-веб-клиента">Исправления для веб-клиента<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D0%B8%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-%D0%B4%D0%BB%D1%8F-%D0%B2%D0%B5%D0%B1-%D0%BA%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%D0%B0" class="hash-link" aria-label="Прямая ссылка на Исправления для веб-клиента" title="Прямая ссылка на Исправления для веб-клиента" translate="no">​</a></h2>
+<p>По <a href="https://forum.infostart.ru/forum24/topic327339/message3270229/" target="_blank" rel="noopener noreferrer" class="">обращению в комментарии #35</a> к публикации на <a href="https://infostart.ru/1c/tools/2398094/" target="_blank" rel="noopener noreferrer" class="">Инфостарте</a> (автор <strong>Mell</strong>): доска <strong>не открывалась в веб-клиенте</strong> 1С. Ошибка устранена. Спасибо Mell за сообщение.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="доска-что-добавилось-и-уточнилось">Доска: что добавилось и уточнилось<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D0%B4%D0%BE%D1%81%D0%BA%D0%B0-%D1%87%D1%82%D0%BE-%D0%B4%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D0%BB%D0%BE%D1%81%D1%8C-%D0%B8-%D1%83%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BB%D0%BE%D1%81%D1%8C" class="hash-link" aria-label="Прямая ссылка на Доска: что добавилось и уточнилось" title="Прямая ссылка на Доска: что добавилось и уточнилось" translate="no">​</a></h2>
+<p>Помимо возможностей, описанных в <a class="" href="https://viktorermakov.github.io/OneKanban/blog/3">релизе 3.0</a>, в проекте появились и доработаны такие вещи:</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="создание-задачи-и-ошибки-с-колонки">Создание задачи и ошибки с колонки<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B8-%D0%B8-%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8-%D1%81-%D0%BA%D0%BE%D0%BB%D0%BE%D0%BD%D0%BA%D0%B8" class="hash-link" aria-label="Прямая ссылка на Создание задачи и ошибки с колонки" title="Прямая ссылка на Создание задачи и ошибки с колонки" translate="no">​</a></h3>
+<p>В настройках статуса можно включить кнопку <strong>+</strong> в заголовке колонки. По нажатию открывается форма 1С с <strong>уже подставленным статусом</strong>.</p>
+<p>Если на доске одновременно <strong>задачи и ошибки</strong>, появляется окно <strong>«Что создать?»</strong> — выбор между <strong>Задача</strong> и <strong>Ошибка</strong>. Если на доске один тип или задан фильтр по типу — форма открывается сразу.</p>
+<p>Подробнее: <a class="" href="https://viktorermakov.github.io/OneKanban/docs/%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B0%D1%8F%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/OneKanban#%D0%B4%D0%BE%D0%B1%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87%D0%B8-%D0%B8%D0%BB%D0%B8-%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8">Добавление задачи или ошибки</a>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="фильтры-и-настройки-срочности">Фильтры и настройки срочности<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D1%84%D0%B8%D0%BB%D1%8C%D1%82%D1%80%D1%8B-%D0%B8-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-%D1%81%D1%80%D0%BE%D1%87%D0%BD%D0%BE%D1%81%D1%82%D0%B8" class="hash-link" aria-label="Прямая ссылка на Фильтры и настройки срочности" title="Прямая ссылка на Фильтры и настройки срочности" translate="no">​</a></h3>
+<ul>
+<li class="">Фильтр <strong>Исполнитель</strong> — пункт <strong>«Без исполнителя»</strong>; фильтр <strong>скрывается</strong>, если у всех карточек один исполнитель.</li>
+<li class="">Фильтр <strong>Тип</strong> — выбор <strong>одного</strong> вида (задача или ошибка); скрывается, если на доске только один тип.</li>
+<li class=""><strong>Срочность</strong> — настройка иконки и цвета: 7 иконок, быстрые цвета, поля <strong>HEX/RGB</strong>, палитра; <strong>сброс</strong> настроек для одного уровня и для всех сразу.</li>
+<li class=""><strong>Проекты</strong> — в списке можно выбрать, сколько цветных «пилюль» показывать на панели (<strong>от 1 до 5</strong>).</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="карточки-и-персональные-настройки">Карточки и персональные настройки<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D0%BA%D0%B0%D1%80%D1%82%D0%BE%D1%87%D0%BA%D0%B8-%D0%B8-%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8" class="hash-link" aria-label="Прямая ссылка на Карточки и персональные настройки" title="Прямая ссылка на Карточки и персональные настройки" translate="no">​</a></h3>
+<ul>
+<li class="">Клик по <strong>«Задача №…»</strong> / <strong>«Ошибка №…»</strong> открывает элемент в 1С.</li>
+<li class="">У <strong>ошибок</strong> — красная полоса слева на карточке.</li>
+<li class="">В настройках доски — персональная галочка <strong>«Отображать фотографию исполнителя»</strong> (для карточек и группировки по исполнителю).</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="автообновление-доски">Автообновление доски<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D0%B0%D0%B2%D1%82%D0%BE%D0%BE%D0%B1%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B4%D0%BE%D1%81%D0%BA%D0%B8" class="hash-link" aria-label="Прямая ссылка на Автообновление доски" title="Прямая ссылка на Автообновление доски" translate="no">​</a></h3>
+<p>При записи задач и ошибок, смене статуса и других изменениях в 1С доска <strong>обновляется автоматически</strong>; кнопка <strong>Обновить</strong> остаётся для принудительной пересборки.</p>
+<p>Отборы, группировка и тема <strong>сохраняются для пользователя</strong> между сессиями.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="отчёт-история-задач">Отчёт «История задач»<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D0%BE%D1%82%D1%87%D1%91%D1%82-%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D1%8F-%D0%B7%D0%B0%D0%B4%D0%B0%D1%87" class="hash-link" aria-label="Прямая ссылка на Отчёт «История задач»" title="Прямая ссылка на Отчёт «История задач»" translate="no">​</a></h2>
+<p>В подсистеме <strong>OneKanban</strong> доступен отчёт <strong>История задач</strong> — сколько времени задачи и ошибки проводили в каждом статусе. Данные пишутся в регистр при записи элементов.</p>
+<p>Варианты отчёта:</p>
+<ul>
+<li class=""><strong>Детально</strong> — поэтапная история по задаче</li>
+<li class=""><strong>Сводка по задаче</strong>, <strong>по статусу</strong>, <strong>по исполнителю</strong>, <strong>по проекту</strong></li>
+</ul>
+<p>Описание: <a class="" href="https://viktorermakov.github.io/OneKanban/docs/%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B0%D1%8F%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/CatalogsAndReports">Справочники и отчёты</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="документация">Документация<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F" class="hash-link" aria-label="Прямая ссылка на Документация" title="Прямая ссылка на Документация" translate="no">​</a></h2>
+<p>На сайте документации обновлён и дополнен раздел <strong>«Пользовательская документация»</strong>:</p>
+<ul>
+<li class=""><a class="" href="https://viktorermakov.github.io/OneKanban/docs/%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B0%D1%8F%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/OneKanban">Работа с доской</a> — все инструменты панели, карточки, создание, DnD</li>
+<li class=""><a class="" href="https://viktorermakov.github.io/OneKanban/docs/%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B0%D1%8F%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/userSettings">Настройки доски</a> — статусы, проекты, сопоставление, персональные параметры</li>
+<li class=""><a class="" href="https://viktorermakov.github.io/OneKanban/docs/%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B0%D1%8F%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/FirstStart">Первый запуск</a> — минимальная и рекомендуемая настройка</li>
+<li class=""><a class="" href="https://viktorermakov.github.io/OneKanban/docs/%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%D1%81%D0%BA%D0%B0%D1%8F%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/CatalogsAndReports">Справочники и отчёты</a> — работа вне доски</li>
+</ul>
+<p>Попробовать доску без установки: <a class="" href="https://viktorermakov.github.io/OneKanban/demo">Демо</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="сборки-и-внедрение">Сборки и внедрение<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D1%81%D0%B1%D0%BE%D1%80%D0%BA%D0%B8-%D0%B8-%D0%B2%D0%BD%D0%B5%D0%B4%D1%80%D0%B5%D0%BD%D0%B8%D0%B5" class="hash-link" aria-label="Прямая ссылка на Сборки и внедрение" title="Прямая ссылка на Сборки и внедрение" translate="no">​</a></h2>
+<p>В <a href="https://github.com/ViktorErmakov/Kanban_for_1C/releases" target="_blank" rel="noopener noreferrer" class="">релизах на GitHub</a> три готовых расширения версии <strong>3.2</strong>:</p>
+<ul>
+<li class=""><strong>OneKanban_BSP</strong> — для конфигураций на БСП</li>
+<li class=""><strong>OneKanban_SPPR</strong> — для СППР</li>
+<li class=""><strong>OneKanban_UZ</strong> — для конфигурации Tasks (УЗ)</li>
+</ul>
+<p>Отдельная ручная настройка переопределяемых модулей для этих сборок не требуется.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="ссылки">Ссылки<a href="https://viktorermakov.github.io/OneKanban/blog/3.2#%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B8" class="hash-link" aria-label="Прямая ссылка на Ссылки" title="Прямая ссылка на Ссылки" translate="no">​</a></h2>
+<ul>
+<li class=""><a href="https://github.com/ViktorErmakov/Kanban_for_1C" target="_blank" rel="noopener noreferrer" class="">Проект на GitHub</a></li>
+<li class=""><a href="https://infostart.ru/1c/tools/2398094/" target="_blank" rel="noopener noreferrer" class="">Статья на Инфостарт</a></li>
+<li class=""><a class="" href="https://viktorermakov.github.io/OneKanban/blog/3">Релиз 3.0 в блоге</a></li>
+<li class=""><a class="" href="https://viktorermakov.github.io/OneKanban/blog/2.5">Предыдущий релиз 2.5 — задачи и ошибки на одной доске</a></li>
+</ul>]]></content>
+        <author>
+            <name>Ermakov Viktor</name>
+            <uri>https://viktorermakov.ru/</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Релиз 3.0 — полностью обновлённая доска]]></title>
         <id>https://viktorermakov.github.io/OneKanban/blog/3</id>
