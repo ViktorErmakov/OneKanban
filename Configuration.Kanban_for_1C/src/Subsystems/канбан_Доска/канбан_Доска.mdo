@@ -8,6 +8,7 @@
   <includeHelpInContents>true</includeHelpInContents>
   <content>InformationRegister.канбан_ИспользуемыеПроектыДоски</content>
   <content>CommonModule.канбан_КанбанДоска</content>
+  <content>CommonModule.канбан_СтатистикаИспользования</content>
   <content>DefinedType.канбан_Задачи</content>
   <content>DefinedType.канбан_ЗадачиИОшибки</content>
   <content>CommonModule.канбан_КанбанДоскаПереопределяемый</content>

@@ -33,7 +33,7 @@
   <scriptVariant>Russian</scriptVariant>
   <defaultRoles>Role.канбан_ОбщиеПрава</defaultRoles>
   <vendor>@ViktorErmakov</vendor>
-  <version>3.2</version>
+  <version>3.3</version>
   <defaultLanguage>Language.Русский</defaultLanguage>
   <languages uuid="9bb2d542-5c6b-457a-88d2-15e059da5635">
     <name>Русский</name>
@@ -55,6 +55,7 @@
   <commonModules>CommonModule.канбан_КанбанДоскаКлиентПереопределяемый</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаКлиентСервер</commonModules>
   <commonModules>CommonModule.канбан_КанбанДоскаПереопределяемый</commonModules>
+  <commonModules>CommonModule.канбан_СтатистикаИспользования</commonModules>
   <commonModules>CommonModule.ОбщегоНазначенияПереопределяемый</commonModules>
   <eventSubscriptions>EventSubscription.канбан_ПриЗаписиЗадачи</eventSubscriptions>
   <eventSubscriptions>EventSubscription.канбан_ПриЗаписиОшибки</eventSubscriptions>

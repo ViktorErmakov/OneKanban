@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:CommonModule xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="c8f4a2b1-3d5e-4f6a-9b0c-1d2e3f4a5b6c">
+  <name>канбан_СтатистикаИспользования</name>
+  <synonym>
+    <key>ru</key>
+    <value>Канбан статистика использования</value>
+  </synonym>
+  <server>true</server>
+  <externalConnection>true</externalConnection>
+  <clientOrdinaryApplication>true</clientOrdinaryApplication>
+</mdclass:CommonModule>
