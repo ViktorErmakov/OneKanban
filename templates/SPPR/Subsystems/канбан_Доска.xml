@@ -17,6 +17,7 @@
 			<Picture/>
 			<Content>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.канбан_КанбанДоска</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.канбан_СтатистикаИспользования</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.канбан_ИспользуемыеПроектыДоски</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.канбан_КанбанДоскаПереопределяемый</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.канбан_Задачи</xr:Item>

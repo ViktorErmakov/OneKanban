@@ -100,6 +100,7 @@
 			<CommonModule>канбан_КанбанДоскаКлиентПереопределяемый</CommonModule>
 			<CommonModule>канбан_КанбанДоскаКлиентСервер</CommonModule>
 			<CommonModule>канбан_КанбанДоскаПереопределяемый</CommonModule>
+			<CommonModule>канбан_СтатистикаИспользования</CommonModule>
 			<CommonModule>ОбщегоНазначенияПереопределяемый</CommonModule>
 			<FunctionalOption>канбан_ИспользоватьСопоставлениеСтатусов</FunctionalOption>
 			<DefinedType>канбан_Задачи</DefinedType>
