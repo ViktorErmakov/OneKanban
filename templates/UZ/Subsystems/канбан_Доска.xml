@@ -40,6 +40,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.канбан_СтатусыЗадач</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.канбан_СтатусыОшибок</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.канбан_ИспользоватьСопоставлениеСтатусов</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.канбан_ОтключитьОтправкуСтатистики</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.канбан_ИспользоватьСопоставлениеСтатусов</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.канбан_СтатусыОшибок</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.канбан_Ошибки</xr:Item>

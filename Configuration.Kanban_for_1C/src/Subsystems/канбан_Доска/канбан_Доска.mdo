@@ -47,4 +47,5 @@
   <content>DefinedType.канбан_Задачи_Объект</content>
   <content>EventSubscription.канбан_ПриЗаписиЗадачи</content>
   <content>EventSubscription.канбан_ПриЗаписиОшибки</content>
+  <content>Constant.канбан_ОтключитьОтправкуСтатистики</content>
 </mdclass:Subsystem>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdclass:Constant xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:core="http://g5.1c.ru/v8/dt/mcore" xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="1de305f7-7735-4cde-a430-cf192d86b7e7">
+  <producedTypes>
+    <managerType typeId="96a2b2ac-4197-4636-aea6-109921dafae7" valueTypeId="8a02c82f-9874-4fdf-ad4e-e4473b9b789e"/>
+    <valueManagerType typeId="77aebc6a-8465-40fa-8579-92845ea50394" valueTypeId="00ca760d-fe23-4be3-be63-4f2895dd52a8"/>
+    <valueKeyType typeId="599fd08f-b62e-4c98-ac87-62dbbb686254" valueTypeId="fe25c3c1-63d4-4446-b2a2-b4c845e1ea62"/>
+  </producedTypes>
+  <name>канбан_ОтключитьОтправкуСтатистики</name>
+  <synonym>
+    <key>ru</key>
+    <value>Отключить отправку статистики</value>
+  </synonym>
+  <type>
+    <types>Boolean</types>
+  </type>
+  <useStandardCommands>true</useStandardCommands>
+  <minValue xsi:type="core:UndefinedValue"/>
+  <maxValue xsi:type="core:UndefinedValue"/>
+  <dataLockControlMode>Managed</dataLockControlMode>
+</mdclass:Constant>

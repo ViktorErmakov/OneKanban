@@ -107,6 +107,7 @@
 			<CommonCommand>канбан_СтатусыОшибок</CommonCommand>
 			<CommandGroup>канбан_Информация</CommandGroup>
 			<Constant>канбан_ИспользоватьСопоставлениеСтатусов</Constant>
+			<Constant>канбан_ОтключитьОтправкуСтатистики</Constant>
 			<Catalog>канбан_Ошибки</Catalog>
 			<Catalog>узЗадачи</Catalog>
 			<Catalog>узПроекты</Catalog>

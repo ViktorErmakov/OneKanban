@@ -33,7 +33,7 @@
   <scriptVariant>Russian</scriptVariant>
   <defaultRoles>Role.канбан_ОбщиеПрава</defaultRoles>
   <vendor>@ViktorErmakov</vendor>
-  <version>3.3</version>
+  <version>3.4</version>
   <defaultLanguage>Language.Русский</defaultLanguage>
   <languages uuid="9bb2d542-5c6b-457a-88d2-15e059da5635">
     <name>Русский</name>
@@ -81,6 +81,7 @@
   <commonCommands>CommonCommand.канбан_СтатусыОшибок</commonCommands>
   <commandGroups>CommandGroup.канбан_Информация</commandGroups>
   <constants>Constant.канбан_ИспользоватьСопоставлениеСтатусов</constants>
+  <constants>Constant.канбан_ОтключитьОтправкуСтатистики</constants>
   <catalogs>Catalog.канбан_Задачи</catalogs>
   <catalogs>Catalog.канбан_Ошибки</catalogs>
   <catalogs>Catalog.канбан_Проекты</catalogs>

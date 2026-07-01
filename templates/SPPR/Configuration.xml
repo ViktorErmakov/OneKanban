@@ -120,6 +120,7 @@
 			<CommonCommand>канбан_СтатусыОшибок</CommonCommand>
 			<CommandGroup>канбан_Информация</CommandGroup>
 			<Constant>канбан_ИспользоватьСопоставлениеСтатусов</Constant>
+			<Constant>канбан_ОтключитьОтправкуСтатистики</Constant>
 			<Catalog>Пользователи</Catalog>
 			<Catalog>Проекты</Catalog>
 			<Catalog>ЗадачиПроцесса</Catalog>
