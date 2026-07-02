@@ -25,3 +25,9 @@ npm run build
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
 После сборки проекта, нужно изменить ветку на gh-pages, там скопировать содержимое build в корень ветки, сделать коммит.
+
+Собрать на main: npx docusaurus build
+Скопировать build во временную папку (вне репозитория)
+Переключиться на gh-pages
+Скопировать из временной папки обратно в корень gh-pages
+Закоммитить и запушить
