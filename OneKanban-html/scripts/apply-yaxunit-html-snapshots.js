@@ -12,10 +12,12 @@
  *
  * Опции: --dry-run — только список файлов без записи
  *
- * После записи: в EDT обновите проект Управление_задачами.YAXUNIT (F5 / Обновить) или перезапустите IDE — см. yaxunit-html-snapshots/README.md.
+ * После записи: F5 на YAXUNIT и обновите конфигурацию БД — см. yaxunit-html-snapshots/README.md.
+ * Без --dry-run в конце вызывается verify-yaxunit-html-snapshots.js.
  */
 const { readdirSync, readFileSync, writeFileSync, existsSync, statSync } = require('fs');
 const { join } = require('path');
+const { spawnSync } = require('child_process');
 
 const REPO_ROOT = join(__dirname, '..', '..');
 
@@ -92,8 +94,15 @@ function main() {
     if (!dryRun && applied > 0) {
         console.log('');
         console.log(
-            'EDT: обновите ресурсы проекта Управление_задачами.YAXUNIT (F5 / «Обновить») или перезапустите EDT, чтобы увидеть новые Template.txt.'
+            'EDT: F5 на проекте Управление_задачами.YAXUNIT, затем «Конфигурация → Обновить конфигурацию базы данных» для тестовой ИБ.'
         );
+        const verify = spawnSync(process.execPath, [join(__dirname, 'verify-yaxunit-html-snapshots.js')], {
+            stdio: 'inherit',
+            cwd: join(__dirname, '..'),
+        });
+        if (verify.status !== 0) {
+            process.exit(verify.status || 1);
+        }
     }
 }
 

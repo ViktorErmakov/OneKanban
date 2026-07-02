@@ -105,16 +105,33 @@ test.describe('Фильтр по типу карточки', () => {
         await expect(page.locator('#cardtype_label')).toHaveText('Задача');
     });
 
-    test('нельзя выбрать оба типа: переключение «Задача» → «Ошибка»', async ({ page }) => {
+    test('можно выбрать только один тип: переключение «Задача» → «Ошибка»', async ({ page }) => {
         await openBoard(page, 'four-projects');
+
         await page.click('#cardtype_toggle');
         await page.locator('.cardtype_option[data-value="task"]').click();
-        await page.waitForTimeout(100);
-        await page.click('#cardtype_toggle');
+        await expect(page.locator('#cardtype_label')).toHaveText('Задача');
+        await expect(await getVisibleCards(page)).toHaveCount(18);
+
+        // Второй тип заменяет первый; оба сразу не накапливаются — для этого нужен сброс фильтра
+        const dropdown = page.locator('.cardtype_dropdown');
+        if (!(await dropdown.evaluate((el) => el.classList.contains('open')))) {
+            await page.click('#cardtype_toggle');
+        }
         await page.locator('.cardtype_option[data-value="bug"]').click();
-        await page.waitForTimeout(200);
         await expect(page.locator('#cardtype_label')).toHaveText('Ошибка');
-        const cards = await getVisibleCards(page);
-        await expect(cards).toHaveCount(2);
+        await expect(await getVisibleCards(page)).toHaveCount(2);
+    });
+
+    test('сброс фильтра показывает и задачи, и ошибки', async ({ page }) => {
+        await openBoard(page, 'four-projects');
+
+        await page.click('#cardtype_toggle');
+        await page.locator('.cardtype_option[data-value="task"]').click();
+        await expect(await getVisibleCards(page)).toHaveCount(18);
+
+        await page.locator('#cardtype_clear').click({ force: true });
+        await expect(page.locator('#cardtype_label')).toHaveText('Тип');
+        await expect(await getVisibleCards(page)).toHaveCount(20);
     });
 });

@@ -36,12 +36,16 @@ npm run yaxunit:apply-snapshots
 
 Скрипт **`scripts/apply-yaxunit-html-snapshots.js`** версионируется в репозитории. Краткая памятка по путям — **`yaxunit-html-snapshots/README.md`** в корне репозитория.
 
-После **`npm run yaxunit:apply-snapshots`** макеты **`Template.txt`** в **`Управление_задачами.YAXUNIT`** обновляются на диске. Если EDT уже открыт, выполните **обновление ресурсов** проекта (или узла **`CommonTemplates`**) через контекстное меню → *Обновить* / **F5**; при необходимости перезапустите EDT. Скрипт не закрывает IDE.
+После **`npm run yaxunit:apply-snapshots`** макеты **`Template.txt`** в **`Управление_задачами.YAXUNIT`** обновляются на диске. Если EDT уже открыт:
+
+1. **F5** на проекте или **`CommonTemplates`**.
+2. **Конфигурация → Обновить конфигурацию базы данных** для тестовой ИБ (иначе YAXUnit сравнивает с макетами из старой конфигурации в ИБ).
 
 Проверка без записи в макеты:
 
 ```bash
 npm run yaxunit:apply-snapshots -- --dry-run
+npm run yaxunit:verify-snapshots
 ```
 
 ## Веб-тесты Playwright
